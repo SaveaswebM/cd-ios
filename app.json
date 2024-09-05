@@ -1,0 +1,49 @@
+{
+  "expo": {
+    "name": "compliance-diary",
+    "slug": "compliance-diary",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "compliance-diary",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.anonymous.compliancediary"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.anonymous.compliancediary"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static"
+    },
+    "plugins": ["expo-router", "expo-asset"],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "deepLinking": {
+      "prefixes": ["yourapp://", "https://yourapp.com"],
+      "config": {
+        "screens": {
+          "Home": "home/:param"
+        }
+      }
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "426e07e6-3cc0-4325-b6d6-af46f91438a1"
+      }
+    },
+    "jsEngine": "hermes"
+  }
+}
