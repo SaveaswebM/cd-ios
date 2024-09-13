@@ -15,7 +15,19 @@ import standard from "../assets/images/standard.png";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { LinearGradient } from "expo-linear-gradient";
 import { Link } from "expo-router";
+import * as RNIap from "react-native-iap";
 const Subscription = () => {
+  const handlePremiumPurchase = async () => {
+    try {
+      const productId = "premium_product_id"; // Replace with your actual product ID
+      const purchase = await RNIap.requestPurchase(productId);
+      console.log("Purchase Response:", purchase);
+      // Handle the purchase response, e.g., validate purchase, unlock features
+    } catch (err) {
+      console.warn(err); // Handle purchase error
+    }
+  };
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <Header />
@@ -240,6 +252,7 @@ const Subscription = () => {
                     borderRadius: 15,
                   }}
                 >
+                  {}
                   <Link href="/Login">
                     <Text style={styles.buttonText}>Get Premium</Text>
                   </Link>

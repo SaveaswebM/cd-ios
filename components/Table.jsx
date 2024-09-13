@@ -261,18 +261,11 @@ const MyTable = ({
             `${companyName}_${selectedActivity}_${selectedYear}_${selectedMonth}`,
             JSON.stringify(tableData)
           );
-
-
-
         }
         if (loginToken) {
-              if(){
-
-              }else{
-
-              }
-
-
+          // if(){
+          // }else{
+          // }
         }
       } catch (error) {
         console.log("Error saving data to AsyncStorage:", error);
@@ -284,84 +277,80 @@ const MyTable = ({
     }
   }, [tableData]);
 
-useEffect(()=>{
-const saveData = async() => {
-  try {
-    const loginToken = await AsyncStorage.getItem("token");
-    const ;
-    let key;
-    if (selectedActivityType === "admin") {
-      key = `${companyName}_${selectedActivity}`;
-    } else if (selectedActivityType === "Yearly") {
-      key = `${companyName}_${selectedActivity}_${selectedYear}`;
-    } else if (selectedActivityType === "Monthly") {
-      key = `${companyName}_${selectedActivity}_${selectedYear}_${selectedMonth}`;
-    }
-    if (key) {
-      await AsyncStorage.setItem(key, JSON.stringify(tableData));
-      console.log("Data saved to AsyncStorage with key:", key);
-    }
-if(loginToken){
-  const userData = await AsyncStorage.getItem("user");
-  const user = JSON.parse(userData);
-  const email = user.email;
-  const checkResponse  =  await fetch("https://cd-backend-1.onrender.com/",{
-method:"POST",
-headers:{
-  'content-type':'application/json'
-},
-body:JSON.stringify(
-{
-  key,
-  companyName,
-  activityName:selectedActivity,
-yaer:selectedYear || null,
-month:selectedMonth || null,
-selectedActivityType,
-data: JSON.stringify(tableData),
-email
+  useEffect(() => {
+    const saveData = async () => {
+      try {
+        const loginToken = await AsyncStorage.getItem("token");
+        // const ;
+        let key;
+        if (selectedActivityType === "admin") {
+          key = `${companyName}_${selectedActivity}`;
+        } else if (selectedActivityType === "Yearly") {
+          key = `${companyName}_${selectedActivity}_${selectedYear}`;
+        } else if (selectedActivityType === "Monthly") {
+          key = `${companyName}_${selectedActivity}_${selectedYear}_${selectedMonth}`;
+        }
+        if (key) {
+          await AsyncStorage.setItem(key, JSON.stringify(tableData));
+          console.log("Data saved to AsyncStorage with key:", key);
+        }
+        if (loginToken) {
+          const userData = await AsyncStorage.getItem("user");
+          const user = JSON.parse(userData);
+          const email = user.email;
+          const checkResponse = await fetch(
+            "https://cd-backend-1.onrender.com/",
+            {
+              method: "POST",
+              headers: {
+                "content-type": "application/json",
+              },
+              body: JSON.stringify({
+                key,
+                companyName,
+                activityName: selectedActivity,
+                yaer: selectedYear || null,
+                month: selectedMonth || null,
+                selectedActivityType,
+                data: JSON.stringify(tableData),
+                email,
+              }),
+            }
+          );
+          const checkData = await checkResponse.json();
 
-}
-)
-  });
-  const checkData = await checkResponse.json();
+          if (checkResponse.ok && checkData.length > 0) {
+            const updateResponse = await fetch(
+              "https://cd-backend-1.onrender.com/",
+              {
+                method: "POST",
+                headers: {
+                  "content-type": "application/json",
+                },
+                body: JSON.stringify({
+                  key,
+                  companyName,
+                  activityName: selectedActivity,
+                  yaer: selectedYear || null,
+                  month: selectedMonth || null,
+                  selectedActivityType,
+                  data: JSON.stringify(tableData),
+                  email,
+                }),
+              }
+            );
 
-if(checkResponse.ok && checkData.length>0){
-  const updateResponse = await fetch("https://cd-backend-1.onrender.com/",{
-method:"POST",
-headers:{
-  "content-type":"application/json"
-},
-body:JSON.stringify({
-  key,
-  companyName,
-  activityName:selectedActivity,
-yaer:selectedYear || null,
-month:selectedMonth || null,
-selectedActivityType,
-data: JSON.stringify(tableData),
-email
-})
-  })
-
-  const updateResult = await updateResponse.json();
-if (updatedResponse.ok){
-  console.log("data has been updated",);
-}else{
-console.log("failed to update data in backend");
-}
-}
-
-
-}
-
-
-  } catch (error) {
-    
-  }
-}
-},[tableData]);
-
+            const updateResult = await updateResponse.json();
+            if (updatedResponse.ok) {
+              console.log("data has been updated");
+            } else {
+              console.log("failed to update data in backend");
+            }
+          }
+        }
+      } catch (error) {}
+    };
+  }, [tableData]);
 
   // const storeDataInSQLite = async (data) => {
   //   try {
