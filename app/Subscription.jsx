@@ -6,8 +6,9 @@ import {
   ScrollView,
   Image,
   SafeAreaView,
+  Platform,
 } from "react-native";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Header from "../components/Header";
 // import Home from '../app/Home';
 import Premium from "../assets/images/premium.png";
@@ -15,16 +16,56 @@ import standard from "../assets/images/standard.png";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { LinearGradient } from "expo-linear-gradient";
 import { Link } from "expo-router";
-import * as RNIap from "react-native-iap";
+import Purchases, { LOG_LEVEL, PurchasesPackage } from "react-native-purchases";
+import { CustomerInfo } from "react-native-purchases";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 const Subscription = () => {
-  const handlePremiumPurchase = async () => {
-    try {
-      const productId = "premium_product_id"; // Replace with your actual product ID
-      const purchase = await RNIap.requestPurchase(productId);
-      console.log("Purchase Response:", purchase);
-      // Handle the purchase response, e.g., validate purchase, unlock features
-    } catch (err) {
-      console.warn(err); // Handle purchase error
+  const [isLoggedIn, setIsLoggedIn] = useState("");
+
+  useEffect(() => {
+    const initPurchases = async () => {
+      try {
+        // Purchases.configure({ apiKey: "goog_criSyFSujMyvjeGPtutrNHniHKd" }); // Add your API key here
+        // const offerings = await Purchases.getOfferings();
+        // if (offerings.current && offerings.current.availablePackages.length) {
+        //   setPackages(offerings.current.availablePackages);
+        // }
+
+        if (Purchases && Platform.OS === "android") {
+          Purchases.configure({ apiKey: "goog_criSyFSujMyvjeGPtutrNHniHKd" });
+          const offerings = await Purchases.getOfferings();
+          const currentOffering = offerings.current;
+        } else {
+          console.error("Purchases object is not available");
+        }
+      } catch (e) {
+        console.error("Error initializing RevenueCat:", e);
+      }
+    };
+
+    initPurchases();
+  }, []);
+
+  const handlePurchase = async (selectedPackage) => {
+    const tokenCheck = await AsyncStorage.getItem("token");
+    if (tokenCheck) {
+      setIsLoggedIn(tokenCheck);
+    }
+    if (isLoggedIn) {
+      // If the user is logged in, take them to the payment page
+      try {
+        const purchaseMade = await Purchases.purchasePackage(selectedPackage);
+        console.log("Purchase successful:", purchaseMade);
+        // Handle successful purchase
+      } catch (e) {
+        if (!e.userCancelled) {
+          console.error("Error during purchase:", e);
+        }
+      }
+    } else {
+      // If the user is not logged in, redirect them to the login page
+      router.push("/Login");
     }
   };
 
@@ -251,11 +292,9 @@ const Subscription = () => {
                     paddingVertical: 4, // Adjust padding for vertical spacing
                     borderRadius: 15,
                   }}
+                  onPress={() => handlePurchase("premium")}
                 >
-                  {}
-                  <Link href="/Login">
-                    <Text style={styles.buttonText}>Get Premium</Text>
-                  </Link>
+                  <Text style={styles.buttonText}>Get Premium</Text>
                 </TouchableOpacity>
               </LinearGradient>
             </View>

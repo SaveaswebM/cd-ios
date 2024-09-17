@@ -18,6 +18,7 @@
       "adaptiveIcon": {
         "backgroundColor": "#ffffff"
       },
+      "permissions": ["com.android.vending.BILLING"],
       "package": "com.anonymous.compliancediary"
     },
     "web": {

@@ -25,7 +25,6 @@ import { StatusBar } from 'expo-status-bar';// Define your linking configuration
 export default function Layout() {
   return (
     <>
-
       <Stack
         screenOptions={{
           headerShown: false, // This hides the header

@@ -7,15 +7,16 @@ import {
   TextInput,
   StyleSheet,
   Alert,
-  Clipboard,
+  Share,
   TouchableWithoutFeedback,
 } from "react-native";
 import UUID from "react-native-uuid";
 import * as Sharing from "expo-sharing";
-import * as FileSystem from "expo-file-system";
 import CustomDropdown from "./Dropdown";
 // import * as Clipboard from "expo-clipboard";
 import MultiSelect from "./MultiSelect"; // Ensure this import is correct
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import base64 from "react-native-base64";
 
 const MakeTeamModal = ({
   visible,
@@ -55,24 +56,27 @@ const MakeTeamModal = ({
 
     try {
       // Generate the unique link
+      const encodedPersonName = base64.encode(personName);
+      const encodedCompanyName = base64.encode(selectedCompanyName);
+      const encodedGroups = base64.encode(selectedGroups.join(","));
       const baseUrl = "https://yourapp.com/share";
-      const queryParameters = `?personName=${encodeURIComponent(
-        personName
-      )}&companyName=${encodeURIComponent(
-        selectedCompanyName
-      )}&groups=${encodeURIComponent(selectedGroups.join(", "))}`;
-      const link = `${baseUrl}${queryParameters}`;
+      const queryParameters = `?data=${encodedPersonName}.${encodedCompanyName}.${encodedGroups}`;
 
-      // Share the link using the Linking API
-      if (await Linking.canOpenURL(link)) {
-        await Linking.openURL(link);
-      } else {
-        // Copy the link to the clipboard and show an alert
-        await Clipboard.setStringAsync(link);
-        Alert.alert(
-          "Link Copied",
-          "The link has been copied to your clipboard. You can paste it wherever you like."
-        );
+      const link = `${baseUrl}${queryParameters}`;
+      // await saveLinkToAsyncStorage(link);
+      // Use the Share API to open the share dialog
+      const result = await Share.share({
+        message: ` Here's the link: ${link}`,
+      });
+
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          console.log("Shared with activity type: ", result.activityType);
+        } else {
+          console.log("Link shared successfully!");
+        }
+      } else if (result.action === Share.dismissedAction) {
+        console.log("Share dismissed.");
       }
     } catch (error) {
       console.error("Error sharing link:", error);
@@ -82,14 +86,6 @@ const MakeTeamModal = ({
       );
     }
     onClose();
-  };
-
-  const copyToClipboard = async (link) => {
-    await Clipboard.setStringAsync(link);
-    Alert.alert(
-      "Link Copied",
-      "The unique link has been copied to your clipboard."
-    );
   };
 
   return (
