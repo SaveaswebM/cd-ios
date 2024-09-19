@@ -21,7 +21,7 @@ const MakeTeamModal = ({
   onClose,
   companyNameOptions,
   groupOptions,
-  years
+  years,
 }) => {
   const [personName, setPersonName] = useState("");
   const [selectedCompanyName, setSelectedCompanyName] = useState(null);
@@ -30,8 +30,18 @@ const MakeTeamModal = ({
   const [fetchedData, setFetchedData] = useState([]);
 
   const months = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
   ];
 
   useEffect(() => {
@@ -46,7 +56,6 @@ const MakeTeamModal = ({
         }
         const data = await response.json();
         setFetchedData(data);
-        
       } catch (error) {
         console.error("Failed to fetch data:", error);
         Alert.alert("Error", "Failed to load data. Please try again later.");
@@ -56,29 +65,37 @@ const MakeTeamModal = ({
     fetchApiData();
   }, []);
 
-const getFromattedApiData = async(selectedActivityType,selectedActivity,selectedYear,selectedMonth) => {
-let activityData = [];
+  const getFromattedApiData = async (
+    selectedActivityType,
+    selectedActivity,
+    selectedYear,
+    selectedMonth
+  ) => {
+    let activityData = [];
 
-if (selectedActivityType === "Monthly") {
+    if (selectedActivityType === "Monthly") {
+      activityData =
+        fetchedData.Monthly?.[selectedActivity]?.[selectedYear]?.[
+          selectedMonth
+        ] || [];
+    } else if (selectedActivityType === "Quarterly") {
+      activityData =
+        fetchedData.Quarterly?.[selectedActivity]?.[selectedYear] || [];
+    } else if (selectedActivityType === "Yearly") {
+      activityData =
+        fetchedData.Yearly?.[selectedActivity]?.[selectedYear] || [];
+    }
+    // console.log(",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,",activityData);
 
-  activityData = fetchedData.Monthly?.[selectedActivity]?.[selectedYear]?.[selectedMonth] || [];
-} else if (selectedActivityType === "Quarterly") {
-  activityData =fetchedData.Quarterly?.[selectedActivity]?.[selectedYear] || [];
-} else if (selectedActivityType === "Yearly") {
-  activityData = fetchedData.Yearly?.[selectedActivity]?.[selectedYear] || [];
-}
-// console.log(",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,",activityData);
+    const formattedTableData = activityData.map((entry) => [
+      entry.name,
+      entry.dueDate,
+      "",
+      "",
+    ]);
 
-const formattedTableData = activityData.map((entry) => [
-  entry.name,
-  entry.dueDate,
-  "",
-  "", 
-]);
-
-return formattedTableData;
-
-}
+    return formattedTableData;
+  };
 
   const getUniqueId = async () => {
     try {
@@ -107,7 +124,7 @@ return formattedTableData;
       const uId = await getUniqueId();
       const encodedPersonName = base64.encode(personName);
       const encodedCompanyName = base64.encode(selectedCompanyName);
-      const encodedGroups = base64.encode(selectedGroups.join(","));
+      const encodedGroups = base64.encode(JSON.stringify(selectedGroups));
       const baseUrl = "https://yourapp.com/share";
       const queryParameters = `?name=${encodedPersonName}&company=${encodedCompanyName}&activities=${encodedGroups}&id=${uId}`;
 
@@ -116,100 +133,150 @@ return formattedTableData;
       const result = await Share.share({
         message: ` Here's the link: ${link}`,
       });
-        console.log(selectedGroups);
+      console.log(selectedGroups);
       if (result.action === Share.sharedAction) {
-
-        const linkownerName = await AsyncStorage.getItem('userName');
+        const linkownerName = await AsyncStorage.getItem("userName");
         const linkrecieverName = personName;
 
         let data = {};
+
         for (const group of selectedGroups) {
           for (const year of years) {
             if (group.type === "Monthly") {
               for (const month of months) {
                 const monthlyDataKey = `${selectedCompanyName}_${group.value}_${year}_${month}`;
-                const monthlyData = await AsyncStorage.getItem(monthlyDataKey);
-                // console.log("mdddddddddddddddddddd",monthlyData);
+                let monthlyData = await AsyncStorage.getItem(monthlyDataKey);
+
                 if (monthlyData) {
-                    
-                  data[monthlyDataKey] = monthlyData;
-                }else{
-                   const apimonthlyData =   await getFromattedApiData("Monthly",group.value, year,month);
-                   console.log("else wala part",apimonthlyData); 
-                      if(apimonthlyData) {
-                        data[monthlyDataKey] = apimonthlyData;
-                      }
+                  try {
+                    // Parse stringified JSON from AsyncStorage if necessary
+                    data[monthlyDataKey] = JSON.parse(monthlyData);
+                  } catch (error) {
+                    console.error(
+                      `Failed to parse monthly data for ${monthlyDataKey}:`,
+                      error
+                    );
+                    data[monthlyDataKey] = monthlyData; // Fallback to raw string data if parsing fails
+                  }
+                } else {
+                  // Fetch data from API if not in AsyncStorage
+                  const apiMonthlyData = await getFromattedApiData(
+                    "Monthly",
+                    group.value,
+                    year,
+                    month
+                  );
+                  if (apiMonthlyData.length > 0) {
+                    data[monthlyDataKey] = apiMonthlyData;
+                  }
                 }
               }
             } else if (group.type === "Quarterly") {
               const quarterlyDataKey = `${selectedCompanyName}_${group.value}_${year}`;
-              const quarterlyData = await AsyncStorage.getItem(quarterlyDataKey);
+              let quarterlyData = await AsyncStorage.getItem(quarterlyDataKey);
+
               if (quarterlyData) {
-                data[quarterlyDataKey] = quarterlyData;
-              }else{
-                const apimonthlyData =   await getFromattedApiData("Quarterly", year); 
-                   if(apimonthlyData) {
-                     data[quarterlyDataKey] = apimonthlyData;
-                   }
-             }
+                try {
+                  data[quarterlyDataKey] = JSON.parse(quarterlyData);
+                } catch (error) {
+                  console.error(
+                    `Failed to parse quarterly data for ${quarterlyDataKey}:`,
+                    error
+                  );
+                  data[quarterlyDataKey] = quarterlyData;
+                }
+              } else {
+                const apiQuarterlyData = await getFromattedApiData(
+                  "Quarterly",
+                  group.value,
+                  year
+                );
+                if (apiQuarterlyData.length > 0) {
+                  data[quarterlyDataKey] = apiQuarterlyData;
+                }
+              }
             } else if (group.type === "Yearly") {
               const yearlyDataKey = `${selectedCompanyName}_${group.value}_${year}`;
-              const yearlyData = await AsyncStorage.getItem(yearlyDataKey);
+              let yearlyData = await AsyncStorage.getItem(yearlyDataKey);
+
               if (yearlyData) {
-                data[yearlyDataKey] = yearlyData;
-              }else{
-                const apimonthlyData =   await getFromattedApiData("Yearly",year); 
-                   if(apimonthlyData) {
-                     data[yearlyDataKey] = apimonthlyData;
-                   }
-             }
+                try {
+                  data[yearlyDataKey] = JSON.parse(yearlyData);
+                } catch (error) {
+                  console.error(
+                    `Failed to parse yearly data for ${yearlyDataKey}:`,
+                    error
+                  );
+                  data[yearlyDataKey] = yearlyData;
+                }
+              } else {
+                const apiYearlyData = await getFromattedApiData(
+                  "Yearly",
+                  group.value,
+                  year
+                );
+                if (apiYearlyData.length > 0) {
+                  data[yearlyDataKey] = apiYearlyData;
+                }
+              }
             } else if (group.type === "Admin") {
               const adminDataKey = `${selectedCompanyName}_${group.value}`;
-              const adminData = await AsyncStorage.getItem(adminDataKey);
+              let adminData = await AsyncStorage.getItem(adminDataKey);
+
               if (adminData) {
-                data[adminDataKey] = adminData;
+                try {
+                  data[adminDataKey] = JSON.parse(adminData);
+                } catch (error) {
+                  console.error(
+                    `Failed to parse admin data for ${adminDataKey}:`,
+                    error
+                  );
+                  data[adminDataKey] = adminData;
+                }
               }
             }
           }
         }
 
         const payload = {
-          link:uId,
+          link: uId,
           // linkownerName,
           // linkrecieverName,
           // companyName: selectedCompanyName,
-          // activities: {},   
-                 data 
+          // activities: {},
+          data,
         };
-          //  console.log("payload data", payload);
-        const response = await fetch("https://cd-backend-1.onrender.com/api/link-data", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
+        //  console.log("payload data", payload);
+        const response = await fetch(
+          "https://cd-backend-1.onrender.com/api/link-data",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          }
+        );
 
         const result = await response.json();
 
         if (response.ok) {
-         console.log("Success", "Link shared and saved successfully.");
-                  
-        // Save the link to AsyncStorage
-        // const storedLinks = await AsyncStorage.getItem('links');
-        // let linksArray = [];
+          // console.log("Success", "Link shared and saved successfully.");
 
-        // if (storedLinks) {
-        //   linksArray = JSON.parse(storedLinks);
-        // }
+          // Save the link to AsyncStorage
+          // const storedLinks = await AsyncStorage.getItem('links');
+          // let linksArray = [];
 
-        // linksArray.push(uId);  // Add the new link to the array
+          // if (storedLinks) {
+          //   linksArray = JSON.parse(storedLinks);
+          // }
 
-        // await AsyncStorage.setItem('links', JSON.stringify(linksArray)); 
+          // linksArray.push(uId);  // Add the new link to the array
+
+          await AsyncStorage.setItem("links", uId);
         } else {
           console.error(result);
           // Alert.alert("Error", result.error || "Failed to share the link.");
         }
       }
-
     } catch (error) {
       console.error("Error sharing link:", error);
       // Alert.alert("Sharing Error", "An error occurred while trying to share the link.");
@@ -249,7 +316,9 @@ return formattedTableData;
               placeholder="Select Activities"
               style={styles.fullWidthDropdown}
             />
-            {errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
+            {errorMessage && (
+              <Text style={styles.errorText}>{errorMessage}</Text>
+            )}
             <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
               <Text style={styles.saveButtonText}>Share</Text>
             </TouchableOpacity>

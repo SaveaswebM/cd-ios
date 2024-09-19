@@ -22,6 +22,7 @@ const MyTable = ({
   setTableData,
   name,
   selectedActivityType,
+  isEmployee,
 }) => {
   const [isDataReadyToSave, setIsDataReadyToSave] = useState(false);
   const [fetchedData, setFetchedData] = useState([]);
@@ -35,6 +36,7 @@ const MyTable = ({
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
+
   const tableHead = [
     "Compliance Actioning",
     "Due Date",
@@ -97,11 +99,12 @@ const MyTable = ({
         Alert.alert("Error", "Failed to load data. Please try again later.");
       }
     };
-
-    fetchApiData();
+    if (!isEmployee) {
+      fetchApiData();
+    }
   }, []);
   useEffect(() => {
-    if (selectedActivity && selectedYear && selectedMonth) {
+    if (selectedActivity && selectedYear && selectedMonth && !isEmployee) {
       let activityData = [];
       if (selectedActivityType === "Monthly") {
         activityData =
@@ -154,32 +157,150 @@ const MyTable = ({
 
   //   fetchSQLiteData();
   // }, [companyName, selectedActivity, selectedYear, selectedMonth]);
+
+  const getdatafromupdatedlink = async (datakey) => {
+    try {
+      const getlink = await AsyncStorage.getItem(
+        isEmployee ? "employeeLink" : "links"
+      );
+      if (getlink) {
+        response = await fetch(
+          "https://cd-backend-1.onrender.com/api/link-data"
+        );
+        if (response.ok) {
+          const result = await response.json();
+          if (result) {
+            const linkData = result.data;
+            for (const key in linkData) {
+              if (linkData.hasOwnProperty(key)) {
+                if (datakey === key) {
+                  const value = JSON.stringify(linkData[key]);
+                  await AsyncStorage.setItem(datakey, value);
+                }
+              }
+            }
+          }
+        }
+      }
+    } catch (error) {}
+  };
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        // Check if data exists in AsyncStorage first
+        if (selectedActivity && selectedYear && selectedMonth) {
+          if (selectedActivityType === "Yearly") {
+            await getdatafromupdatedlink(
+              `${companyName}_${selectedActivity}_${selectedYear}`
+            );
+            // storedData = await AsyncStorage.getItem(
+            //   `${companyName}_${selectedActivity}_${selectedYear}`
+            // );
+          } else {
+            await getdatafromupdatedlink(
+              `${companyName}_${selectedActivity}_${selectedYear}_${selectedMonth}`
+            );
+            // storedData = await AsyncStorage.getItem(
+            //   `${companyName}_${selectedActivity}_${selectedYear}_${selectedMonth}`
+            // );
+          }
+        }
+
+        // If data from API exists, use it instead of the stored data
+        // if (apiData) {
+        //   storedData = apiData;
+        // }
+
+        // If we have stored data from either AsyncStorage or the API
+        // if (storedData) {
+        //   setTableData(JSON.parse(storedData));
+        //   setCurrentPage(1);
+        // }
+      } catch (error) {
+        console.log("Error loading data from AsyncStorage or API:", error);
+      }
+    };
+
+    loadData();
+  }, []);
+
   useEffect(() => {
     const loadData = async () => {
       try {
         let storedData;
 
+        // Check if data exists in AsyncStorage first
         if (selectedActivityType === "Yearly") {
+          // await getdatafromupdatedlink(
+          //   `${companyName}_${selectedActivity}_${selectedYear}`
+          // );
           storedData = await AsyncStorage.getItem(
             `${companyName}_${selectedActivity}_${selectedYear}`
           );
         } else {
+          // await getdatafromupdatedlink(
+          //   `${companyName}_${selectedActivity}_${selectedYear}_${selectedMonth}`
+          // );
           storedData = await AsyncStorage.getItem(
             `${companyName}_${selectedActivity}_${selectedYear}_${selectedMonth}`
           );
         }
 
+        // If data from API exists, use it instead of the stored data
+        // if (apiData) {
+        //   storedData = apiData;
+        // }
+
+        // If we have stored data from either AsyncStorage or the API
         if (storedData) {
           setTableData(JSON.parse(storedData));
           setCurrentPage(1);
         }
       } catch (error) {
-        console.log("Error loading data from AsyncStorage:", error);
+        console.log("Error loading data from AsyncStorage or API:", error);
       }
     };
 
     loadData();
   }, [companyName, selectedActivity, selectedYear, selectedMonth]);
+
+  // useEffect(() => {
+  //   const loadData = async () => {
+  //     try {
+  //       let storedData;
+
+  //       if (selectedActivityType === "Yearly") {
+  //         storedData = await AsyncStorage.getItem(
+  //           `${companyName}_${selectedActivity}_${selectedYear}`
+  //         );
+  //         if (isEmployee) {
+  //         const res =   getdatafromupdatedlink(
+  //             `${companyName}_${selectedActivity}_${selectedYear}`
+  //           );
+  //         }
+  //       } else {
+  //         storedData = await AsyncStorage.getItem(
+  //           `${companyName}_${selectedActivity}_${selectedYear}_${selectedMonth}`
+  //         );
+  //         if (isEmployee) {
+  //           getdatafromupdatedlink(
+  //             `${companyName}_${selectedActivity}_${selectedYear}_${selectedMonth}`
+  //           );
+  //         }
+  //       }
+
+  //       if (storedData) {
+  //         setTableData(JSON.parse(storedData));
+  //         setCurrentPage(1);
+  //       }
+  //     } catch (error) {
+  //       console.log("Error loading data from AsyncStorage:", error);
+  //     }
+  //   };
+
+  //   loadData();
+  // }, [companyName, selectedActivity, selectedYear, selectedMonth]);
   useEffect(() => {
     const loadData = async () => {
       let storedData;
@@ -191,7 +312,6 @@ const MyTable = ({
         );
 
         if (!tdata || JSON.parse(tdata).length === 0) {
-          console.log("bhjesbfebfruegfbregfuregfbrgh");
           // If not formatted or empty, proceed to format and store it
           const getTableDataString = await AsyncStorage.getItem(
             `${selectedActivity}`
@@ -240,6 +360,46 @@ const MyTable = ({
     loadData();
   }, [companyName, selectedActivity]);
 
+  const sharelinkData = async (skey, tableData) => {
+    try {
+      const getlink = await AsyncStorage.getItem(
+        isEmployee ? "employeeLink" : "links"
+      );
+
+      if (getlink) {
+        // console.log("getlink", getlink);
+        const payload = {
+          link: getlink,
+          data: {
+            [skey]: tableData, // Stringify tableData to send as JSON
+          },
+        };
+        console.log(JSON.stringify(payload));
+        // Send the payload to your backend
+        const response = await fetch(
+          "https://cd-backend-1.onrender.com/api/link-data",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          }
+        );
+
+        // Handle the response
+        if (response.ok) {
+          const result = await response.json();
+          console.log("Success", "Link shared and saved successfully.", result);
+        } else {
+          console.error("Failed to share the link, response not OK");
+        }
+      } else {
+        console.error("No link found in AsyncStorage.");
+      }
+    } catch (error) {
+      console.error("Error sharing link:", error);
+    }
+  };
+
   useEffect(() => {
     const saveData = async () => {
       try {
@@ -249,23 +409,30 @@ const MyTable = ({
             `${companyName}_${selectedActivity}`,
             JSON.stringify(tableData)
           );
+
+          await sharelinkData(`${companyName}_${selectedActivity}`, tableData);
+
           // console.log("store admin data : ", tableData);
         } else if (selectedActivityType === "Yearly") {
           await AsyncStorage.setItem(
             `${companyName}_${selectedActivity}_${selectedYear}`,
             JSON.stringify(tableData)
           );
-          console.log("mydata:", tableData);
+
+          await sharelinkData(
+            `${companyName}_${selectedActivity}_${selectedYear}`,
+            tableData
+          );
         } else {
           await AsyncStorage.setItem(
             `${companyName}_${selectedActivity}_${selectedYear}_${selectedMonth}`,
             JSON.stringify(tableData)
           );
-        }
-        if (loginToken) {
-          // if(){
-          // }else{
-          // }
+
+          await sharelinkData(
+            `${companyName}_${selectedActivity}_${selectedYear}_${selectedMonth}`,
+            tableData
+          );
         }
       } catch (error) {
         console.log("Error saving data to AsyncStorage:", error);

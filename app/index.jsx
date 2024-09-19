@@ -4,7 +4,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  Text
+  Text,
 } from "react-native";
 
 import * as Linking from "expo-linking";
@@ -18,6 +18,7 @@ import { Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import LinkInput from "../components/LinkInput";
+import Refresh from "../components/Refresh";
 // import CustomLoadingScreen from "../components/CustomLoadingScreen";
 
 const Index = ({ navigation }) => {
@@ -66,8 +67,15 @@ const Index = ({ navigation }) => {
   useEffect(() => {
     const getEmployeeStatus = async () => {
       const getstatus = await AsyncStorage.getItem("isEmployeeTrue");
-      if (getstatus) {
+      if (getstatus === "yes") {
         setIsEmployee(true);
+
+        const getcompanyname = await AsyncStorage.getItem("link-company");
+        const company2 = JSON.parse(getcompanyname);
+        setCompanyName(company2);
+        const getactivities = await AsyncStorage.getItem("link-activities");
+        const acti = JSON.parse(getactivities);
+        setActivities(acti);
       }
     };
     getEmployeeStatus();
@@ -77,16 +85,13 @@ const Index = ({ navigation }) => {
       try {
         if (!isEmployee) {
           const storedCompanyNames = await AsyncStorage.getItem("companyNames");
+
           setCompanyName(JSON.parse(storedCompanyNames) || []);
         } else {
           const linkCompanyNames = await AsyncStorage.getItem("link-company");
+          const linkCompany = JSON.parse(linkCompanyNames);
 
-          const newCompany = {
-            label: linkCompanyNames,
-            value: linkCompanyNames
-          };
-          const updatedCompanyName = [newCompany];
-          setCompanyName(updatedCompanyName);
+          setCompanyName(linkCompany);
         }
       } catch (error) {
         console.error("Failed to load company names:", error);
@@ -97,7 +102,6 @@ const Index = ({ navigation }) => {
   useEffect(() => {
     const fetchAndStoreActivities = async () => {
       try {
-        // Fetch activities from the backend
         const previoustoredActivities = await AsyncStorage.getItem(
           "activities"
         );
@@ -115,7 +119,7 @@ const Index = ({ navigation }) => {
         const apiActivities = data.map((activity) => ({
           label: activity.name,
           value: activity.name,
-          type: activity.type
+          type: activity.type,
         }));
 
         // Get stored activities from AsyncStorage
@@ -133,10 +137,11 @@ const Index = ({ navigation }) => {
         );
 
         // If there are new activities, update AsyncStorage
-        if (newActivities.length > 0) {
+
+        if (newActivities.length > 0 && !isEmployee) {
           const updatedActivities = [
             ...parsedStoredActivities,
-            ...newActivities
+            ...newActivities,
           ];
           await AsyncStorage.setItem(
             "activities",
@@ -144,7 +149,6 @@ const Index = ({ navigation }) => {
           );
           setActivities(updatedActivities);
         } else {
-          // If no new activities, use the stored activities
           setActivities(parsedStoredActivities);
           console.log(parsedStoredActivities);
         }
@@ -158,14 +162,14 @@ const Index = ({ navigation }) => {
     };
     const fetchAndStorLinkeActivities = async () => {
       const linkActivites = await AsyncStorage.getItem("link-activites");
-      if (linkActivites) {
-        setActivities(JSON.parse(linkActivites));
-      }
+
+      setActivities(JSON.parse(linkActivites));
     };
-    if (isEmployee) {
-      fetchAndStorLinkeActivities();
-    } else {
+
+    if (!isEmployee) {
       fetchAndStoreActivities();
+    } else {
+      fetchAndStorLinkeActivities();
     }
   }, []);
 
@@ -262,7 +266,7 @@ const Index = ({ navigation }) => {
               <TouchableOpacity
                 style={[
                   styles.dropdownButton,
-                  isEmployee && { backgroundColor: "#d3d3d3" } // Change button color when disabled
+                  isEmployee && { backgroundColor: "#d3d3d3" }, // Change button color when disabled
                 ]}
                 onPress={() => setIsMakeTeamModalVisible(true)}
                 disabled={isEmployee}
@@ -282,8 +286,8 @@ const Index = ({ navigation }) => {
                 style={[
                   styles.dropdownButton,
                   selectedActivityType === "admin" && {
-                    backgroundColor: "#d3d3d3"
-                  } // Change button color when disabled
+                    backgroundColor: "#d3d3d3",
+                  }, // Change button color when disabled
                 ]}
                 onPress={() => {
                   if (selectedActivityType !== "admin") {
@@ -304,6 +308,7 @@ const Index = ({ navigation }) => {
               </TouchableOpacity>
             </View>
           </View>
+          {/* {<Refresh />} */}
         </View>
         {
           <MyTable
@@ -315,9 +320,10 @@ const Index = ({ navigation }) => {
             tableData={tableData} // Pass filtered data as props
             setTableData={setTableData}
             name={userName}
+            isEmployee={isEmployee}
             // loading={loading}
           />
-        } 
+        }
 
         <View>
           <LinkInput
@@ -359,29 +365,29 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 12
+    marginTop: 12,
   },
   dropdownButton: {
     paddingHorizontal: 4,
     paddingVertical: 8,
     backgroundColor: "#008DD2",
     borderRadius: 5,
-    alignItems: "center"
+    alignItems: "center",
   },
   buttonText: {
     fontSize: 10,
-    color: "white"
+    color: "white",
   },
   buttonRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     width: "100%",
-    paddingHorizontal: 4
+    paddingHorizontal: 4,
   },
   buttonContainer: {
     flex: 1,
-    marginHorizontal: 2
-  }
+    marginHorizontal: 2,
+  },
 });
 
 export default Index;

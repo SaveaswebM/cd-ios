@@ -11,7 +11,7 @@ import {
   Button,
   Platform,
   ScrollView,
-  Alert
+  Alert,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -36,7 +36,7 @@ const Dropdown = ({
   setShowAddActivityModal,
   activities,
   setActivities,
-  isEmployee
+  isEmployee,
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [selectedOption, setSelectedOption] = useState(null);
@@ -44,7 +44,7 @@ const Dropdown = ({
   const [newCompanyName, setNewCompanyName] = useState("");
   const [newActivityName, setNewActivityName] = useState([]);
   const [activityInputs, setActivityInputs] = useState([
-    { action: "", dueDate: new Date() }
+    { action: "", dueDate: new Date() },
   ]);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [currentDateIndex, setCurrentDateIndex] = useState(null);
@@ -59,7 +59,7 @@ const Dropdown = ({
         if (storedName) {
           setUserName(storedName);
         } else {
-          console.log("Please enter your name");
+          // console.log("Please enter your name");
         }
       } catch (error) {
         console.error("Failed to load user name from AsyncStorage", error);
@@ -186,7 +186,7 @@ const Dropdown = ({
             <View
               style={[
                 styles.modalContent,
-                { top: dropdownPosition.top, left: dropdownPosition.left }
+                { top: dropdownPosition.top, left: dropdownPosition.left },
               ]}
             >
               <FlatList
@@ -231,9 +231,9 @@ const Dropdown = ({
                           [
                             {
                               text: "Get Premium",
-                              onPress: () => router.push("/Subscription") // Replace with your subscription page navigation
+                              onPress: () => router.push("/Subscription"), // Replace with your subscription page navigation
                             },
-                            { text: "OK" }
+                            { text: "OK" },
                           ]
                         );
                       }
@@ -354,7 +354,7 @@ const Dropdown = ({
                     setNewActivityName({
                       label: value,
                       value: value,
-                      type: "admin"
+                      type: "admin",
                     });
                   }}
                 />
@@ -363,7 +363,7 @@ const Dropdown = ({
                     key={index}
                     style={[
                       styles.activityInputContainer,
-                      styles.buttonContainer
+                      styles.buttonContainer,
                     ]}
                   >
                     <TextInput
@@ -428,24 +428,24 @@ const Dropdown = ({
 
 const styles = StyleSheet.create({
   container: {
-    width: "100%"
+    width: "100%",
   },
   dropdownButton: {
     paddingHorizontal: 4,
     paddingVertical: 8,
     backgroundColor: "#008DD2",
     borderRadius: 5,
-    alignItems: "center"
+    alignItems: "center",
   },
   buttonText: {
     fontSize: 10,
-    color: "white"
+    color: "white",
   },
   modalOverlay: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0,0,0,0.5)"
+    backgroundColor: "rgba(0,0,0,0.5)",
   },
   modalContent: {
     position: "absolute",
@@ -453,18 +453,18 @@ const styles = StyleSheet.create({
     width: 82,
     backgroundColor: "white",
     borderRadius: 5,
-    overflow: "hidden"
+    overflow: "hidden",
   },
   option: {
     paddingHorizontal: 5,
     paddingVertical: 10,
     borderBottomColor: "#1B3B60",
     backgroundColor: "#00a0e3",
-    alignItems: "center"
+    alignItems: "center",
   },
   optionText: {
     fontSize: 10,
-    color: "white"
+    color: "white",
   },
   addCompanyModal: {
     width: "80%",
@@ -475,7 +475,7 @@ const styles = StyleSheet.create({
     borderRadius: 40,
     padding: 20,
     alignItems: "center",
-    justifyContent: "center"
+    justifyContent: "center",
   },
   input: {
     width: "100%",
@@ -485,7 +485,7 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 20,
     color: "black",
-    backgroundColor: "#FFFFFF"
+    backgroundColor: "#FFFFFF",
   },
   input2: {
     width: 160,
@@ -497,7 +497,7 @@ const styles = StyleSheet.create({
     padding: 5,
     marginBottom: 6,
     color: "black",
-    backgroundColor: "#FFFFFF"
+    backgroundColor: "#FFFFFF",
   },
   input3: {
     width: 90,
@@ -509,26 +509,26 @@ const styles = StyleSheet.create({
     padding: 5,
     marginBottom: 6,
     color: "black",
-    backgroundColor: "#FFFFFF"
+    backgroundColor: "#FFFFFF",
   },
   addButton: {
     backgroundColor: "#00397A",
     borderRadius: 5,
     paddingVertical: 10,
-    paddingHorizontal: 20
+    paddingHorizontal: 20,
   },
   addButtonText: {
     color: "white",
-    fontSize: 16
+    fontSize: 16,
   },
   activityInputContainer: {
-    marginBottom: 15
+    marginBottom: 15,
   },
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     width: "100%",
-    marginBottom: 10
+    marginBottom: 10,
   },
   addActivityModal: {
     width: "80%",
@@ -540,12 +540,12 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 10,
     alignItems: "center",
-    justifyContent: "center"
+    justifyContent: "center",
   },
   scrollContainer: {
     maxHeight: "100%", // Adjust this to your needs
-    width: "100%"
-  }
+    width: "100%",
+  },
 });
 
 export default Dropdown;

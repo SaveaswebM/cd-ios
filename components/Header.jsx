@@ -18,7 +18,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const { width, height } = Dimensions.get("window");
 
-const Header = (isEmployee) => {
+const Header = ({ isEmployee }) => {
   const pathname = usePathname(); // Get the current pathname
   const [drawerVisible, setDrawerVisible] = useState(false);
   const drawerAnimation = useRef(new Animated.Value(-width * 0.75)).current;
@@ -68,12 +68,11 @@ const Header = (isEmployee) => {
     <View style={styles.container}>
       <View style={styles.header}>
         {pathname === "/" ? ( // Check if the current pathname is the homepage
-     
-     !isEmployee && (
-      <TouchableOpacity style={styles.barIcon} onPress={toggleDrawer}>
-        <Icon name="bars" size={30} color="#008DD2" />
-      </TouchableOpacity>
-    )
+          !isEmployee && (
+            <TouchableOpacity style={styles.barIcon} onPress={toggleDrawer}>
+              <Icon name="bars" size={30} color="#008DD2" />
+            </TouchableOpacity>
+          )
         ) : (
           <Link href="/" setDrawerVisible={false}>
             <View style={styles.barIcon}>

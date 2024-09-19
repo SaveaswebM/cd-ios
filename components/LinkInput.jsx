@@ -5,12 +5,17 @@ import {
   View,
   TextInput,
   TouchableOpacity,
-  Alert
+  Alert,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import base64 from "react-native-base64"; // For decoding base64 values
+import base64 from "react-native-base64";
 
-const LinkInput = (isEmployee, setIsEmployee, setActivites, setCompanyName) => {
+const LinkInput = ({
+  isEmployee,
+  setIsEmployee,
+  setActivities,
+  setCompanyName,
+}) => {
   const [link, setLink] = useState(""); // State to hold the entered link
   const [appliedLink, setAppliedLink] = useState(""); // State to hold the applied link
   const [fetchedData, setFetchedData] = useState(null);
@@ -23,44 +28,51 @@ const LinkInput = (isEmployee, setIsEmployee, setActivites, setCompanyName) => {
       const queryParams = new URLSearchParams(parsedUrl.search);
 
       // Fetch each parameter and decode the base64-encoded values
+      await AsyncStorage.setItem("isEmployeeTrue", "yes");
       const name = base64.decode(queryParams.get("name"));
       const company = base64.decode(queryParams.get("company"));
       const activities = base64
         .decode(queryParams.get("activities"))
         .split(","); // Split activities back into an array
       const id = queryParams.get("id"); // This is a unique ID, not encoded
+      setIsEmployee(true);
 
       // Store the decoded data in state
-      setFetchedData({ name, company, activities, id });
+      // setFetchedData({ name, company, activities, id });
       const newCompany = {
         label: company,
-        value: company
+        value: company,
       };
-      const updatedCompanyName = [newCompany];
-      setCompanyName(updatedCompanyName);
-      setActivites(activities);
-      const response = await fetch(
-        `http://localhost:3000/api/link-data?link=${id}`
-      );
-      const result = response.json();
-      if (result.ok) {
-        await AsyncStorage.clear();
-        await AsyncStorage.setItem("isEmployeeTrue", "yes");
-        await AsyncStorage.setItem("link-company", company);
-        await AsyncStorage.setItem("link-activities", activities);
-        await AsyncStorage.setItem("userName", name);
 
+      const updatedCompanyName = [newCompany];
+      const activ = JSON.parse(activities);
+      setCompanyName(updatedCompanyName);
+      setActivities(JSON.parse(activities));
+      // console.log("name........", name);
+      // console.log("id........", id);
+      // console.log("company........", updatedCompanyName);
+      // console.log("activities..........", JSON.parse(activities));
+      await AsyncStorage.setItem("employeeLink", id);
+      await AsyncStorage.setItem("userName", name);
+      await AsyncStorage.setItem(
+        "link-company",
+        JSON.stringify(updatedCompanyName)
+      );
+      await AsyncStorage.setItem("link-activities", JSON.stringify(activ));
+      const response = await fetch(
+        `https://cd-backend-1.onrender.com/api/link-data?link=${id}`
+      );
+      const result = await response.json();
+
+      if (result) {
         const linkData = result.data;
         for (const key in linkData) {
           if (linkData.hasOwnProperty(key)) {
-            const value = JSON.stringify(linkData[key]); // Convert value to a string
-            await AsyncStorage.setItem(key, value); // Store key-value pair in AsyncStorage
+            const value = JSON.stringify(linkData[key]);
+
+            await AsyncStorage.setItem(key, value);
           }
         }
-
-        setIsEmployee(true);
-      } else {
-        console.error("Error fetching link data:", error);
       }
     } catch (error) {
       console.error("Error fetching parameters:", error);
@@ -75,6 +87,7 @@ const LinkInput = (isEmployee, setIsEmployee, setActivites, setCompanyName) => {
         setAppliedLink(link);
 
         await AsyncStorage.clear();
+        await AsyncStorage.setItem("isEmployeeTrue", "yes");
         Alert.alert("Success", "AsyncStorage has been cleared!");
 
         fetchLinkParameters(link);
@@ -102,12 +115,12 @@ const LinkInput = (isEmployee, setIsEmployee, setActivites, setCompanyName) => {
         <Text style={styles.applyButtonText}>Apply</Text>
       </TouchableOpacity>
 
-      {appliedLink ? (
+      {/* {appliedLink ? (
         <View style={styles.linkDisplayContainer}>
           <Text style={styles.appliedLinkLabel}>Applied Link:</Text>
           <Text style={styles.appliedLink}>{appliedLink}</Text>
         </View>
-      ) : null}
+      ) : null} */}
     </View>
   );
 };
@@ -116,12 +129,12 @@ export default LinkInput;
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20
+    padding: 20,
   },
   label: {
     fontSize: 16,
     fontWeight: "bold",
-    marginBottom: 10
+    marginBottom: 10,
   },
   input: {
     borderWidth: 1,
@@ -130,38 +143,38 @@ const styles = StyleSheet.create({
     padding: 10,
     fontSize: 16,
     color: "#333",
-    marginBottom: 20
+    marginBottom: 20,
   },
   applyButton: {
     backgroundColor: "#007bff",
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
-    alignItems: "center"
+    alignItems: "center",
   },
   applyButtonText: {
     color: "white",
     fontSize: 16,
-    fontWeight: "bold"
+    fontWeight: "bold",
   },
   linkDisplayContainer: {
-    marginTop: 20
+    marginTop: 20,
   },
   appliedLinkLabel: {
     fontSize: 16,
     fontWeight: "bold",
-    marginBottom: 5
+    marginBottom: 5,
   },
   appliedLink: {
     fontSize: 16,
-    color: "#333"
+    color: "#333",
   },
   fetchedDataContainer: {
-    marginTop: 20
+    marginTop: 20,
   },
   fetchedDataLabel: {
     fontSize: 16,
     fontWeight: "bold",
-    marginBottom: 10
-  }
+    marginBottom: 10,
+  },
 });
