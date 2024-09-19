@@ -14,6 +14,8 @@ const PeriodDropdown = ({
   setIsVisible,
   onClose,
   selectedActivityType,
+  years,
+  setYears,
   selectedYear,
   setSelectedYear,
   selectedMonth,
@@ -21,7 +23,7 @@ const PeriodDropdown = ({
   buttonRef,
 }) => {
   const currentYear = new Date().getFullYear();
-  const [years, setYears] = useState([]);
+
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
 
   const months = [

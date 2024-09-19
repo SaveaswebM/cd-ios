@@ -11,9 +11,7 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import UUID from "react-native-uuid";
-import * as Sharing from "expo-sharing";
 import CustomDropdown from "./Dropdown";
-// import * as Clipboard from "expo-clipboard";
 import MultiSelect from "./MultiSelect"; // Ensure this import is correct
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import base64 from "react-native-base64";
@@ -23,29 +21,79 @@ const MakeTeamModal = ({
   onClose,
   companyNameOptions,
   groupOptions,
+  years
 }) => {
   const [personName, setPersonName] = useState("");
   const [selectedCompanyName, setSelectedCompanyName] = useState(null);
   const [selectedGroups, setSelectedGroups] = useState([]);
-  const [uniqueLink, setUniqueLink] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [fetchedData, setFetchedData] = useState([]);
 
-  // Generate the unique link when both company and activities are selected
+  const months = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
+
   useEffect(() => {
-    if (selectedCompanyName && selectedGroups.length > 0) {
-      generateUniqueLink();
-    }
-  }, [selectedCompanyName, selectedGroups]);
+    // Fetch data from API
+    const fetchApiData = async () => {
+      try {
+        const response = await fetch(
+          "https://cd-backend-1.onrender.com/api/data"
+        );
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+        setFetchedData(data);
+        
+      } catch (error) {
+        console.error("Failed to fetch data:", error);
+        Alert.alert("Error", "Failed to load data. Please try again later.");
+      }
+    };
 
-  const generateUniqueLink = () => {
-    const uniqueId = UUID.v4();
-    const activities = selectedGroups.join(",");
-    const link = `yourapp://link?name=${encodeURIComponent(
-      personName
-    )}&company=${encodeURIComponent(
-      selectedCompanyName
-    )}&activities=${activities}&id=${uniqueId}`;
-    setUniqueLink(link);
+    fetchApiData();
+  }, []);
+
+const getFromattedApiData = async(selectedActivityType,selectedActivity,selectedYear,selectedMonth) => {
+let activityData = [];
+
+if (selectedActivityType === "Monthly") {
+
+  activityData = fetchedData.Monthly?.[selectedActivity]?.[selectedYear]?.[selectedMonth] || [];
+} else if (selectedActivityType === "Quarterly") {
+  activityData =fetchedData.Quarterly?.[selectedActivity]?.[selectedYear] || [];
+} else if (selectedActivityType === "Yearly") {
+  activityData = fetchedData.Yearly?.[selectedActivity]?.[selectedYear] || [];
+}
+// console.log(",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,",activityData);
+
+const formattedTableData = activityData.map((entry) => [
+  entry.name,
+  entry.dueDate,
+  "",
+  "", 
+]);
+
+return formattedTableData;
+
+}
+
+  const getUniqueId = async () => {
+    try {
+      const getStoredUniqueId = await AsyncStorage.getItem("uniqueId");
+      if (getStoredUniqueId) {
+        return getStoredUniqueId;
+      } else {
+        const uniqueId = UUID.v4();
+        await AsyncStorage.setItem("uniqueId", uniqueId);
+        return uniqueId;
+      }
+    } catch (error) {
+      console.error("Error getting or setting unique ID:", error);
+      return null; // Or handle the error as needed
+    }
   };
 
   const handleSave = async () => {
@@ -56,35 +104,117 @@ const MakeTeamModal = ({
 
     try {
       // Generate the unique link
+      const uId = await getUniqueId();
       const encodedPersonName = base64.encode(personName);
       const encodedCompanyName = base64.encode(selectedCompanyName);
       const encodedGroups = base64.encode(selectedGroups.join(","));
       const baseUrl = "https://yourapp.com/share";
-      const queryParameters = `?data=${encodedPersonName}.${encodedCompanyName}.${encodedGroups}`;
+      const queryParameters = `?name=${encodedPersonName}&company=${encodedCompanyName}&activities=${encodedGroups}&id=${uId}`;
 
       const link = `${baseUrl}${queryParameters}`;
-      // await saveLinkToAsyncStorage(link);
-      // Use the Share API to open the share dialog
+
       const result = await Share.share({
         message: ` Here's the link: ${link}`,
       });
-
+        console.log(selectedGroups);
       if (result.action === Share.sharedAction) {
-        if (result.activityType) {
-          console.log("Shared with activity type: ", result.activityType);
-        } else {
-          console.log("Link shared successfully!");
+
+        const linkownerName = await AsyncStorage.getItem('userName');
+        const linkrecieverName = personName;
+
+        let data = {};
+        for (const group of selectedGroups) {
+          for (const year of years) {
+            if (group.type === "Monthly") {
+              for (const month of months) {
+                const monthlyDataKey = `${selectedCompanyName}_${group.value}_${year}_${month}`;
+                const monthlyData = await AsyncStorage.getItem(monthlyDataKey);
+                // console.log("mdddddddddddddddddddd",monthlyData);
+                if (monthlyData) {
+                    
+                  data[monthlyDataKey] = monthlyData;
+                }else{
+                   const apimonthlyData =   await getFromattedApiData("Monthly",group.value, year,month);
+                   console.log("else wala part",apimonthlyData); 
+                      if(apimonthlyData) {
+                        data[monthlyDataKey] = apimonthlyData;
+                      }
+                }
+              }
+            } else if (group.type === "Quarterly") {
+              const quarterlyDataKey = `${selectedCompanyName}_${group.value}_${year}`;
+              const quarterlyData = await AsyncStorage.getItem(quarterlyDataKey);
+              if (quarterlyData) {
+                data[quarterlyDataKey] = quarterlyData;
+              }else{
+                const apimonthlyData =   await getFromattedApiData("Quarterly", year); 
+                   if(apimonthlyData) {
+                     data[quarterlyDataKey] = apimonthlyData;
+                   }
+             }
+            } else if (group.type === "Yearly") {
+              const yearlyDataKey = `${selectedCompanyName}_${group.value}_${year}`;
+              const yearlyData = await AsyncStorage.getItem(yearlyDataKey);
+              if (yearlyData) {
+                data[yearlyDataKey] = yearlyData;
+              }else{
+                const apimonthlyData =   await getFromattedApiData("Yearly",year); 
+                   if(apimonthlyData) {
+                     data[yearlyDataKey] = apimonthlyData;
+                   }
+             }
+            } else if (group.type === "Admin") {
+              const adminDataKey = `${selectedCompanyName}_${group.value}`;
+              const adminData = await AsyncStorage.getItem(adminDataKey);
+              if (adminData) {
+                data[adminDataKey] = adminData;
+              }
+            }
+          }
         }
-      } else if (result.action === Share.dismissedAction) {
-        console.log("Share dismissed.");
+
+        const payload = {
+          link:uId,
+          // linkownerName,
+          // linkrecieverName,
+          // companyName: selectedCompanyName,
+          // activities: {},   
+                 data 
+        };
+          //  console.log("payload data", payload);
+        const response = await fetch("https://cd-backend-1.onrender.com/api/link-data", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+         console.log("Success", "Link shared and saved successfully.");
+                  
+        // Save the link to AsyncStorage
+        // const storedLinks = await AsyncStorage.getItem('links');
+        // let linksArray = [];
+
+        // if (storedLinks) {
+        //   linksArray = JSON.parse(storedLinks);
+        // }
+
+        // linksArray.push(uId);  // Add the new link to the array
+
+        // await AsyncStorage.setItem('links', JSON.stringify(linksArray)); 
+        } else {
+          console.error(result);
+          // Alert.alert("Error", result.error || "Failed to share the link.");
+        }
       }
+
     } catch (error) {
       console.error("Error sharing link:", error);
-      Alert.alert(
-        "Sharing Error",
-        "An error occurred while trying to share the link."
-      );
+      // Alert.alert("Sharing Error", "An error occurred while trying to share the link.");
     }
+
     onClose();
   };
 
@@ -109,9 +239,7 @@ const MakeTeamModal = ({
               <CustomDropdown
                 options={companyNameOptions}
                 onSelect={(option) => setSelectedCompanyName(option.value)}
-                placeholder={
-                  selectedCompanyName ? selectedCompanyName : "Company Name"
-                }
+                placeholder={selectedCompanyName || "Company Name"}
               />
             </View>
             <MultiSelect
@@ -121,20 +249,7 @@ const MakeTeamModal = ({
               placeholder="Select Activities"
               style={styles.fullWidthDropdown}
             />
-            {errorMessage ? (
-              <Text style={styles.errorText}>{errorMessage}</Text>
-            ) : null}
-            {uniqueLink ? (
-              <View style={styles.linkContainer}>
-                <Text style={styles.linkText}>{uniqueLink}</Text>
-                <TouchableOpacity
-                  onPress={() => copyToClipboard(uniqueLink)}
-                  style={styles.copyButton}
-                >
-                  <Text style={styles.copyButtonText}>Copy Link</Text>
-                </TouchableOpacity>
-              </View>
-            ) : null}
+            {errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
             <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
               <Text style={styles.saveButtonText}>Share</Text>
             </TouchableOpacity>
@@ -182,23 +297,6 @@ const styles = StyleSheet.create({
   saveButtonText: {
     color: "white",
     fontSize: 16,
-  },
-  linkContainer: {
-    marginVertical: 10,
-    alignItems: "center",
-  },
-  linkText: {
-    color: "#00397A",
-    marginBottom: 5,
-  },
-  copyButton: {
-    backgroundColor: "#00397A",
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    borderRadius: 5,
-  },
-  copyButtonText: {
-    color: "white",
   },
   errorText: {
     color: "red",

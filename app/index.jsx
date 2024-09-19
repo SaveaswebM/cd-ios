@@ -4,7 +4,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  Text,
+  Text
 } from "react-native";
 
 import * as Linking from "expo-linking";
@@ -16,6 +16,8 @@ import PeriodDropdown from "../components/PeriodDropdown";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+import LinkInput from "../components/LinkInput";
 // import CustomLoadingScreen from "../components/CustomLoadingScreen";
 
 const Index = ({ navigation }) => {
@@ -26,6 +28,7 @@ const Index = ({ navigation }) => {
   const [companyName, setCompanyName] = useState([]);
   const [isMakeTeamModalVisible, setIsMakeTeamModalVisible] = useState(false);
   const [isPeriodDropdownVisible, setIsPeriodDropdownVisible] = useState(false);
+  const [years, setYears] = useState([]);
   const [selectedYear, setSelectedYear] = useState(null);
   const [selectedMonth, setSelectedMonth] = useState(null);
   const [tableData, setTableData] = useState([]);
@@ -34,6 +37,7 @@ const Index = ({ navigation }) => {
   const [errorMessage, setErrorMessage] = useState("");
   const [showAddCompanyModal, setShowAddCompanyModal] = useState(false);
   const [showAddActivityModal, setShowAddActivityModal] = useState(false);
+  const [isEmployee, setIsEmployee] = useState(false);
 
   const buttonRef = useRef(null);
   // const options2 = [
@@ -59,12 +63,31 @@ const Index = ({ navigation }) => {
   //   };
   //   loadCompanyNames();
   // }, []);
-
+  useEffect(() => {
+    const getEmployeeStatus = async () => {
+      const getstatus = await AsyncStorage.getItem("isEmployeeTrue");
+      if (getstatus) {
+        setIsEmployee(true);
+      }
+    };
+    getEmployeeStatus();
+  }, []);
   useEffect(() => {
     const loadCompanyNames = async () => {
       try {
-        const storedCompanyNames = await AsyncStorage.getItem("companyNames");
-        setCompanyName(JSON.parse(storedCompanyNames) || []);
+        if (!isEmployee) {
+          const storedCompanyNames = await AsyncStorage.getItem("companyNames");
+          setCompanyName(JSON.parse(storedCompanyNames) || []);
+        } else {
+          const linkCompanyNames = await AsyncStorage.getItem("link-company");
+
+          const newCompany = {
+            label: linkCompanyNames,
+            value: linkCompanyNames
+          };
+          const updatedCompanyName = [newCompany];
+          setCompanyName(updatedCompanyName);
+        }
       } catch (error) {
         console.error("Failed to load company names:", error);
       }
@@ -92,7 +115,7 @@ const Index = ({ navigation }) => {
         const apiActivities = data.map((activity) => ({
           label: activity.name,
           value: activity.name,
-          type: activity.type,
+          type: activity.type
         }));
 
         // Get stored activities from AsyncStorage
@@ -113,7 +136,7 @@ const Index = ({ navigation }) => {
         if (newActivities.length > 0) {
           const updatedActivities = [
             ...parsedStoredActivities,
-            ...newActivities,
+            ...newActivities
           ];
           await AsyncStorage.setItem(
             "activities",
@@ -133,8 +156,17 @@ const Index = ({ navigation }) => {
         );
       }
     };
-
-    fetchAndStoreActivities();
+    const fetchAndStorLinkeActivities = async () => {
+      const linkActivites = await AsyncStorage.getItem("link-activites");
+      if (linkActivites) {
+        setActivities(JSON.parse(linkActivites));
+      }
+    };
+    if (isEmployee) {
+      fetchAndStorLinkeActivities();
+    } else {
+      fetchAndStoreActivities();
+    }
   }, []);
 
   // const uniqueLink = `${baseUrl}?id=${uniqueId}`;
@@ -180,7 +212,7 @@ const Index = ({ navigation }) => {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <Header navigation={navigation} />
+      <Header navigation={navigation} isEmployee={isEmployee} />
       <ScrollView style={styles.scrollview}>
         <View style={styles.container}>
           <View style={styles.buttonRow}>
@@ -196,6 +228,7 @@ const Index = ({ navigation }) => {
                 setErrorMessage={setErrorMessage}
                 showAddCompanyModal={showAddCompanyModal}
                 setShowAddCompanyModal={setShowAddCompanyModal}
+                isEmployee={isEmployee}
                 placeholder={
                   selectedCompanyName
                     ? `${selectedCompanyName}`
@@ -211,6 +244,7 @@ const Index = ({ navigation }) => {
                 options={activities}
                 userName={userName}
                 setUserName={setUserName}
+                isEmployee={isEmployee}
                 showAddActivityModal={showAddActivityModal}
                 setShowAddActivityModal={setShowAddActivityModal}
                 onSelect={(option) => {
@@ -226,8 +260,12 @@ const Index = ({ navigation }) => {
             </View>
             <View style={styles.buttonContainer}>
               <TouchableOpacity
-                style={styles.dropdownButton}
+                style={[
+                  styles.dropdownButton,
+                  isEmployee && { backgroundColor: "#d3d3d3" } // Change button color when disabled
+                ]}
                 onPress={() => setIsMakeTeamModalVisible(true)}
+                disabled={isEmployee}
               >
                 <Text style={styles.buttonText}>Make A Team</Text>
               </TouchableOpacity>
@@ -244,8 +282,8 @@ const Index = ({ navigation }) => {
                 style={[
                   styles.dropdownButton,
                   selectedActivityType === "admin" && {
-                    backgroundColor: "#d3d3d3",
-                  }, // Change button color when disabled
+                    backgroundColor: "#d3d3d3"
+                  } // Change button color when disabled
                 ]}
                 onPress={() => {
                   if (selectedActivityType !== "admin") {
@@ -279,19 +317,31 @@ const Index = ({ navigation }) => {
             name={userName}
             // loading={loading}
           />
-        }
+        } 
+
+        <View>
+          <LinkInput
+            isEmployee={isEmployee}
+            setIsEmployee={setIsEmployee}
+            setCompanyName={setCompanyName}
+            setActivities={setActivities}
+          />
+        </View>
       </ScrollView>
       <MakeTeamModal
         visible={isMakeTeamModalVisible}
         onClose={() => setIsMakeTeamModalVisible(false)}
         companyNameOptions={companyName}
         groupOptions={activities}
+        years={years}
       />
       <PeriodDropdown
         visible={isPeriodDropdownVisible}
         setIsVisible={setIsPeriodDropdownVisible}
         onClose={() => setIsPeriodDropdownVisible(false)}
         selectedActivityType={selectedActivityType}
+        years={years}
+        setYears={setYears}
         selectedYear={selectedYear}
         setSelectedYear={setSelectedYear}
         selectedMonth={selectedMonth}
@@ -309,29 +359,29 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 12,
+    marginTop: 12
   },
   dropdownButton: {
     paddingHorizontal: 4,
     paddingVertical: 8,
     backgroundColor: "#008DD2",
     borderRadius: 5,
-    alignItems: "center",
+    alignItems: "center"
   },
   buttonText: {
     fontSize: 10,
-    color: "white",
+    color: "white"
   },
   buttonRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     width: "100%",
-    paddingHorizontal: 4,
+    paddingHorizontal: 4
   },
   buttonContainer: {
     flex: 1,
-    marginHorizontal: 2,
-  },
+    marginHorizontal: 2
+  }
 });
 
 export default Index;

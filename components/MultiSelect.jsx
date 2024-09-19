@@ -9,12 +9,13 @@ const MultiSelect = ({ options, onSelect, selectedItems, placeholder, style }) =
   };
 
   const handleSelect = (item) => {
-    const isSelected = selectedItems.includes(item.value);
+    const isSelected = selectedItems.some(selectedItem => selectedItem.value === item.value);
     const newSelectedItems = isSelected
-      ? selectedItems.filter((selectedItem) => selectedItem !== item.value)
-      : [...selectedItems, item.value];
+      ? selectedItems.filter(selectedItem => selectedItem.value !== item.value)
+      : [...selectedItems, item];
 
     onSelect(newSelectedItems);
+    // console.log(newSelectedItems);
   };
 
   return (
@@ -22,7 +23,7 @@ const MultiSelect = ({ options, onSelect, selectedItems, placeholder, style }) =
       <TouchableOpacity onPress={toggleDropdown} style={styles.dropdown}>
         <Text style={styles.placeholderText}>
           {selectedItems.length > 0
-            ? selectedItems.map(item => options.find(opt => opt.value === item)?.label).join(', ')
+            ? selectedItems.map(item => options.find(opt => opt.value === item.value)?.label).join(', ')
             : placeholder}
         </Text>
       </TouchableOpacity>
@@ -36,7 +37,7 @@ const MultiSelect = ({ options, onSelect, selectedItems, placeholder, style }) =
               onPress={() => handleSelect(item)}
             >
               <Text style={styles.itemText}>
-                {selectedItems.includes(item.value) ? "✓ " : ""}{item.label}
+                {selectedItems.some(selectedItem => selectedItem.value === item.value) ? "✓ " : ""}{item.label}
               </Text>
             </TouchableOpacity>
           )}
