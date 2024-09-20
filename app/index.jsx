@@ -16,7 +16,7 @@ import PeriodDropdown from "../components/PeriodDropdown";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
+import base64 from "react-native-base64";
 import LinkInput from "../components/LinkInput";
 import Refresh from "../components/Refresh";
 // import CustomLoadingScreen from "../components/CustomLoadingScreen";
@@ -64,6 +64,71 @@ const Index = ({ navigation }) => {
   //   };
   //   loadCompanyNames();
   // }, []);
+
+  // useEffect(() => {
+  //   const handleDeepLink = async (event) => {
+  //     try {
+  //       const url = event?.url || (await Linking.getInitialURL());
+  //       if (url) {
+  //         const { queryParams } = Linking.parse(url);
+
+  //         if (queryParams) {
+  //           try {
+  //             console.log("............deep linking is working ...........................");
+
+  //             // Access queryParams directly as an object
+  //             const name = base64.decode(queryParams.name);
+  //             const company = base64.decode(queryParams.company);
+  //             const activities = base64.decode(queryParams.activities).split(",");
+
+  //             const id = queryParams.id;
+  //             await AsyncStorage.setItem("isEmployeeTrue", "yes");
+  //             setIsEmployee(true);
+
+  //             const newCompany = { label: company, value: company };
+  //             setCompanyName([newCompany]);
+  //             setActivities(activities);
+  //             setUserName(name);
+
+  //             await AsyncStorage.setItem("employeeLink", id);
+  //             await AsyncStorage.setItem("userName", name);
+  //             await AsyncStorage.setItem("link-company", JSON.stringify([newCompany]));
+  //             await AsyncStorage.setItem("link-activities", JSON.stringify(activities));
+
+  //             // Fetch additional data based on the link ID
+  //             const response = await fetch(`https://cd-backend-1.onrender.com/api/link-data?link=${id}`);
+  //             const result = await response.json();
+
+  //             if (result) {
+  //               for (const key in result.data) {
+  //                 if (result.data.hasOwnProperty(key)) {
+  //                   await AsyncStorage.setItem(key, JSON.stringify(result.data[key]));
+  //                 }
+  //               }
+  //             }
+  //           } catch (error) {
+  //             console.error("Error decoding parameters:", error);
+  //             Alert.alert("Error", "Failed to decode link parameters.");
+  //           }
+  //         }
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching initial URL:", error);
+  //       Alert.alert("Error", "Failed to fetch initial URL.");
+  //     }
+  //   };
+
+  //   // Add listener for URL events
+  //   Linking.addEventListener("url", handleDeepLink);
+
+  //   // Run on component mount to handle initial deep link
+  //   handleDeepLink();
+
+  //   return () => {
+  //     Linking.removeEventListener("url", handleDeepLink);
+  //   };
+  // }, []);
+
   useEffect(() => {
     const getEmployeeStatus = async () => {
       const getstatus = await AsyncStorage.getItem("isEmployeeTrue");
@@ -101,66 +166,69 @@ const Index = ({ navigation }) => {
   }, []);
   useEffect(() => {
     const fetchAndStoreActivities = async () => {
-      try {
-        const previoustoredActivities = await AsyncStorage.getItem(
-          "activities"
-        );
-        if (previoustoredActivities) {
-          setActivities(JSON.parse(previoustoredActivities));
-        }
-
-        const response = await fetch(
-          "https://cd-backend-1.onrender.com/api/activity"
-        );
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        const data = await response.json();
-        const apiActivities = data.map((activity) => ({
-          label: activity.name,
-          value: activity.name,
-          type: activity.type,
-        }));
-
-        // Get stored activities from AsyncStorage
-        const storedActivities = await AsyncStorage.getItem("activities");
-        const parsedStoredActivities = JSON.parse(storedActivities) || [];
-
-        // Create a set of stored activity names for quick lookup
-        const storedActivityNames = new Set(
-          parsedStoredActivities.map((act) => act.label)
-        );
-
-        // Filter out the activities that are already stored
-        const newActivities = apiActivities.filter(
-          (activity) => !storedActivityNames.has(activity.label)
-        );
-
-        // If there are new activities, update AsyncStorage
-
-        if (newActivities.length > 0 && !isEmployee) {
-          const updatedActivities = [
-            ...parsedStoredActivities,
-            ...newActivities,
-          ];
-          await AsyncStorage.setItem(
-            "activities",
-            JSON.stringify(updatedActivities)
+      const getisEmployee = await AsyncStorage.getItem("isEmployeeTrue");
+      if (!getisEmployee) {
+        try {
+          const previoustoredActivities = await AsyncStorage.getItem(
+            "activities"
           );
-          setActivities(updatedActivities);
-        } else {
-          setActivities(parsedStoredActivities);
-          console.log(parsedStoredActivities);
+          if (previoustoredActivities) {
+            setActivities(JSON.parse(previoustoredActivities));
+          }
+
+          const response = await fetch(
+            "https://cd-backend-1.onrender.com/api/activity"
+          );
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          const data = await response.json();
+          const apiActivities = data.map((activity) => ({
+            label: activity.name,
+            value: activity.name,
+            type: activity.type,
+          }));
+
+          // Get stored activities from AsyncStorage
+          const storedActivities = await AsyncStorage.getItem("activities");
+          const parsedStoredActivities = JSON.parse(storedActivities) || [];
+
+          // Create a set of stored activity names for quick lookup
+          const storedActivityNames = new Set(
+            parsedStoredActivities.map((act) => act.label)
+          );
+
+          // Filter out the activities that are already stored
+          const newActivities = apiActivities.filter(
+            (activity) => !storedActivityNames.has(activity.label)
+          );
+
+          // If there are new activities, update AsyncStorage
+
+          if (newActivities.length > 0 && !isEmployee) {
+            const updatedActivities = [
+              ...parsedStoredActivities,
+              ...newActivities,
+            ];
+            await AsyncStorage.setItem(
+              "activities",
+              JSON.stringify(updatedActivities)
+            );
+            setActivities(updatedActivities);
+          } else {
+            setActivities(parsedStoredActivities);
+            console.log(parsedStoredActivities);
+          }
+        } catch (error) {
+          console.error("Failed to fetch or store activities:", error);
+          Alert.alert(
+            "Error",
+            "Failed to load activities. Please try again later."
+          );
         }
-      } catch (error) {
-        console.error("Failed to fetch or store activities:", error);
-        Alert.alert(
-          "Error",
-          "Failed to load activities. Please try again later."
-        );
       }
     };
-    const fetchAndStorLinkeActivities = async () => {
+    const fetchAndStorLinkActivities = async () => {
       const linkActivites = await AsyncStorage.getItem("link-activites");
 
       setActivities(JSON.parse(linkActivites));
@@ -169,23 +237,13 @@ const Index = ({ navigation }) => {
     if (!isEmployee) {
       fetchAndStoreActivities();
     } else {
-      fetchAndStorLinkeActivities();
+      fetchAndStorLinkActivities();
     }
   }, []);
 
   // const uniqueLink = `${baseUrl}?id=${uniqueId}`;
   // Handle deep linking
-  useEffect(() => {
-    const handleDeepLink = async () => {
-      const { queryParams } = Linking.parse(Linking.getInitialURL());
-      if (queryParams) {
-        const { companyName, activityName } = queryParams;
-        setSelectedCompanyName(companyName || null);
-        setSelectedActivityName(activityName || null);
-      }
-    };
-    handleDeepLink();
-  }, []);
+
   const handleAddCompany = async (newCompanyName) => {
     try {
       const isDuplicate = companyName.some((company) => {
@@ -331,6 +389,7 @@ const Index = ({ navigation }) => {
             setIsEmployee={setIsEmployee}
             setCompanyName={setCompanyName}
             setActivities={setActivities}
+            setUserName={setUserName}
           />
         </View>
       </ScrollView>

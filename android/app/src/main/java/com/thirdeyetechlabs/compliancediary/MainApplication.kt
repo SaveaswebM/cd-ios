@@ -1,4 +1,4 @@
-package com.anonymous.compliancediary
+package com.thirdeyetechlabs.compliancediary
 
 import android.app.Application
 import android.content.res.Configuration

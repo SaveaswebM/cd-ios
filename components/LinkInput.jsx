@@ -15,6 +15,7 @@ const LinkInput = ({
   setIsEmployee,
   setActivities,
   setCompanyName,
+  setUserName,
 }) => {
   const [link, setLink] = useState(""); // State to hold the entered link
   const [appliedLink, setAppliedLink] = useState(""); // State to hold the applied link
@@ -48,6 +49,7 @@ const LinkInput = ({
       const activ = JSON.parse(activities);
       setCompanyName(updatedCompanyName);
       setActivities(JSON.parse(activities));
+      setUserName(name);
       // console.log("name........", name);
       // console.log("id........", id);
       // console.log("company........", updatedCompanyName);
@@ -88,12 +90,12 @@ const LinkInput = ({
 
         await AsyncStorage.clear();
         await AsyncStorage.setItem("isEmployeeTrue", "yes");
-        Alert.alert("Success", "AsyncStorage has been cleared!");
+        // Alert.alert("Success", "AsyncStorage has been cleared!");
 
         fetchLinkParameters(link);
       } catch (error) {
         console.error("Error clearing AsyncStorage:", error);
-        Alert.alert("Error", "Failed to clear AsyncStorage.");
+        // Alert.alert("Error", "Failed to clear AsyncStorage.");
       }
     } else {
       Alert.alert("Error", "Please enter a valid link.");

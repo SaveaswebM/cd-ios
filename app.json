@@ -6,20 +6,21 @@
     "orientation": "portrait",
     "scheme": "compliance-diary",
     "userInterfaceStyle": "automatic",
+
     "splash": {
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.compliancediary"
+      "bundleIdentifier": "com.thirdeyetechlabs.compliancediary"
     },
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#ffffff"
       },
       "permissions": ["com.android.vending.BILLING"],
-      "package": "com.anonymous.compliancediary"
+      "package": "com.thirdeyetechlabs.compliancediary"
     },
     "web": {
       "bundler": "metro",
@@ -29,8 +30,13 @@
     "experiments": {
       "typedRoutes": true
     },
+
     "deepLinking": {
-      "prefixes": ["yourapp://", "https://yourapp.com"],
+      "prefixes": [
+        "compliance-diary://",
+        "https://play.google.com/store/apps/details?id=com.thirdeyetechlabs.compliancediary",
+        "https://apps.apple.com/app/id1234567890"
+      ],
       "config": {
         "screens": {
           "Home": "home/:param"

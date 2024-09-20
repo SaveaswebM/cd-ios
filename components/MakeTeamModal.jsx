@@ -125,7 +125,8 @@ const MakeTeamModal = ({
       const encodedPersonName = base64.encode(personName);
       const encodedCompanyName = base64.encode(selectedCompanyName);
       const encodedGroups = base64.encode(JSON.stringify(selectedGroups));
-      const baseUrl = "https://yourapp.com/share";
+      const baseUrl =
+        "https://play.google.com/store/apps/details?id=com.thirdeyetechlabs.compliancediary";
       const queryParameters = `?name=${encodedPersonName}&company=${encodedCompanyName}&activities=${encodedGroups}&id=${uId}`;
 
       const link = `${baseUrl}${queryParameters}`;

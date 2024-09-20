@@ -165,9 +165,10 @@ const MyTable = ({
       );
       if (getlink) {
         response = await fetch(
-          "https://cd-backend-1.onrender.com/api/link-data"
+          `https://cd-backend-1.onrender.com/api/link-data?link=${getlink}`
         );
         if (response.ok) {
+          console.log("its workkkkkkkkkkkkk");
           const result = await response.json();
           if (result) {
             const linkData = result.data;
@@ -176,6 +177,7 @@ const MyTable = ({
                 if (datakey === key) {
                   const value = JSON.stringify(linkData[key]);
                   await AsyncStorage.setItem(datakey, value);
+                  // console.log(datakey, value);
                 }
               }
             }
@@ -185,45 +187,45 @@ const MyTable = ({
     } catch (error) {}
   };
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        // Check if data exists in AsyncStorage first
-        if (selectedActivity && selectedYear && selectedMonth) {
-          if (selectedActivityType === "Yearly") {
-            await getdatafromupdatedlink(
-              `${companyName}_${selectedActivity}_${selectedYear}`
-            );
-            // storedData = await AsyncStorage.getItem(
-            //   `${companyName}_${selectedActivity}_${selectedYear}`
-            // );
-          } else {
-            await getdatafromupdatedlink(
-              `${companyName}_${selectedActivity}_${selectedYear}_${selectedMonth}`
-            );
-            // storedData = await AsyncStorage.getItem(
-            //   `${companyName}_${selectedActivity}_${selectedYear}_${selectedMonth}`
-            // );
-          }
-        }
+  // useEffect(() => {
+  //   const loadData = async () => {
+  //     try {
+  //       // Check if data exists in AsyncStorage first
+  //       if (selectedActivity && selectedYear && selectedMonth) {
+  //         if (selectedActivityType === "Yearly") {
+  //           await getdatafromupdatedlink(
+  //             `${companyName}_${selectedActivity}_${selectedYear}`
+  //           );
+  //           // storedData = await AsyncStorage.getItem(
+  //           //   `${companyName}_${selectedActivity}_${selectedYear}`
+  //           // );
+  //         } else {
+  //           await getdatafromupdatedlink(
+  //             `${companyName}_${selectedActivity}_${selectedYear}_${selectedMonth}`
+  //           );
+  //           // storedData = await AsyncStorage.getItem(
+  //           //   `${companyName}_${selectedActivity}_${selectedYear}_${selectedMonth}`
+  //           // );
+  //         }
+  //       }
 
-        // If data from API exists, use it instead of the stored data
-        // if (apiData) {
-        //   storedData = apiData;
-        // }
+  //       // If data from API exists, use it instead of the stored data
+  //       // if (apiData) {
+  //       //   storedData = apiData;
+  //       // }
 
-        // If we have stored data from either AsyncStorage or the API
-        // if (storedData) {
-        //   setTableData(JSON.parse(storedData));
-        //   setCurrentPage(1);
-        // }
-      } catch (error) {
-        console.log("Error loading data from AsyncStorage or API:", error);
-      }
-    };
+  //       // If we have stored data from either AsyncStorage or the API
+  //       // if (storedData) {
+  //       //   setTableData(JSON.parse(storedData));
+  //       //   setCurrentPage(1);
+  //       // }
+  //     } catch (error) {
+  //       console.log("Error loading data from AsyncStorage or API:", error);
+  //     }
+  //   };
 
-    loadData();
-  }, []);
+  //   loadData();
+  // }, []);
 
   useEffect(() => {
     const loadData = async () => {
@@ -232,16 +234,25 @@ const MyTable = ({
 
         // Check if data exists in AsyncStorage first
         if (selectedActivityType === "Yearly") {
-          // await getdatafromupdatedlink(
-          //   `${companyName}_${selectedActivity}_${selectedYear}`
-          // );
+          if (companyName && selectedActivity && selectedYear) {
+            await getdatafromupdatedlink(
+              `${companyName}_${selectedActivity}_${selectedYear}`
+            );
+          }
           storedData = await AsyncStorage.getItem(
             `${companyName}_${selectedActivity}_${selectedYear}`
           );
         } else {
-          // await getdatafromupdatedlink(
-          //   `${companyName}_${selectedActivity}_${selectedYear}_${selectedMonth}`
-          // );
+          if (
+            companyName &&
+            selectedActivity &&
+            selectedYear &&
+            selectedMonth
+          ) {
+            await getdatafromupdatedlink(
+              `${companyName}_${selectedActivity}_${selectedYear}_${selectedMonth}`
+            );
+          }
           storedData = await AsyncStorage.getItem(
             `${companyName}_${selectedActivity}_${selectedYear}_${selectedMonth}`
           );

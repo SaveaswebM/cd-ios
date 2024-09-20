@@ -26,7 +26,7 @@
         <category android:name="android.intent.category.DEFAULT"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <data android:scheme="compliance-diary"/>
-        <data android:scheme="com.anonymous.compliancediary"/>
+        <data android:scheme="com.thirdeyetechlabs.compliancediary"/>
         <data android:scheme="exp+compliance-diary"/>
       </intent-filter>
     </activity>

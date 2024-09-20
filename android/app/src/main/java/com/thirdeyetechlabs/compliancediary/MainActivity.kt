@@ -1,4 +1,4 @@
-package com.anonymous.compliancediary
+package com.thirdeyetechlabs.compliancediary
 
 import android.os.Build
 import android.os.Bundle
