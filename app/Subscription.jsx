@@ -7,64 +7,130 @@ import {
   Image,
   SafeAreaView,
   Platform,
+  Alert,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import Header from "../components/Header";
-// import Home from '../app/Home';
 import Premium from "../assets/images/premium.png";
-import standard from "../assets/images/standard.png";
+import Standard from "../assets/images/standard.png";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { LinearGradient } from "expo-linear-gradient";
 import { Link } from "expo-router";
-import Purchases, { LOG_LEVEL, PurchasesPackage } from "react-native-purchases";
-import { CustomerInfo } from "react-native-purchases";
+import * as RNIap from "react-native-iap";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+const itemSubs = Platform.select({
+  ios: ["your_product_id"],
+
+  android: [
+    "com.thirdeyetechlabs.compliancediary.standard_1",
+    "com.thirdeyetechlabs.compliancediary.premium_1",
+  ],
+});
+
 const Subscription = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [products, setProducts] = useState([]);
+  // useEffect(() => {
+  //   IAP.getProducts(itemSkus).then((res) => {
+  //     console.log(res);
+  //   });
+  // }, []);
+  // useEffect(() => {
+  //   const initIAP = async () => {
+  //     try {
+  //       await initConnection();
+  //       const availableProducts = await getSubscriptions({ skus: itemSkus });
+  //       console.log(availableProducts);
+  //       setProducts(availableProducts);
+  //     } catch (e) {
+  //       console.error("Error initializing IAP:", e);
+  //     }
+  //   };
 
+  //   const tokenCheck = async () => {
+  //     const token = await AsyncStorage.getItem("token");
+  //     setIsLoggedIn(!!token);
+  //   };
+
+  //   tokenCheck();
+  //   initIAP();
+
+  //   const purchaseUpdateSubscription = purchaseUpdatedListener((purchase) => {
+  //     // Handle successful purchases here
+  //     console.log("Purchase updated:", purchase);
+  //   });
+
+  //   const purchaseErrorSubscription = purchaseErrorListener((error) => {
+  //     console.error("Purchase error:", error);
+  //   });
+
+  //   return () => {
+  //     purchaseUpdateSubscription.remove();
+  //     purchaseErrorSubscription.remove();
+  //   };
+  // }, []);
   useEffect(() => {
-    const initPurchases = async () => {
-      try {
-        // Purchases.configure({ apiKey: "goog_criSyFSujMyvjeGPtutrNHniHKd" }); // Add your API key here
-        // const offerings = await Purchases.getOfferings();
-        // if (offerings.current && offerings.current.availablePackages.length) {
-        //   setPackages(offerings.current.availablePackages);
-        // }
-
-        if (Purchases && Platform.OS === "android") {
-          Purchases.configure({ apiKey: "goog_criSyFSujMyvjeGPtutrNHniHKd" });
-          const offerings = await Purchases.getOfferings();
-          const currentOffering = offerings.current;
-        } else {
-          console.error("Purchases object is not available");
-        }
-      } catch (e) {
-        console.error("Error initializing RevenueCat:", e);
-      }
-    };
-
-    initPurchases();
+    initilizeIAPConnection();
   }, []);
 
-  const handlePurchase = async (selectedPackage) => {
-    const tokenCheck = await AsyncStorage.getItem("token");
-    if (tokenCheck) {
-      setIsLoggedIn(tokenCheck);
-    }
-    if (isLoggedIn) {
-      // If the user is logged in, take them to the payment page
-      try {
-        const purchaseMade = await Purchases.purchasePackage(selectedPackage);
-        console.log("Purchase successful:", purchaseMade);
-        // Handle successful purchase
-      } catch (e) {
-        if (!e.userCancelled) {
-          console.error("Error during purchase:", e);
+  const initilizeIAPConnection = async () => {
+    await RNIap.initConnection()
+
+      .then(async (connection) => {
+        console.log("IAP result", connection);
+
+        getItems();
+      })
+
+      .catch((err) => {
+        console.warn(`IAP ERROR ${err.code}`, err.message);
+      });
+
+    await RNIap.flushFailedPurchasesCachedAsPendingAndroid()
+
+      .then(async (consumed) => {
+        console.log("consumed all items?", consumed);
+      })
+      .catch((err) => {
+        console.warn(
+          `flushFailedPurchasesCachedAsPendingAndroid ERROR ${err.code}`,
+          err.message
+        );
+      });
+  };
+  const getItems = async () => {
+    try {
+      console.log("itemSubs ", itemSubs);
+
+      const Products = await RNIap.getSubscriptions(itemSubs);
+
+      console.log(" IAP Su", Products);
+      Alert.alert(" IAP Su", Products);
+      if (Products.length !== 0) {
+        if (Platform.OS === "android") {
+          //Your logic here to save the products in states etc
+        } else if (Platform.OS === "ios") {
+          // your logic here to save the products in states etc
+          // Make sure to check the response differently for android and ios as it is different for both
         }
       }
+    } catch (err) {
+      console.warn("IAP error", err.code, err.message, err);
+
+      setError(err.message);
+    }
+  };
+  const handlePurchase = async (productId) => {
+    if (isLoggedIn) {
+      try {
+        await requestSubscription(productId);
+        console.log(`Purchase started for product: ${productId}`);
+      } catch (e) {
+        console.error("Error purchasing product:", e);
+      }
     } else {
-      // If the user is not logged in, redirect them to the login page
+      // Redirect to login page if not logged in
       router.push("/Login");
     }
   };
@@ -75,229 +141,117 @@ const Subscription = () => {
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
         <View style={styles.container}>
           <View style={styles.card}>
-            <View>
-              <LinearGradient
-                colors={["#70B3FF", "#6C67E7"]}
-                start={{ x: 0.0, y: 0.5 }}
-                end={{ x: 1.0, y: 0.5 }}
-                style={styles.packageName}
-              >
-                <Text style={styles.packageText}>Basic Version</Text>
-              </LinearGradient>
-              <Text style={styles.versionName}>Free</Text>
-              <View style={styles.infoContainer}>
-                <View style={styles.textContainer}>
-                  <TouchableOpacity style={styles.bar_icon}>
-                    <Icon
-                      name="check-circle"
-                      size={18}
-                      color="#00a0e3"
-                      style={{ color: "#33363F" }}
-                    />
-                  </TouchableOpacity>
-                  <Text style={[styles.text]}>Number of companies - 03</Text>
-                </View>
-                <View style={styles.textContainer}>
-                  <TouchableOpacity style={styles.bar_icon}>
-                    <Icon
-                      name="check-circle"
-                      size={18}
-                      color="#00a0e3"
-                      style={{ color: "#33363F" }}
-                    />
-                  </TouchableOpacity>
-                  <Text style={[styles.text]}>Number of people - 10</Text>
-                </View>
-                <View style={styles.textContainer}>
-                  <TouchableOpacity style={styles.bar_icon}>
-                    <Icon
-                      name="times-circle"
-                      size={18}
-                      color="#00a0e3"
-                      style={{ color: "#33363F" }}
-                    />
-                  </TouchableOpacity>
-                  <Text style={[styles.text]}>No data backup</Text>
-                </View>
+            <LinearGradient
+              colors={["#70B3FF", "#6C67E7"]}
+              start={{ x: 0.0, y: 0.5 }}
+              end={{ x: 1.0, y: 0.5 }}
+              style={styles.packageName}
+            >
+              <Text style={styles.packageText}>Basic Version</Text>
+            </LinearGradient>
+            <Text style={styles.versionName}>Free</Text>
+            <View style={styles.infoContainer}>
+              <View style={styles.textContainer}>
+                <Icon name="check-circle" size={18} color="#33363F" />
+                <Text style={styles.text}>Number of companies - 03</Text>
               </View>
-              <LinearGradient
-                colors={["#6AB0FF", "#ABD2FF", "#7D98B7", "#3F6A9B"]}
-                start={{ x: 0, y: 0.5 }}
-                end={{ x: 1, y: 0.5 }}
-                style={styles.button}
-              >
-                <TouchableOpacity
-                  style={{
-                    alignSelf: "center", // Add this to control the width
-                    paddingHorizontal: 16, // Adjust padding to control button width
-                    paddingVertical: 4, // Adjust padding for vertical spacing
-                    borderRadius: 15,
-                  }}
-                  onPress={() => navigation.navigate(index)}
-                >
-                  <Link href="/">
-                    <Text style={styles.buttonText}>Continue</Text>
-                  </Link>
-                </TouchableOpacity>
-              </LinearGradient>
+              <View style={styles.textContainer}>
+                <Icon name="check-circle" size={18} color="#33363F" />
+                <Text style={styles.text}>Number of people - 10</Text>
+              </View>
+              <View style={styles.textContainer}>
+                <Icon name="times-circle" size={18} color="#33363F" />
+                <Text style={styles.text}>No data backup</Text>
+              </View>
             </View>
+            <LinearGradient
+              colors={["#6AB0FF", "#ABD2FF"]}
+              start={{ x: 0, y: 0.5 }}
+              end={{ x: 1, y: 0.5 }}
+              style={styles.button}
+            >
+              <TouchableOpacity onPress={() => navigation.navigate(index)}>
+                <Text style={styles.buttonText}>Continue</Text>
+              </TouchableOpacity>
+            </LinearGradient>
           </View>
+
           <View style={[styles.card, styles.card2]}>
-            <View>
-              <LinearGradient
-                colors={["#70B3FF", "#6C67E7"]}
-                start={{ x: 0.0, y: 0.5 }}
-                end={{ x: 1.0, y: 0.5 }}
-                style={styles.packageName}
-              >
-                <View style={styles.imageContainer}>
-                  <Image
-                    source={standard}
-                    style={styles.image}
-                    resizeMode="contain"
-                  />
-                  <Text style={styles.packageText}>Standard Version</Text>
-                </View>
-              </LinearGradient>
-              <Text style={styles.versionName}>Rs 5,000/-</Text>
-              <View style={styles.infoContainer}>
-                <View style={styles.textContainer}>
-                  <TouchableOpacity style={styles.bar_icon}>
-                    <Icon
-                      name="check-circle"
-                      size={18}
-                      color="#00a0e3"
-                      style={{ color: "#33363F" }}
-                    />
-                  </TouchableOpacity>
-                  <Text style={[styles.text, styles.text2]}>
-                    Number of companies - 05
-                  </Text>
-                </View>
-                <View style={styles.textContainer}>
-                  <TouchableOpacity style={styles.bar_icon}>
-                    <Icon
-                      name="check-circle"
-                      size={18}
-                      color="#00a0e3"
-                      style={{ color: "#33363F" }}
-                    />
-                  </TouchableOpacity>
-                  <Text style={[styles.text, styles.text2]}>
-                    Number of people - 50
-                  </Text>
-                </View>
-                <View style={styles.textContainer}>
-                  <TouchableOpacity style={styles.bar_icon}>
-                    <Icon
-                      name="check-circle"
-                      size={18}
-                      color="#00a0e3"
-                      style={{ color: "#33363F" }}
-                    />
-                  </TouchableOpacity>
-                  <Text style={[styles.text, styles.text2]}>Data backup</Text>
-                </View>
+            <LinearGradient
+              colors={["#70B3FF", "#6C67E7"]}
+              start={{ x: 0.0, y: 0.5 }}
+              end={{ x: 1.0, y: 0.5 }}
+              style={styles.packageName}
+            >
+              <Image source={Standard} style={styles.image} />
+              <Text style={styles.packageText}>Standard Version</Text>
+            </LinearGradient>
+            <Text style={styles.versionName}>Rs 5,000/-</Text>
+            <View style={styles.infoContainer}>
+              <View style={styles.textContainer}>
+                <Icon name="check-circle" size={18} color="#33363F" />
+                <Text style={styles.text}>Number of companies - 05</Text>
               </View>
-              <LinearGradient
-                colors={["#6AB0FF", "#ABD2FF", "#7D98B7", "#3F6A9B"]}
-                start={{ x: 0, y: 0.5 }}
-                end={{ x: 1, y: 0.5 }}
-                style={styles.button}
-              >
-                <TouchableOpacity
-                  style={{
-                    alignSelf: "center", // Add this to control the width
-                    paddingHorizontal: 16, // Adjust padding to control button width
-                    paddingVertical: 4, // Adjust padding for vertical spacing
-                    borderRadius: 15,
-                  }}
-                >
-                  <Link href="/Login">
-                    <Text style={styles.buttonText}>Get Standard</Text>
-                  </Link>
-                </TouchableOpacity>
-              </LinearGradient>
+              <View style={styles.textContainer}>
+                <Icon name="check-circle" size={18} color="#33363F" />
+                <Text style={styles.text}>Number of people - 50</Text>
+              </View>
+              <View style={styles.textContainer}>
+                <Icon name="check-circle" size={18} color="#33363F" />
+                <Text style={styles.text}>Data backup</Text>
+              </View>
             </View>
+            <LinearGradient
+              colors={["#6AB0FF", "#ABD2FF"]}
+              start={{ x: 0, y: 0.5 }}
+              end={{ x: 1, y: 0.5 }}
+              style={styles.button}
+            >
+              <TouchableOpacity
+                onPress={() => handlePurchase("com.cooni.point5000")}
+              >
+                <Text style={styles.buttonText}>Get Standard</Text>
+              </TouchableOpacity>
+            </LinearGradient>
           </View>
+
           <View style={[styles.card, styles.card3]}>
-            <View>
-              <LinearGradient
-                colors={["#70B3FF", "#6C67E7"]}
-                start={{ x: 0.0, y: 0.5 }}
-                end={{ x: 1.0, y: 0.5 }}
-                style={styles.packageName}
-              >
-                <View style={styles.imageContainer}>
-                  <Image
-                    source={Premium}
-                    style={styles.image}
-                    resizeMode="contain"
-                  />
-                  <Text style={styles.packageText}>Premium Version</Text>
-                </View>
-              </LinearGradient>
-              <Text style={[styles.versionName, styles.versionName3]}>
-                Rs 10,000/-
-              </Text>
-              <View style={styles.infoContainer}>
-                <View style={styles.textContainer}>
-                  <TouchableOpacity style={styles.bar_icon}>
-                    <Icon
-                      name="check-circle"
-                      size={18}
-                      color="#fff"
-                      style={{ color: "#fff" }}
-                    />
-                  </TouchableOpacity>
-                  <Text style={[styles.text, styles.text3]}>
-                    Number of companies - 50
-                  </Text>
-                </View>
-                <View style={styles.textContainer}>
-                  <TouchableOpacity style={styles.bar_icon}>
-                    <Icon
-                      name="check-circle"
-                      size={18}
-                      color="#fff"
-                      style={{ color: "#fff" }}
-                    />
-                  </TouchableOpacity>
-                  <Text style={[styles.text, styles.text3]}>
-                    Number of people - 200
-                  </Text>
-                </View>
-                <View style={styles.textContainer}>
-                  <TouchableOpacity style={styles.bar_icon}>
-                    <Icon
-                      name="check-circle"
-                      size={18}
-                      color="#fff"
-                      style={{ color: "#fff" }}
-                    />
-                  </TouchableOpacity>
-                  <Text style={[styles.text, styles.text3]}>Data backup</Text>
-                </View>
+            <LinearGradient
+              colors={["#70B3FF", "#6C67E7"]}
+              start={{ x: 0.0, y: 0.5 }}
+              end={{ x: 1.0, y: 0.5 }}
+              style={styles.packageName}
+            >
+              <Image source={Premium} style={styles.image} />
+              <Text style={styles.packageText}>Premium Version</Text>
+            </LinearGradient>
+            <Text style={styles.versionName}>Rs 10,000/-</Text>
+            <View style={styles.infoContainer}>
+              <View style={styles.textContainer}>
+                <Icon name="check-circle" size={18} color="#fff" />
+                <Text style={styles.text}>Number of companies - 50</Text>
               </View>
-              <LinearGradient
-                colors={["#6AB0FF", "#ABD2FF", "#7D98B7", "#3F6A9B"]}
-                start={{ x: 0, y: 0.5 }}
-                end={{ x: 1, y: 0.5 }}
-                style={styles.button}
-              >
-                <TouchableOpacity
-                  style={{
-                    alignSelf: "center", // Add this to control the width
-                    paddingHorizontal: 16, // Adjust padding to control button width
-                    paddingVertical: 4, // Adjust padding for vertical spacing
-                    borderRadius: 15,
-                  }}
-                  onPress={() => handlePurchase("premium")}
-                >
-                  <Text style={styles.buttonText}>Get Premium</Text>
-                </TouchableOpacity>
-              </LinearGradient>
+              <View style={styles.textContainer}>
+                <Icon name="check-circle" size={18} color="#fff" />
+                <Text style={styles.text}>Number of people - 200</Text>
+              </View>
+              <View style={styles.textContainer}>
+                <Icon name="check-circle" size={18} color="#fff" />
+                <Text style={styles.text}>Data backup</Text>
+              </View>
             </View>
+            <LinearGradient
+              colors={["#6AB0FF", "#ABD2FF"]}
+              start={{ x: 0, y: 0.5 }}
+              end={{ x: 1, y: 0.5 }}
+              style={styles.button}
+            >
+              <TouchableOpacity
+                onPress={() => handlePurchase("com.cooni.point5000")}
+              >
+                <Text style={styles.buttonText}>Get Premium</Text>
+              </TouchableOpacity>
+            </LinearGradient>
           </View>
         </View>
       </ScrollView>

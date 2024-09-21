@@ -1,7 +1,7 @@
 {
   "name": "compliance-diary",
   "main": "expo-router/entry",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "scripts": {
     "start": "expo start --dev-client",
     "reset-project": "node ./scripts/reset-project.js",
@@ -42,6 +42,7 @@
     "react-native-base64": "^0.2.1",
     "react-native-date-picker": "^5.0.4",
     "react-native-gesture-handler": "~2.16.1",
+    "react-native-iap": "^12.15.3",
     "react-native-keyboard-aware-scroll-view": "^0.9.5",
     "react-native-modal": "^13.0.1",
     "react-native-multiple-select": "^0.5.12",
