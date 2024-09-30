@@ -37,6 +37,11 @@ const Dropdown = ({
   activities,
   setActivities,
   isEmployee,
+  isTeamDropdown,
+  selectedCompanyName,
+  selectedActivityName,
+  setIsMakeTeamModalVisible,
+  disabled,
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [selectedOption, setSelectedOption] = useState(null);
@@ -163,15 +168,40 @@ const Dropdown = ({
 
   return (
     <View style={[styles.container, style]}>
-      <TouchableOpacity
-        ref={buttonRef}
-        onPress={toggleDropdown}
-        style={styles.dropdownButton}
-      >
-        <Text style={styles.buttonText}>
-          {selectedOption ? selectedOption.label : placeholder}
-        </Text>
-      </TouchableOpacity>
+      {isTeamDropdown && isEmployee ? (
+        <TouchableOpacity
+          ref={buttonRef}
+          onPress={toggleDropdown}
+          style={[
+            styles.dropdownButton,
+            { backgroundColor: "#d3d3d3" }, // Change button color when disabled
+          ]}
+          disabled={true}
+        >
+          {isTeamDropdown ? (
+            <Text style={styles.buttonText}>{placeholder}</Text>
+          ) : (
+            <Text style={styles.buttonText}>
+              {selectedOption ? selectedOption.label : placeholder}
+            </Text>
+          )}
+        </TouchableOpacity>
+      ) : (
+        <TouchableOpacity
+          ref={buttonRef}
+          onPress={toggleDropdown}
+          style={styles.dropdownButton}
+        >
+          {isTeamDropdown ? (
+            <Text style={styles.buttonText}>{placeholder}</Text>
+          ) : (
+            <Text style={styles.buttonText}>
+              {selectedOption ? selectedOption.label : placeholder}
+            </Text>
+          )}
+        </TouchableOpacity>
+      )}
+
       {isVisible && (
         <Modal
           transparent
@@ -281,6 +311,14 @@ const Dropdown = ({
                   style={[styles.option, { backgroundColor: "#00397A" }]}
                 >
                   <Text style={styles.optionText}>Add Activity</Text>
+                </TouchableOpacity>
+              )}
+              {isTeamDropdown && !isEmployee && (
+                <TouchableOpacity
+                  onPress={() => setIsMakeTeamModalVisible(true)}
+                  style={[styles.option, { backgroundColor: "#00397A" }]}
+                >
+                  <Text style={styles.optionText}>Invite Member</Text>
                 </TouchableOpacity>
               )}
             </View>

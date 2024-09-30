@@ -16,6 +16,7 @@ const LinkInput = ({
   setActivities,
   setCompanyName,
   setUserName,
+  companyName,
 }) => {
   const [link, setLink] = useState(""); // State to hold the entered link
   const [appliedLink, setAppliedLink] = useState(""); // State to hold the applied link
@@ -31,36 +32,34 @@ const LinkInput = ({
       // Fetch each parameter and decode the base64-encoded values
       await AsyncStorage.setItem("isEmployeeTrue", "yes");
       const name = base64.decode(queryParams.get("name"));
-      const company = base64.decode(queryParams.get("company"));
-      const activities = base64
-        .decode(queryParams.get("activities"))
-        .split(","); // Split activities back into an array
+      // const company = base64.decode(queryParams.get("company"));
+      // const activities = base64
+      //   .decode(queryParams.get("activities"))
+      //   .split(","); // Split activities back into an array
       const id = queryParams.get("id"); // This is a unique ID, not encoded
       setIsEmployee(true);
 
       // Store the decoded data in state
       // setFetchedData({ name, company, activities, id });
-      const newCompany = {
-        label: company,
-        value: company,
-      };
 
-      const updatedCompanyName = [newCompany];
-      const activ = JSON.parse(activities);
-      setCompanyName(updatedCompanyName);
-      setActivities(JSON.parse(activities));
+      // const newCompany = {
+      //   label: company,
+      //   value: company,
+      // };
+
+      // const updatedCompanyName = [newCompany];
+      // const activ = JSON.parse(activities);
+      // setCompanyName(updatedCompanyName);
+      // setActivities(JSON.parse(activities));
       setUserName(name);
-      // console.log("name........", name);
-      // console.log("id........", id);
-      // console.log("company........", updatedCompanyName);
-      // console.log("activities..........", JSON.parse(activities));
+      await getAccessData(id, name);
       await AsyncStorage.setItem("employeeLink", id);
       await AsyncStorage.setItem("userName", name);
-      await AsyncStorage.setItem(
-        "link-company",
-        JSON.stringify(updatedCompanyName)
-      );
-      await AsyncStorage.setItem("link-activities", JSON.stringify(activ));
+      // await AsyncStorage.setItem(
+      //   "link-company",
+      //   JSON.stringify(updatedCompanyName)
+      // );
+      // await AsyncStorage.setItem("link-activities", JSON.stringify(activ));
       const response = await fetch(
         `https://cd-backend-1.onrender.com/api/link-data?link=${id}`
       );
@@ -80,6 +79,50 @@ const LinkInput = ({
       console.error("Error fetching parameters:", error);
       Alert.alert("Error", "Failed to fetch link parameters.");
     }
+  };
+
+  const getAccessData = async (id, name) => {
+    try {
+      console.log("calleeed");
+      const response = await fetch(
+        `https://cd-backend-1.onrender.com/api/link-data/access-list?link=${id}&employeeName=${name}`
+      );
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Access data received:", data);
+        const companies = data.companies;
+
+        if (companies) {
+          // Loop over the companies object and log or process the companies and activities
+
+          const companyList = Object.keys(companies).map((company) => ({
+            label: company,
+            value: company,
+          }));
+          setCompanyName(companyList);
+          await AsyncStorage.setItem(
+            "link-company",
+            JSON.stringify(companyList)
+          );
+
+          const structuredCompanies = [];
+
+          Object.keys(companies).forEach((companyName) => {
+            const activities = companies[companyName];
+
+            // Push an object where the key is the company name and the value is the activities
+            structuredCompanies.push({ [companyName]: activities });
+          });
+
+          // console.log("Structured Companies: ", structuredCompanies);
+
+          await AsyncStorage.setItem(
+            "link-activities",
+            JSON.stringify(structuredCompanies)
+          );
+        }
+      }
+    } catch (error) {}
   };
 
   // Handle apply action

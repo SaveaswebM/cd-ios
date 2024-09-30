@@ -39,6 +39,7 @@ const Index = ({ navigation }) => {
   const [showAddCompanyModal, setShowAddCompanyModal] = useState(false);
   const [showAddActivityModal, setShowAddActivityModal] = useState(false);
   const [isEmployee, setIsEmployee] = useState(false);
+  const [employees, setEmployees] = useState([]);
 
   const buttonRef = useRef(null);
   // const options2 = [
@@ -132,19 +133,90 @@ const Index = ({ navigation }) => {
   useEffect(() => {
     const getEmployeeStatus = async () => {
       const getstatus = await AsyncStorage.getItem("isEmployeeTrue");
+
       if (getstatus === "yes") {
         setIsEmployee(true);
 
         const getcompanyname = await AsyncStorage.getItem("link-company");
         const company2 = JSON.parse(getcompanyname);
         setCompanyName(company2);
-        const getactivities = await AsyncStorage.getItem("link-activities");
-        const acti = JSON.parse(getactivities);
-        setActivities(acti);
+        // const getactivities = await AsyncStorage.getItem("link-activities");
+
+        // const acti = JSON.parse(getactivities);
+        // setActivities(acti);
       }
     };
     getEmployeeStatus();
   }, []);
+  useEffect(() => {
+    const getEmployee = async () => {
+      setEmployees([]);
+      try {
+        if (selectedActivityName && selectedCompanyName && !isEmployee) {
+          const id = await AsyncStorage.getItem("links"); // Ensure key is correct
+          if (id) {
+            const response = await fetch(
+              `https://cd-backend-1.onrender.com/api/link-data/employee-list?link=${id}&selectedActivityName=${selectedActivityName}&selectedCompanyName=${selectedCompanyName}`
+            );
+            if (response.ok) {
+              const employeees = await response.json();
+              const employeeList = employeees.map((employee) => ({
+                label: employee,
+                value: employee,
+              }));
+              //  console.log(employeeList);
+              setEmployees(employeeList);
+            } else {
+              console.log("Error fetching employee data:", response.statusText);
+            }
+          } else {
+            console.log("No link ID found in AsyncStorage");
+          }
+        }
+      } catch (error) {
+        console.error("Error in getEmployee function:", error);
+      }
+    };
+
+    getEmployee();
+  }, [selectedActivityName, selectedCompanyName]);
+
+  useEffect(() => {
+    const getActivities = async () => {
+      try {
+        if (isEmployee) {
+          // Fetch activities from AsyncStorage
+          const storedActivities = await AsyncStorage.getItem(
+            "link-activities"
+          );
+
+          if (storedActivities) {
+            const parsedActivities = JSON.parse(storedActivities); // Parse the JSON data
+
+            // Check if the selected company exists in the parsed activities
+            const selectedCompanyActivities = parsedActivities.find(
+              (company) => company[selectedCompanyName]
+            );
+
+            if (selectedCompanyActivities) {
+              const activities = selectedCompanyActivities[selectedCompanyName]; // Get activities for that company
+              console.log(`Activities for ${selectedCompanyName}:`, activities);
+              setActivities(activities);
+              // You can now do something with these activities, like updating state
+            } else {
+              console.log(`No activities found for ${selectedCompanyName}`);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching activities:", error);
+      }
+    };
+
+    // Only fetch activities when selectedCompanyName changes
+    getActivities();
+  }, [selectedCompanyName]);
+
   useEffect(() => {
     const loadCompanyNames = async () => {
       try {
@@ -321,7 +393,22 @@ const Index = ({ navigation }) => {
               />
             </View>
             <View style={styles.buttonContainer}>
-              <TouchableOpacity
+              <CustomDropdown
+                placeholder={"Make A Team"}
+                options={employees}
+                isTeamDropdown={true}
+                isEmployee={isEmployee}
+                selectedCompanyName={selectedCompanyName}
+                selectedActivityName={selectedActivityName}
+                setIsMakeTeamModalVisible={setIsMakeTeamModalVisible}
+                disabled={true}
+                onSelect={(selectedOption) => {
+                  // Handle the selected option here
+                  console.log("Selected option:", selectedOption);
+                  // Add any logic you want to perform on selection
+                }}
+              />
+              {/* <TouchableOpacity
                 style={[
                   styles.dropdownButton,
                   isEmployee && { backgroundColor: "#d3d3d3" }, // Change button color when disabled
@@ -330,7 +417,7 @@ const Index = ({ navigation }) => {
                 disabled={isEmployee}
               >
                 <Text style={styles.buttonText}>Make A Team</Text>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
             </View>
             <View
               style={styles.buttonContainer}
@@ -390,6 +477,7 @@ const Index = ({ navigation }) => {
             setCompanyName={setCompanyName}
             setActivities={setActivities}
             setUserName={setUserName}
+            companyName={companyName}
           />
         </View>
       </ScrollView>
@@ -399,6 +487,9 @@ const Index = ({ navigation }) => {
         companyNameOptions={companyName}
         groupOptions={activities}
         years={years}
+        selectedCompanyName={selectedCompanyName}
+        selectedActivityName={selectedActivityName}
+        selectedActivityType={selectedActivityType}
       />
       <PeriodDropdown
         visible={isPeriodDropdownVisible}

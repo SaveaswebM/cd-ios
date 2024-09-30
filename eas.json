@@ -18,6 +18,12 @@
     "production": {}
   },
   "submit": {
-    "production": {}
+    "production": {
+      "ios": {
+        "appleId": "corporate@thirdeyetechlabs.com",
+        "ascAppId": "6733226969",
+        "appleTeamId": "72449NCMKQ"
+      }
+    }
   }
 }

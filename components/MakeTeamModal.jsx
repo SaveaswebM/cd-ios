@@ -22,13 +22,16 @@ const MakeTeamModal = ({
   companyNameOptions,
   groupOptions,
   years,
+  selectedCompanyName,
+  selectedActivityName,
+  selectedActivityType,
 }) => {
   const [personName, setPersonName] = useState("");
-  const [selectedCompanyName, setSelectedCompanyName] = useState(null);
+  // const [selectedCompanyName, setSelectedCompanyName] = useState(null);
   const [selectedGroups, setSelectedGroups] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
   const [fetchedData, setFetchedData] = useState([]);
-
+  const [members, setMembers] = useState([]);
   const months = [
     "January",
     "February",
@@ -46,6 +49,7 @@ const MakeTeamModal = ({
 
   useEffect(() => {
     // Fetch data from API
+
     const fetchApiData = async () => {
       try {
         const response = await fetch(
@@ -64,7 +68,21 @@ const MakeTeamModal = ({
 
     fetchApiData();
   }, []);
-
+  useEffect(() => {
+    const fetchApiData = async () => {
+      const id = await AsyncStorage.getItem("links");
+      if (id) {
+        const fetchlist = await fetch(
+          `https://cd-backend-1.onrender.com/api/link-data/full-employee-list?link=${id}`
+        );
+        if (fetchlist) {
+          const dataa = fetchlist.json();
+          setMembers(dataa);
+        }
+      }
+    };
+    fetchApiData();
+  }, []);
   const getFromattedApiData = async (
     selectedActivityType,
     selectedActivity,
@@ -114,6 +132,23 @@ const MakeTeamModal = ({
   };
 
   const handleSave = async () => {
+    // const fetchlist = await fetch(
+    //   `https://cd-backend-1.onrender.com/api/link-data/full-employee-list?link=${id}`
+    // );
+    // if (fetchlist) {
+    //   const dataa = fetchlist.json();
+    //   setMembers(dataa);
+    // }
+    if (selectedActivityName && selectedActivityType) {
+      setSelectedGroups([
+        {
+          label: `${selectedActivityName}`,
+          type: `${selectedActivityType}`,
+          value: `${selectedActivityName}`,
+        },
+      ]);
+      console.log(selectedGroups);
+    }
     if (!personName || !selectedCompanyName || selectedGroups.length === 0) {
       setErrorMessage("Please fill out all fields.");
       return;
@@ -126,7 +161,7 @@ const MakeTeamModal = ({
       const encodedCompanyName = base64.encode(selectedCompanyName);
       const encodedGroups = base64.encode(JSON.stringify(selectedGroups));
       const baseUrl = "https://yourapp.com/share";
-      const queryParameters = `?name=${encodedPersonName}&company=${encodedCompanyName}&activities=${encodedGroups}&id=${uId}`;
+      const queryParameters = `?name=${encodedPersonName}&id=${uId}`;
 
       const link = `${baseUrl}${queryParameters}`;
 
@@ -135,8 +170,8 @@ const MakeTeamModal = ({
       });
       console.log(selectedGroups);
       if (result.action === Share.sharedAction) {
-        const linkownerName = await AsyncStorage.getItem("userName");
-        const linkrecieverName = personName;
+        const owner = await AsyncStorage.getItem("userName");
+        const employeeName = personName;
 
         let data = {};
 
@@ -240,10 +275,11 @@ const MakeTeamModal = ({
 
         const payload = {
           link: uId,
-          // linkownerName,
-          // linkrecieverName,
-          // companyName: selectedCompanyName,
+          owner,
+          employeeName,
+          companyName: selectedCompanyName,
           // activities: {},
+          activityName: selectedGroups,
           data,
         };
         //  console.log("payload data", payload);
@@ -302,23 +338,23 @@ const MakeTeamModal = ({
               value={personName}
               onChangeText={setPersonName}
             />
-            <View style={styles.fullWidthDropdown}>
+            {/* <View style={styles.fullWidthDropdown}>
               <CustomDropdown
                 options={companyNameOptions}
                 onSelect={(option) => setSelectedCompanyName(option.value)}
                 placeholder={selectedCompanyName || "Company Name"}
               />
-            </View>
-            <MultiSelect
-              options={groupOptions}
+            </View> */}
+            {/* <MultiSelect
+              options={members}
               onSelect={setSelectedGroups}
               selectedItems={selectedGroups}
               placeholder="Select Activities"
               style={styles.fullWidthDropdown}
-            />
-            {errorMessage && (
+            /> */}
+            {/* {errorMessage && (
               <Text style={styles.errorText}>{errorMessage}</Text>
-            )}
+            )} */}
             <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
               <Text style={styles.saveButtonText}>Share</Text>
             </TouchableOpacity>
