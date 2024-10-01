@@ -19,9 +19,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import base64 from "react-native-base64";
 import LinkInput from "../components/LinkInput";
 import Refresh from "../components/Refresh";
+import DropdownTest from "../components/DropdownTest"
 // import CustomLoadingScreen from "../components/CustomLoadingScreen";
 
 const Index = ({ navigation }) => {
+  const [isVisible, setIsVisible] = useState(false);
   const [selectedCompanyName, setSelectedCompanyName] = useState(null);
   const [selectedActivityName, setSelectedActivityName] = useState(null);
   const [selectedActivityType, setSelectedActivityType] = useState(null);
@@ -347,6 +349,74 @@ const Index = ({ navigation }) => {
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <Header navigation={navigation} isEmployee={isEmployee} />
+      <View style={styles.container}>
+          <View style={styles.buttonRow}>
+            {/* <View style={styles.buttonContainer}>
+                      <DropdownTest        options={companyName}
+                userName={userName}
+                setUserName={setUserName}
+                onSelect={(option) => setSelectedCompanyName(option.value)}
+                isCompanyDropdown={true}
+                onAddCompany={handleAddCompany}
+                errorMessage={errorMessage}
+                setErrorMessage={setErrorMessage}
+                showAddCompanyModal={showAddCompanyModal}
+                setShowAddCompanyModal={setShowAddCompanyModal}
+                isEmployee={isEmployee}
+                isVisible={isVisible}
+                setIsVisible={setIsVisible}
+
+                placeholder={
+                  selectedCompanyName
+                    ? `${selectedCompanyName}`
+                    : "Company Name"
+                }/>
+      </View>
+      <View style={styles.buttonContainer}> 
+      <DropdownTest   isActivityDropdown={true}
+                activities={activities}
+                setActivities={setActivities}
+                options={activities}
+                userName={userName}
+                setUserName={setUserName}
+                isEmployee={isEmployee}
+                showAddActivityModal={showAddActivityModal}
+                setShowAddActivityModal={setShowAddActivityModal}
+                isVisible={isVisible}
+                setIsVisible={setIsVisible}
+                onSelect={(option) => {
+                  setSelectedActivityName(option.value),
+                    setSelectedActivityType(option.type);
+                }}
+                placeholder={
+                  selectedActivityName
+                    ? ` ${selectedActivityName}`
+                    : "Select Activity"
+                } />
+      </View>
+      <View style={styles.buttonContainer}>
+      <DropdownTest   
+          placeholder={"Make A Team"}
+                options={employees}
+                isTeamDropdown={true}
+                isEmployee={isEmployee}
+                selectedCompanyName={selectedCompanyName}
+                selectedActivityName={selectedActivityName}
+                setIsMakeTeamModalVisible={setIsMakeTeamModalVisible}
+                disabled={true}
+                isVisible={isVisible}
+                setIsVisible={setIsVisible}
+                onSelect={(selectedOption) => {
+                  // Handle the selected option here
+                  console.log("Selected option:", selectedOption);
+                  // Add any logic you want to perform on selection
+                }} />
+      </View> */}
+      {/* <View style={styles.buttonContainer}>
+      <DropdownTest />
+    </View> */}
+    </View>
+    </View>
       <ScrollView style={styles.scrollview}>
         <View style={styles.container}>
           <View style={styles.buttonRow}>
@@ -363,6 +433,8 @@ const Index = ({ navigation }) => {
                 showAddCompanyModal={showAddCompanyModal}
                 setShowAddCompanyModal={setShowAddCompanyModal}
                 isEmployee={isEmployee}
+                isVisible={isVisible}
+                setIsVisible={setIsVisible}
                 placeholder={
                   selectedCompanyName
                     ? `${selectedCompanyName}`
@@ -370,7 +442,8 @@ const Index = ({ navigation }) => {
                 }
               />
             </View>
-            <View style={styles.buttonContainer}>
+        
+             <View style={styles.buttonContainer}>
               <CustomDropdown
                 isActivityDropdown={true}
                 activities={activities}
@@ -381,6 +454,8 @@ const Index = ({ navigation }) => {
                 isEmployee={isEmployee}
                 showAddActivityModal={showAddActivityModal}
                 setShowAddActivityModal={setShowAddActivityModal}
+                isVisible={isVisible}
+                setIsVisible={setIsVisible}
                 onSelect={(option) => {
                   setSelectedActivityName(option.value),
                     setSelectedActivityType(option.type);
@@ -402,6 +477,8 @@ const Index = ({ navigation }) => {
                 selectedActivityName={selectedActivityName}
                 setIsMakeTeamModalVisible={setIsMakeTeamModalVisible}
                 disabled={true}
+                isVisible={isVisible}
+                setIsVisible={setIsVisible}
                 onSelect={(selectedOption) => {
                   // Handle the selected option here
                   console.log("Selected option:", selectedOption);
@@ -466,6 +543,7 @@ const Index = ({ navigation }) => {
             setTableData={setTableData}
             name={userName}
             isEmployee={isEmployee}
+         
             // loading={loading}
           />
         }
@@ -481,6 +559,10 @@ const Index = ({ navigation }) => {
           />
         </View>
       </ScrollView>
+
+
+
+      
       <MakeTeamModal
         visible={isMakeTeamModalVisible}
         onClose={() => setIsMakeTeamModalVisible(false)}
@@ -512,10 +594,11 @@ const Index = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: "center",
+    // flex: 1,
+    justifyContent: "top",
     alignItems: "center",
-    marginTop: 12,
+    marginTop: 20,
+    zIndex:1,
   },
   dropdownButton: {
     paddingHorizontal: 4,
@@ -536,6 +619,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     flex: 1,
+    
     marginHorizontal: 2,
   },
 });

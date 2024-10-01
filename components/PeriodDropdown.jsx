@@ -67,7 +67,7 @@ const PeriodDropdown = ({
   useEffect(() => {
     if (buttonRef.current) {
       buttonRef.current.measure((fx, fy, width, height, px, py) => {
-        setDropdownPosition({ top: py + height, left: px });
+        setDropdownPosition({ top: py+ height +4, left: px});
       });
     }
   }, [buttonRef]);

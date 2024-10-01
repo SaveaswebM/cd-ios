@@ -66,6 +66,7 @@ const Header = ({ isEmployee }) => {
 
   return (
     <View style={styles.container}>
+      <View >
       <View style={styles.header}>
         {pathname === "/" ? ( // Check if the current pathname is the homepage
           !isEmployee && (
@@ -81,6 +82,7 @@ const Header = ({ isEmployee }) => {
           </Link>
         )}
         <Image source={logo} style={styles.logo} resizeMode="contain" />
+      </View>
       </View>
       <SafeAreaView>
         <Animated.View
@@ -138,14 +140,16 @@ const Header = ({ isEmployee }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {},
+  container: {zIndex:2},
   header: {
-    height: 102,
+    // height: "10%",
+    maxHeight:102,
     width: "100%",
     backgroundColor: "white",
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 10,
+    // marginBottom:100,
     shadowColor: "black",
     shadowOffset: { width: 0, height: 5 },
     shadowOpacity: 1,
@@ -153,10 +157,11 @@ const styles = StyleSheet.create({
     elevation: 29,
     borderBottomLeftRadius: 4,
     borderBottomRightRadius: 4,
-    zIndex: 0,
+    // zIndex: -1,
   },
   logo: {
     width: "56%",
+    height:102,
     marginHorizontal: "auto",
   },
   drawer: {
@@ -167,7 +172,7 @@ const styles = StyleSheet.create({
     height: height * 2,
     backgroundColor: "#fff",
     padding: 20,
-    zIndex: 3,
+    zIndex: 0,
   },
   drawerHeader: {
     flexDirection: "row",
@@ -197,12 +202,12 @@ const styles = StyleSheet.create({
   overlay: {
     position: "absolute",
     top: 0,
-    left: 0,
+    left: "75%",
     right: 0,
     bottom: 0,
     height: height * 2,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    zIndex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0)",
+    // zIndex: 1
   },
 });
 

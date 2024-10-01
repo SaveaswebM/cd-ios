@@ -15,58 +15,66 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { DrawerContentScrollView } from "@react-navigation/drawer";
-import { useRouter } from "expo-router";
 
-const Dropdown = ({
-  options,
-  onSelect,
-  placeholder,
-  style,
-  isCompanyDropdown,
-  isActivityDropdown,
-  onAddCompany,
-  userName,
-  setUserName,
-  errorMessage,
-  setErrorMessage,
-  showAddCompanyModal,
-  setShowAddCompanyModal,
-  showAddActivityModal,
-  setShowAddActivityModal,
-  activities,
-  setActivities,
-  isEmployee,
-  isTeamDropdown,
-  selectedCompanyName,
-  selectedActivityName,
-  setIsMakeTeamModalVisible,
-  disabled,
+const DropdownTest = ({
+    options,
+    onSelect,
+    isTeamDropdown,
+    placeholder,
+    isCompanyDropdown,
+    isActivityDropdown,
+    onAddCompany,
+    userName,
+    setUserName,
+    errorMessage,
+    setErrorMessage,
+    showAddCompanyModal,
+    setShowAddCompanyModal,
+    showAddActivityModal,
+    setShowAddActivityModal,
+    activities,
+    setActivities,
+    isEmployee,
+    selectedCompanyName,
+    selectedActivityName,
+    setIsMakeTeamModalVisible,
 }) => {
-  const [isVisible, setIsVisible] = useState(false);
-  const [selectedOption, setSelectedOption] = useState(null);
-  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
-  const [newCompanyName, setNewCompanyName] = useState("");
-  const [newActivityName, setNewActivityName] = useState([]);
-  const [activityInputs, setActivityInputs] = useState([
-    { action: "", dueDate: new Date() },
+    const [selectedOption, setSelectedOption] = useState(null);
+    const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
+    const [newCompanyName, setNewCompanyName] = useState("");
+    const [newActivityName, setNewActivityName] = useState([]);
+    const [activityInputs, setActivityInputs] = useState([
+      { action: "", dueDate: new Date() },
+    ]);
+    const [showDatePicker, setShowDatePicker] = useState(false);
+    const [currentDateIndex, setCurrentDateIndex] = useState(null);
+    const [enterUserName, setEnterUserName] = useState("");
+
+
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState(null);
+  const [items, setItems] = useState([
+    { label: 'Option 1', value: 'option1' },
+    { label: 'Option 2', value: 'option2' },
+    { label: 'Option 3', value: 'option3' },
   ]);
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [currentDateIndex, setCurrentDateIndex] = useState(null);
-  const [enterUserName, setEnterUserName] = useState("");
-  // const [subscriptionType, setSubscriptionType] = useState("Free");
-  const buttonRef = useRef(null);
-  const router = useRouter();
-  useEffect(() => {
+
+  const [modalVisible, setModalVisible] = useState(false);
+  const [activityName, setActivityName] = useState('');
+
+//   const handleAddActivity = () => {
+//     setModalVisible(true); // Show modal to add a new activity
+//   };
+
+
+useEffect(() => {
     const loadUserName = async () => {
       try {
         const storedName = await AsyncStorage.getItem("userName");
         if (storedName) {
           setUserName(storedName);
-        } else {
-          // console.log("Please enter your name");
-        }
+        } 
       } catch (error) {
         console.error("Failed to load user name from AsyncStorage", error);
       }
@@ -75,19 +83,32 @@ const Dropdown = ({
     loadUserName();
   }, []);
 
-  const toggleDropdown = () => {
-    if (buttonRef.current) {
-      buttonRef.current.measure((fx, fy, width, height, px, py) => {
-        setDropdownPosition({ top:0, left: 0 });
-      });
+  const handleSaveActivity = () => {
+    if (activityName.trim()) {
+      // Add the new activity to the dropdown items
+      setItems((prevItems) => [
+        ...prevItems,
+        { label: activityName, value: activityName },
+      ]);
+      setValue(activityName); // Set the new activity as the selected value
+      setModalVisible(false); // Hide modal after saving
+      setActivityName(''); // Reset input field
+    } else {
+      alert("Activity name cannot be empty."); // Alert if input is empty
     }
-    setIsVisible(!isVisible);
   };
-
   const handleSelect = (option) => {
     setSelectedOption(option);
     onSelect(option);
-    setIsVisible(false);
+    // setIsVisible(false);
+  };
+  const handleCloseModal = () => {
+    setShowAddCompanyModal(false);
+    setErrorMessage("");
+  };
+
+  const handleAddActivity = () => {
+    setActivityInputs([...activityInputs, { action: "", dueDate: new Date() }]);
   };
 
   const handleAddCompany = async () => {
@@ -103,27 +124,8 @@ const Dropdown = ({
       }
       onAddCompany(newCompanyName.trim());
       setNewCompanyName("");
-      setIsVisible(false);
+    //   setIsVisible(false);
     }
-  };
-
-  const handleCloseModal = () => {
-    setShowAddCompanyModal(false);
-    setErrorMessage("");
-  };
-
-  const handleAddActivity = () => {
-    setActivityInputs([...activityInputs, { action: "", dueDate: new Date() }]);
-  };
-
-  const handleActivityChange = (index, field, value) => {
-    const newInputs = [...activityInputs];
-    if (field === "dueDate") {
-      newInputs[index][field] = value;
-    } else {
-      newInputs[index][field] = value;
-    }
-    setActivityInputs(newInputs);
   };
 
   const handleSaveActivities = async () => {
@@ -158,6 +160,15 @@ const Dropdown = ({
     setShowAddActivityModal(false);
     setActivityInputs([{ action: "", dueDate: new Date() }]);
   };
+  const handleActivityChange = (index, field, value) => {
+    const newInputs = [...activityInputs];
+    if (field === "dueDate") {
+      newInputs[index][field] = value;
+    } else {
+      newInputs[index][field] = value;
+    }
+    setActivityInputs(newInputs);
+  };
 
   const onDateChange = (event, selectedDate) => {
     const currentIndex = currentDateIndex;
@@ -166,82 +177,45 @@ const Dropdown = ({
       handleActivityChange(currentIndex, "dueDate", selectedDate);
     }
   };
-
   return (
-
-
-  
-    <View style={[styles.container, style]}>
-      {isTeamDropdown && isEmployee ? (
-        <TouchableOpacity
-          ref={buttonRef}
-          onPress={toggleDropdown}
-          style={[
-            styles.dropdownButton,
-            { backgroundColor: "#d3d3d3" }, // Change button color when disabled
-          ]}
-          disabled={true}
-        >
-          {isTeamDropdown ? (
-            <Text style={styles.buttonText}>{placeholder}</Text>
-          ) : (
-            <Text style={styles.buttonText}>
-              {selectedOption ? selectedOption.label : placeholder}
-            </Text>
-          )}
-        </TouchableOpacity>
-      ) : (
-        <TouchableOpacity
-          ref={buttonRef}
-          onPress={toggleDropdown}
-          style={styles.dropdownButton}
-        >
-          {isTeamDropdown ? (
-            <Text style={styles.buttonText}>{placeholder}</Text>
-          ) : (
-            <Text style={styles.buttonText}>
-              {selectedOption ? selectedOption.label : placeholder}
-            </Text>
-          )}
-        </TouchableOpacity>
-      )}
-        {isVisible && (
-      <View
-        transparent
-        animationType="none"
-        visible={isVisible}
-        onRequestClose={() => setIsVisible(false)}
-        onDismiss={() => console.log('Modal closed')}
-        onShow={() => console.log('Modal opened')}
-      >
-       
-     
-       
+    <View style={styles.container}>
       <TouchableOpacity
-          style={styles.modalOverlay}
-          onPress={() => setIsVisible(false)}
-        >
-          <View
-            style={[
-              styles.modalContent,
-              { top: dropdownPosition.top, left: dropdownPosition.left },
-            ]}
-          >
-            <FlatList
-              data={options}
-              keyExtractor={(item) => item.value}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  onPress={() => {
+        style={styles.dropdown}
+        onPress={() => setOpen(!open)}
+      >
+        {/* <Text style={styles.dropdownText}>
+          {value ? value : "Select Activity"}
+        </Text> */}
+        {isTeamDropdown ? (
+            <Text style={styles.buttonText}>{placeholder}</Text>
+          ) : (
+            <Text style={styles.buttonText}>
+              {selectedOption ? selectedOption.label : placeholder}
+            </Text>
+          )}
+      </TouchableOpacity>
+
+      {/* Dropdown Menu */}
+      {open && (
+        <View style={styles.dropdownMenu}>
+          {options.map((item) => (
+            <TouchableOpacity
+              key={item.value}
+              style={styles.dropdownItem}
+              onPress={() => {
+           
                     handleSelect(item);
-                  }}
-                  style={styles.option}
-                >
-                  <Text style={styles.optionText}>{item.label}</Text>
-                </TouchableOpacity>
-              )}
-            />
-            {isCompanyDropdown && !isEmployee && (
+             
+                setValue(item.value);
+                setOpen(false);
+              }}
+            >
+              <Text style={styles.dropdownItemText}>{item.label}</Text>
+            </TouchableOpacity>
+          ))}
+
+          {/* Button inside dropdown to add activity */}
+          {isCompanyDropdown && !isEmployee && (
               <TouchableOpacity
                 onPress={async () => {
                   try {
@@ -250,14 +224,7 @@ const Dropdown = ({
                     );
                     const companyList = JSON.parse(storedCompanyNames) || [];
                     const token = await AsyncStorage.getItem("token");
-                    // if (token) {
-                    //   const userData = await AsyncStorage.getItem("user");
-                    //   if (userData) {
-                    //     const user = JSON.parse(userData);
-                    //     const sType = user.subscriptionType;
-                    //     setSubscriptionType(sType);
-                    //   }
-                    // }
+           
                     if (
                       companyList.length >= 3
                       // &&
@@ -275,28 +242,7 @@ const Dropdown = ({
                         ]
                       );
                     }
-                    //  else if(subscriptionType === "Standard" && companyList.length >= 10 ){    Alert.alert(
-                    //   "Limit Reached",
-                    //   "On standard account, you can add up to 10 companies only.",
-                    //   [
-                    //     {
-                    //       text: "Get Premium",
-                    //       onPress: () => router.push("/Subscription"), // Replace with your subscription page navigation
-                    //     },
-                    //     { text: "OK" },
-                    //   ]
-                    // );}
-                    // else if(subscriptionType === "Premium" && companyList.length >= 25 ){    Alert.alert(
-                    //   "Limit Reached",
-                    //   "On premium account, you can add up to 3 companies only.",
-                    //   [
-                    //     {
-                    //       text: "Get Premium",
-                    //       onPress: () => router.push("/Subscription"), // Replace with your subscription page navigation
-                    //     },
-                    //     { text: "OK" },
-                    //   ]
-                    // );}
+           
                     else {
                       setShowAddCompanyModal(true);
                       setErrorMessage("");
@@ -329,18 +275,50 @@ const Dropdown = ({
                 <Text style={styles.optionText}>Invite Member</Text>
               </TouchableOpacity>
             )}
+        </View>
+      )}
+
+      {/* Modal for adding new activity */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalBackground}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>Add New Activity</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Activity Name"
+              value={activityName}
+              onChangeText={setActivityName}
+            />
+            <Button title="Save Activity" onPress={handleSaveActivity} />
+            <Button title="Cancel" onPress={() => {
+              setModalVisible(false);
+              setActivityName(''); // Reset input field on cancel
+            }} />
+
+
+            
           </View>
-        </TouchableOpacity>
-      </View>
-    )}
-    {showAddCompanyModal && (
+        </View>
+      </Modal>
+
+
+
+
+
+
+
+      {showAddCompanyModal && (
       <Modal
         transparent
         animationType="slide"
                   visible={showAddCompanyModal}
         onRequestClose={() => handleCloseModal()}
-        onDismiss={() => console.log('Modal closed')}
-        onShow={() => console.log('Modal opened')}
+    
       >
         <TouchableOpacity
           style={styles.modalOverlay}
@@ -462,41 +440,74 @@ const Dropdown = ({
       </Modal>
     )}
     
-    {/* {showDatePicker && (
+    {showDatePicker && (
       <DateTimePicker
         value={activityInputs[currentDateIndex]?.dueDate || new Date()}
         mode="date"
         display="default"
         onChange={onDateChange}
       />
-    )} */}
-    {/* <DateTimePickerModal
-        isVisible={showDatePicker}
-        mode="date"
-        onConfirm={handleConfirm}
-        onCancel={hideDatePicker}
-      /> */}
-   </View>
-  
- 
+    )}
+    </View>
   );
-
 };
 
 const styles = StyleSheet.create({
   container: {
-    width: "100%",
+    justifyContent: 'center',
+    padding: 2,
   },
-  dropdownButton: {
-    paddingHorizontal: 4,
-    paddingVertical: 8,
-    backgroundColor: "#008DD2",
+  dropdown: {
+    padding: 15,
+    // width:"100%",
+    borderWidth: 1,
+    borderColor: 'gray',
     borderRadius: 5,
-    alignItems: "center",
+    backgroundColor: '#fff',
+  },
+  dropdownText: {
+    fontSize: 12,
   },
   buttonText: {
     fontSize: 10,
-    color: "white",
+    color: "black",
+  },
+  dropdownMenu: {
+    borderWidth: 1,
+    borderColor: 'gray',
+    borderRadius: 5,
+    marginTop: 5,
+    backgroundColor: '#fff',
+    width: '100%',
+    zIndex: 1, // Ensure it appears above other elements
+  },
+  dropdownItem: {
+    padding: 10,
+  },
+  dropdownItemText: {
+    fontSize: 12,
+  },
+  addButton: {
+    padding: 10,
+    backgroundColor: '#007bff',
+    alignItems: 'center',
+  },
+  addButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  modalBackground: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalContainer: {
+    width: 300,
+    padding: 20,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    alignItems: 'center',
   },
   modalOverlay: {
     flex: 1,
@@ -506,80 +517,17 @@ const styles = StyleSheet.create({
     
     // zIndex: 999, 
   },
-  modalContent: {
-    position: "absolute",
-    marginTop: 2,
-    width: 82,
-    backgroundColor: "white",
-    borderRadius: 5,
-    overflow: "hidden",
-    
-  },
-  option: {
-    paddingHorizontal: 5,
-    paddingVertical: 10,
-    borderBottomColor: "#1B3B60",
-    backgroundColor: "#00a0e3",
-    alignItems: "center",
-  },
-  optionText: {
-    fontSize: 10,
-    color: "white",
-  },
-  addCompanyModal: {
-    width: "80%",
-    height: "auto",
-    backgroundColor: "#5290D7",
-    borderWidth: 3,
-    borderColor: "#FFFFFF",
-    borderRadius: 40,
-    padding: 20,
-    alignItems: "center",
-    justifyContent: "center",
+  modalTitle: {
+    fontSize: 18,
+    marginBottom: 10,
   },
   input: {
-    width: "100%",
+    width: '100%',
+    height: 40,
+    borderColor: 'gray',
     borderWidth: 1,
-    borderColor: "#003067",
-    borderRadius: 5,
-    padding: 10,
-    marginBottom: 20,
-    color: "black",
-    backgroundColor: "#FFFFFF",
-  },
-  input2: {
-    width: 160,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: "#003067",
-    borderRadius: 5,
-    padding: 5,
-    marginBottom: 6,
-    color: "black",
-    backgroundColor: "#FFFFFF",
-  },
-  input3: {
-    width: 90,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: "#003067",
-    borderRadius: 5,
-    padding: 5,
-    marginBottom: 6,
-    color: "black",
-    backgroundColor: "#FFFFFF",
-  },
-  addButton: {
-    backgroundColor: "#00397A",
-    borderRadius: 5,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-  },
-  addButtonText: {
-    color: "white",
-    fontSize: 16,
+    marginBottom: 10,
+    paddingHorizontal: 10,
   },
   activityInputContainer: {
     marginBottom: 15,
@@ -602,11 +550,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  scrollContainer: {
-    maxHeight: "100%", // Adjust this to your needs
-    width: "100%",
+  addCompanyModal: {
+    width: "80%",
+    height: "auto",
+    backgroundColor: "#5290D7",
+    borderWidth: 3,
+    borderColor: "#FFFFFF",
+    borderRadius: 40,
+    padding: 20,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  
 });
 
-export default Dropdown;
+export default DropdownTest;

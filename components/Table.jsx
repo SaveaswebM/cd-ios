@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 const { width: screenWidth } = Dimensions.get("window");
 
 const MyTable = ({
@@ -27,6 +28,7 @@ const MyTable = ({
   const [isDataReadyToSave, setIsDataReadyToSave] = useState(false);
   const [fetchedData, setFetchedData] = useState([]);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+
   const [selectedRowIndex, setSelectedRowIndex] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -51,7 +53,7 @@ const MyTable = ({
   ];
   const BlinkingBackground = ({ children, blink, width }) => {
     const [isBlinking, setIsBlinking] = useState(true);
-
+  
     useEffect(() => {
       const interval = setInterval(() => {
         setIsBlinking((prev) => !prev);
@@ -569,7 +571,29 @@ const MyTable = ({
   //     Alert.alert("Error", "Failed to update data. Please try again later.");
   //   }
   // };
+  const showDatePicker = () => {
+    setDatePickerVisibility(true);
+  };
 
+  const hideDatePicker = () => {
+    setDatePickerVisibility(false);
+  };
+
+  const handleConfirm = (date) => {
+    // console.warn("A date has been picked: ", date);
+   
+    if (date) {
+      const updatedData = [...tableData];
+      updatedData[selectedRowIndex][3] = date
+        .toISOString()
+        .split("T")[0]; // Format date as YYYY-MM-DD
+      setTableData(updatedData);
+
+      // Call handleDataUpdate here to save the change in SQLite if needed
+      // handleDataUpdate(selectedRowIndex, 3, selectedDate);
+    }
+     hideDatePicker();
+  };
   const handleCompletedClick = (rowIndex) => {
     Alert.alert("Mark as Completed", "Do you want to mark as completed?", [
       {
@@ -595,22 +619,7 @@ const MyTable = ({
     ]);
   };
 
-  // const handlePreferredDateClick = (rowIndex) => {
-  //   // Assuming the user selects a date and you set it somewhere, for example:
-  //   const selectedDate = "2024-09-10"; // Replace with actual date selection logic
-  //   <DateTimePicker
-  //     value={activityInputs[currentDateIndex]?.dueDate || new Date()}
-  //     mode="date"
-  //     display="default"
-  //     onChange={onDateChange}
-  //   />;
-  //   const updatedData = [...tableData];
-  //   updatedData[rowIndex][3] = selectedDate;
-  //   setTableData(updatedData);
-
-  //   // Call handleDataUpdate here to save the change in SQLite
-  //   // handleDataUpdate(rowIndex, 3, selectedDate);
-  // };
+  
   const handlePreferredDateClick = (rowIndex) => {
     setSelectedRowIndex(rowIndex);
     setDatePickerVisibility(true);
@@ -742,6 +751,7 @@ const MyTable = ({
             placeholder="Add Date"
           />
         </TouchableOpacity>
+        
       );
     }
 
@@ -754,15 +764,26 @@ const MyTable = ({
         ]}
       >
         <Text style={[styles.cellText, cellStyle]}>{data}</Text>
-        {isDatePickerVisible && (
-          <DateTimePicker
+        {/* {isDatePickerVisible && (
+          <DateTimePickerModal
             style={[{ color: "black" }]}
             value={new Date()}
             mode="date"
             display="default"
-            onChange={onDateChange}
+            
+            isVisible={isDatePickerVisible}
+          
+            onConfirm={onDateChange}
+            onCancel={setDatePickerVisibility(false)}
           />
-        )}
+        )} */}
+
+<DateTimePickerModal
+        isVisible={isDatePickerVisible}
+        mode="date"
+        onConfirm={handleConfirm}
+        onCancel={hideDatePicker}
+      />
       </View>
     );
   };
