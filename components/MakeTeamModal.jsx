@@ -13,6 +13,7 @@ import {
 import UUID from "react-native-uuid";
 import CustomDropdown from "./Dropdown";
 import MultiSelect from "./MultiSelect"; // Ensure this import is correct
+import SingleSelect from "./SingleSelect";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import base64 from "react-native-base64";
 
@@ -29,9 +30,11 @@ const MakeTeamModal = ({
   const [personName, setPersonName] = useState("");
   // const [selectedCompanyName, setSelectedCompanyName] = useState(null);
   const [selectedGroups, setSelectedGroups] = useState([]);
+  const [selectedEmployee, setSelectedEmployee] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [fetchedData, setFetchedData] = useState([]);
   const [members, setMembers] = useState([]);
+
   const months = [
     "January",
     "February",
@@ -68,6 +71,8 @@ const MakeTeamModal = ({
 
     fetchApiData();
   }, []);
+  //  fetch all employee list for dropdown\
+
   useEffect(() => {
     const fetchApiData = async () => {
       const id = await AsyncStorage.getItem("links");
@@ -76,8 +81,14 @@ const MakeTeamModal = ({
           `https://cd-backend-1.onrender.com/api/link-data/full-employee-list?link=${id}`
         );
         if (fetchlist) {
-          const dataa = fetchlist.json();
-          setMembers(dataa);
+          const dataa = await fetchlist.json();
+          console.log("dataa", dataa);
+          const members = dataa.employeeNames.map((name) => ({
+            label: name, // The display label
+            value: name, // The value that will be used internally
+          }));
+
+          setMembers(members);
         }
       }
     };
@@ -157,6 +168,7 @@ const MakeTeamModal = ({
     try {
       // Generate the unique link
       const uId = await getUniqueId();
+
       const encodedPersonName = base64.encode(personName);
       const encodedCompanyName = base64.encode(selectedCompanyName);
       const encodedGroups = base64.encode(JSON.stringify(selectedGroups));
@@ -320,7 +332,34 @@ const MakeTeamModal = ({
 
     onClose();
   };
+  const giveAccess = async () => {
+    try {
+      if (selectedActivityName && selectedCompanyName) {
+        const id = await AsyncStorage.getItem("links");
+        if (id) {
+          const payload = {
+            link: id,
+            employeeName: selectedEmployee,
+            companyName: selectedCompanyName,
 
+            activityName: selectedActivityName,
+          };
+          //  console.log("payload data", payload);
+          const response = await fetch(
+            "https://cd-backend-1.onrender.com/api/link-data/update-access",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+            }
+          );
+          if (response.ok) {
+            Alert.alert("access has been given");
+          }
+        }
+      }
+    } catch (error) {}
+  };
   return (
     <Modal
       transparent
@@ -331,6 +370,13 @@ const MakeTeamModal = ({
       <TouchableWithoutFeedback onPress={onClose}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
+            <SingleSelect
+              options={members} // Now 'members' is an array of objects with 'label' and 'value'
+              onSelect={setSelectedEmployee}
+              selectedItem={selectedEmployee}
+              placeholder="Select Existing Member"
+              style={styles.fullWidthDropdown}
+            />
             <TextInput
               style={styles.input}
               placeholder="Enter Person Name"
@@ -338,13 +384,7 @@ const MakeTeamModal = ({
               value={personName}
               onChangeText={setPersonName}
             />
-            {/* <View style={styles.fullWidthDropdown}>
-              <CustomDropdown
-                options={companyNameOptions}
-                onSelect={(option) => setSelectedCompanyName(option.value)}
-                placeholder={selectedCompanyName || "Company Name"}
-              />
-            </View> */}
+
             {/* <MultiSelect
               options={members}
               onSelect={setSelectedGroups}
@@ -355,9 +395,16 @@ const MakeTeamModal = ({
             {/* {errorMessage && (
               <Text style={styles.errorText}>{errorMessage}</Text>
             )} */}
-            <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-              <Text style={styles.saveButtonText}>Share</Text>
-            </TouchableOpacity>
+            {selectedEmployee && (
+              <TouchableOpacity style={styles.saveButton} onPress={giveAccess}>
+                <Text style={styles.saveButtonText}>Add Access</Text>
+              </TouchableOpacity>
+            )}
+            {!selectedEmployee && (
+              <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+                <Text style={styles.saveButtonText}>Share</Text>
+              </TouchableOpacity>
+            )}
           </View>
         </View>
       </TouchableWithoutFeedback>

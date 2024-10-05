@@ -26,7 +26,12 @@
       "bundler": "metro",
       "output": "static"
     },
-    "plugins": ["expo-router", "expo-asset", "react-native-iap"],
+    "plugins": [
+      "expo-router",
+      "expo-asset",
+      "react-native-iap",
+      "./components/with-iap"
+    ],
     "experiments": {
       "typedRoutes": true
     },

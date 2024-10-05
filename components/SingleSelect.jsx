@@ -7,10 +7,10 @@ import {
   StyleSheet,
 } from "react-native";
 
-const MultiSelect = ({
+const SingleSelect = ({
   options,
   onSelect,
-  selectedItems,
+  selectedItem,
   placeholder,
   style,
 }) => {
@@ -21,48 +21,35 @@ const MultiSelect = ({
   };
 
   const handleSelect = (item) => {
-    const isSelected = selectedItems.some(
-      (selectedItem) => selectedItem.value === item.value
-    );
-    const newSelectedItems = isSelected
-      ? selectedItems.filter(
-          (selectedItem) => selectedItem.value !== item.value
-        )
-      : [...selectedItems, item];
-
-    onSelect(newSelectedItems);
-    // console.log(newSelectedItems);
+    // Unselect if the same item is clicked
+    if (selectedItem === item) {
+      onSelect(null); // Unselect the item
+    } else {
+      onSelect(item); // Select the new item
+    }
+    setIsDropdownOpen(false); // Close the dropdown after selection/unselection
   };
 
   return (
     <View style={[styles.container, style]}>
       <TouchableOpacity onPress={toggleDropdown} style={styles.dropdown}>
         <Text style={styles.placeholderText}>
-          {selectedItems.length > 0
-            ? selectedItems
-                .map(
-                  (item) =>
-                    options.find((opt) => opt.value === item.value)?.label
-                )
-                .join(", ")
+          {selectedItem
+            ? options.find((opt) => opt === selectedItem)?.label
             : placeholder}
         </Text>
       </TouchableOpacity>
       {isDropdownOpen && (
         <FlatList
           data={options}
-          keyExtractor={(item) => item.value.toString()}
+          keyExtractor={(item) => item.toString()}
           renderItem={({ item }) => (
             <TouchableOpacity
               style={styles.item}
               onPress={() => handleSelect(item)}
             >
               <Text style={styles.itemText}>
-                {selectedItems.some(
-                  (selectedItem) => selectedItem.value === item.value
-                )
-                  ? "✓ "
-                  : ""}
+                {selectedItem === item ? "✓ " : ""}
                 {item.label}
               </Text>
             </TouchableOpacity>
@@ -103,4 +90,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MultiSelect;
+export default SingleSelect;

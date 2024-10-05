@@ -66,23 +66,23 @@ const Header = ({ isEmployee }) => {
 
   return (
     <View style={styles.container}>
-      <View >
-      <View style={styles.header}>
-        {pathname === "/" ? ( // Check if the current pathname is the homepage
-          !isEmployee && (
-            <TouchableOpacity style={styles.barIcon} onPress={toggleDrawer}>
-              <Icon name="bars" size={30} color="#008DD2" />
-            </TouchableOpacity>
-          )
-        ) : (
-          <Link href="/" setDrawerVisible={false}>
-            <View style={styles.barIcon}>
-              <MaterialIcons name="arrow-back" size={30} color="#008DD2" />
-            </View>
-          </Link>
-        )}
-        <Image source={logo} style={styles.logo} resizeMode="contain" />
-      </View>
+      <View>
+        <View style={styles.header}>
+          {pathname === "/" ? ( // Check if the current pathname is the homepage
+            !isEmployee && (
+              <TouchableOpacity style={styles.barIcon} onPress={toggleDrawer}>
+                <Icon name="bars" size={30} color="#008DD2" />
+              </TouchableOpacity>
+            )
+          ) : (
+            <Link href="/" setDrawerVisible={false}>
+              <View style={styles.barIcon}>
+                <MaterialIcons name="arrow-back" size={30} color="#008DD2" />
+              </View>
+            </Link>
+          )}
+          <Image source={logo} style={styles.logo} resizeMode="contain" />
+        </View>
       </View>
       <SafeAreaView>
         <Animated.View
@@ -103,6 +103,13 @@ const Header = ({ isEmployee }) => {
             <View style={styles.menuItem}>
               <MaterialIcons name="diamond" size={24} color="black" />
               <Text style={styles.menuItemText}>Get Premium</Text>
+              <MaterialIcons name="arrow-forward" size={24} color="#fff" />
+            </View>
+          </Link>
+          <Link href="/SubscriptionTest" setDrawerVisible={false}>
+            <View style={styles.menuItem}>
+              <MaterialIcons name="diamond" size={24} color="black" />
+              <Text style={styles.menuItemText}>Get SubscriptionTest</Text>
               <MaterialIcons name="arrow-forward" size={24} color="#fff" />
             </View>
           </Link>
@@ -140,10 +147,10 @@ const Header = ({ isEmployee }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {zIndex:2},
+  container: { zIndex: 2 },
   header: {
     // height: "10%",
-    maxHeight:102,
+    maxHeight: 102,
     width: "100%",
     backgroundColor: "white",
     flexDirection: "row",
@@ -161,7 +168,7 @@ const styles = StyleSheet.create({
   },
   logo: {
     width: "56%",
-    height:102,
+    height: 102,
     marginHorizontal: "auto",
   },
   drawer: {
