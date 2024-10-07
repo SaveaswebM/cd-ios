@@ -113,6 +113,13 @@ const Header = ({ isEmployee }) => {
               <MaterialIcons name="arrow-forward" size={24} color="#fff" />
             </View>
           </Link>
+          <Link href="/SubscriptionTest2" setDrawerVisible={false}>
+            <View style={styles.menuItem}>
+              <MaterialIcons name="diamond" size={24} color="black" />
+              <Text style={styles.menuItemText}>Get SubscriptionTest2</Text>
+              <MaterialIcons name="arrow-forward" size={24} color="#fff" />
+            </View>
+          </Link>
           <TouchableOpacity style={styles.menuItem}>
             <MaterialIcons name="mail-outline" size={24} color="#000" />
             <Text style={styles.menuItemText}>Contact Us</Text>

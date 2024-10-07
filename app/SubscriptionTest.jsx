@@ -44,11 +44,11 @@ export default function App() {
   } else {
     return (
       <View>
-        {/* <Text>Current Offering: {currentOffering.identifier}</Text>
+        <Text>Current Offering: {currentOffering.identifier}</Text>
         <Text>Package Count: {currentOffering.availablePackages.length}</Text>
         {currentOffering.availablePackages.map((pkg) => {
           return <Text>{pkg.product.identifier}</Text>;
-        })} */}
+        })}
       </View>
     );
   }
