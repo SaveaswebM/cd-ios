@@ -335,6 +335,13 @@ const MakeTeamModal = ({
   const giveAccess = async () => {
     try {
       if (selectedActivityName && selectedCompanyName) {
+        setSelectedGroups([
+          {
+            label: `${selectedActivityName}`,
+            type: `${selectedActivityType}`,
+            value: `${selectedActivityName}`,
+          },
+        ]);
         const id = await AsyncStorage.getItem("links");
         if (id) {
           const payload = {
@@ -342,9 +349,9 @@ const MakeTeamModal = ({
             employeeName: selectedEmployee,
             companyName: selectedCompanyName,
 
-            activityName: selectedActivityName,
+            activityName: selectedGroups,
           };
-          //  console.log("payload data", payload);
+          console.log("payload data", selectedGroups);
           const response = await fetch(
             "https://cd-backend-1.onrender.com/api/link-data/update-access",
             {
@@ -358,7 +365,9 @@ const MakeTeamModal = ({
           }
         }
       }
-    } catch (error) {}
+    } catch (error) {
+      // Alert.alert(error);
+    }
   };
   return (
     <Modal

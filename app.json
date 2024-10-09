@@ -1,12 +1,12 @@
 {
   "expo": {
-    "name": "compliance-diary",
+    "name": "Compliance Diary",
     "slug": "compliance-diary",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "orientation": "portrait",
     "scheme": "compliance-diary",
     "userInterfaceStyle": "automatic",
-
+    "icon": "./assets/icon.png",
     "splash": {
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
@@ -16,7 +16,9 @@
       "bundleIdentifier": "com.thirdeyetechlabs.compliancediary"
     },
     "android": {
+      "versionCode": 6,
       "adaptiveIcon": {
+        "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#ffffff"
       },
       "permissions": ["com.android.vending.BILLING"],
