@@ -10,6 +10,7 @@ import {
   Easing,
   Dimensions,
   SafeAreaView,
+  Alert,
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import logo from "../assets/images/logo.png"; // Ensure the path is correct
@@ -63,6 +64,61 @@ const Header = ({ isEmployee }) => {
     setIsLoggedIn(false); // Update the login status
     // setDrawerVisible(false); // Close the drawer after logout
   };
+  const handleDeleteAcccount = async () => {
+    const email = await AsyncStorage.getItem("user");
+    let email2;
+    if (email) {
+      const parsedEmail = JSON.parse(email);
+      email2 = parsedEmail.email;
+    }
+    fetch("https://cd-backend-1.onrender.com/api/auth", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: email2, // Pass the user's email here
+        // Pass the user's password here
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          AsyncStorage.removeItem("user");
+          AsyncStorage.removeItem("userName");
+          setPersonName(" ");
+          setPersonEmail(" ");
+          Alert.alert("Account deleted successfully");
+        } else {
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+
+    await AsyncStorage.removeItem("token");
+    setIsLoggedIn(false);
+  };
+
+  const confirmDelete = () => {
+    Alert.alert(
+      "Confirm Deletion",
+      "Are you sure you want to delete your account? This action cannot be undone and you will lost all of your data",
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          onPress: handleDeleteAcccount,
+          style: "destructive", // This will make the button red on iOS
+        },
+      ],
+      { cancelable: false }
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -102,39 +158,62 @@ const Header = ({ isEmployee }) => {
           <Link href="/Subscription" setDrawerVisible={false}>
             <View style={styles.menuItem}>
               <MaterialIcons name="diamond" size={24} color="black" />
-              <Text style={styles.menuItemText}>Get Premium</Text>
+              <Text style={styles.menuItemText}>
+                Get Premium / Professional
+              </Text>
               <MaterialIcons name="arrow-forward" size={24} color="#fff" />
             </View>
           </Link>
-          <Link href="/SubscriptionTest" setDrawerVisible={false}>
+          {/* <Link href="/SubscriptionTest" setDrawerVisible={false}>
             <View style={styles.menuItem}>
               <MaterialIcons name="diamond" size={24} color="black" />
               <Text style={styles.menuItemText}>Get SubscriptionTest</Text>
               <MaterialIcons name="arrow-forward" size={24} color="#fff" />
             </View>
-          </Link>
-          <Link href="/SubscriptionTest2" setDrawerVisible={false}>
+          </Link> */}
+          {/* <Link href="/SubscriptionTest2" setDrawerVisible={false}>
             <View style={styles.menuItem}>
               <MaterialIcons name="diamond" size={24} color="black" />
               <Text style={styles.menuItemText}>Get SubscriptionTest2</Text>
               <MaterialIcons name="arrow-forward" size={24} color="#fff" />
             </View>
+          </Link> */}
+          {/* <Link href="/InAppPurchases" setDrawerVisible={false}>
+            <View style={styles.menuItem}>
+              <MaterialIcons name="diamond" size={24} color="black" />
+              <Text style={styles.menuItemText}>Get SubscriptionTest</Text>
+              <MaterialIcons name="arrow-forward" size={24} color="#fff" />
+            </View>
+          </Link> */}
+          <Link href="mailto:corporate@thirdeyetechlabs.com">
+            <View style={styles.menuItem}>
+              <MaterialIcons name="mail-outline" size={24} color="#000" />
+              <Text style={styles.menuItemText}>Contact Us</Text>
+            </View>
           </Link>
-          <TouchableOpacity style={styles.menuItem}>
-            <MaterialIcons name="mail-outline" size={24} color="#000" />
-            <Text style={styles.menuItemText}>Contact Us</Text>
-          </TouchableOpacity>
-
           <TouchableOpacity style={styles.menuItem}>
             <MaterialIcons name="share" size={24} color="#000" />
             <Text style={styles.menuItemText}>Share App</Text>
           </TouchableOpacity>
 
+          {/* <Link href="/DeleteAccount">
+            <View style={styles.menuItem}>
+              <MaterialIcons name="mail-outline" size={24} color="#000" />
+              <Text style={styles.menuItemText}>Delete Account</Text>
+            </View>
+          </Link> */}
+
           {isLoggedIn ? (
-            <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
-              <MaterialIcons name="logout" size={24} color="#000" />
-              <Text style={styles.menuItemText}>Log out</Text>
-            </TouchableOpacity>
+            <View>
+              <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
+                <MaterialIcons name="logout" size={24} color="#000" />
+                <Text style={styles.menuItemText}>Log out</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.menuItem} onPress={confirmDelete}>
+                <MaterialIcons name="delete" size={24} color="#000" />
+                <Text style={styles.menuItemText}>Delete Account</Text>
+              </TouchableOpacity>
+            </View>
           ) : (
             <Link href="/Login">
               <View style={styles.menuItem}>

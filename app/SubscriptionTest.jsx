@@ -1,55 +1,55 @@
-import React, { useEffect, useState } from "react";
-import { Platform, Text, View } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, ActivityIndicator } from "react-native";
+// import { WebView } from "react-native-webview";
 
-import Purchases, { PurchasesOffering } from "react-native-purchases";
-
-const APIKeys = {
-  apple: "appl_fzvjktRltxPHoqGGOgVXAzxlqRC",
-  google: "goog_criSyFSujMyvjeGPtutrNHniHKd",
-};
-
-export default function App() {
-  const [currentOffering, setCurrentOffering] = useState(null);
+const SubscriptionTest = () => {
+  const [loading, setLoading] = useState(true);
+  const [orderId, setOrderId] = useState("");
 
   useEffect(() => {
-    const setup = async () => {
-      if (Platform.OS == "android") {
-        const cc = await Purchases.configure({ apiKey: APIKeys.google });
-      } else {
-        await Purchases.configure({ apiKey: APIKeys.apple });
+    // Fetch the Razorpay order ID from your backend when the component mounts
+    const fetchOrderId = async () => {
+      try {
+        const response = await fetch(
+          "https://cd-backend-1.onrender.com/api/createOrder",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+        const data = await response.json();
+        setOrderId(data.id); // Set the fetched order ID
+      } catch (error) {
+        console.error(error);
       }
-      // Purchases.setLogLevel(LOG_LEVEL.DEBUG);
-      // const offerings = await Purchases.getOfferings();
-      // console.log("ogg", offerings);
-      // setCurrentOffering(offerings.current);
-      await loadOfferings();
     };
 
-    // Purchases.setDebugLogsEnabled(true);
-
-    setup();
+    fetchOrderId();
   }, []);
-  const loadOfferings = async () => {
-    const offerings = await Purchases.getOfferings();
-    console.log("workinnnnnnnnnnnnnnnnnnnnnnnng", offerings);
 
-    if (offerings.current) {
-      console.log("pakgs", offerings.current.availablePackages);
+  const handleWebViewMessage = (event) => {
+    const data = JSON.parse(event.nativeEvent.data);
+    if (data.success) {
+      // Payment was successful
+      alert("Payment successful!");
     } else {
-      console.log("pkgs not found .");
+      // Payment failed
+      alert("Payment failed");
     }
   };
-  if (!currentOffering) {
-    // return  "Loading...";
-  } else {
-    return (
-      <View>
-        <Text>Current Offering: {currentOffering.identifier}</Text>
-        <Text>Package Count: {currentOffering.availablePackages.length}</Text>
-        {currentOffering.availablePackages.map((pkg) => {
-          return <Text>{pkg.product.identifier}</Text>;
-        })}
-      </View>
-    );
-  }
-}
+
+  return (
+    <View style={{ flex: 1 }}>
+      {/* {loading && (
+        <ActivityIndicator
+          size="large"
+          color="#0000ff"
+          style={{ flex: 1, justifyContent: "center" }}
+        />
+      )}
+      {orderId && <WebView source={{ uri: "https://expo.dev" }} />} */}
+    </View>
+  );
+};
+
+export default SubscriptionTest;

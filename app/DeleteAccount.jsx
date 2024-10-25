@@ -14,12 +14,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import Icon from "react-native-vector-icons/Ionicons";
 import logo from "../assets/images/logo.png";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
-
-import { useDispatch } from "react-redux";
-import { setLogin } from "./redux/actions";
-const Login = () => {
-  const dispatch = useDispatch();
-
+const DeleteAccount = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
@@ -52,7 +47,6 @@ const Login = () => {
           })
         );
         await AsyncStorage.setItem("userName", result.user.name);
-        dispatch(setLogin(true));
         // Redirect to home or other screen
         router.replace("/");
       } else {
@@ -221,4 +215,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Login;
+export default DeleteAccount;

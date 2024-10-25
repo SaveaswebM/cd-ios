@@ -19,7 +19,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import base64 from "react-native-base64";
 import LinkInput from "../components/LinkInput";
 import Refresh from "../components/Refresh";
-import DropdownTest from "../components/DropdownTest"
+import DropdownTest from "../components/DropdownTest";
 // import CustomLoadingScreen from "../components/CustomLoadingScreen";
 
 const Index = ({ navigation }) => {
@@ -350,8 +350,8 @@ const Index = ({ navigation }) => {
     <SafeAreaView style={{ flex: 1 }}>
       <Header navigation={navigation} isEmployee={isEmployee} />
       <View style={styles.container}>
-          <View style={styles.buttonRow}>
-            {/* <View style={styles.buttonContainer}>
+        <View style={styles.buttonRow}>
+          {/* <View style={styles.buttonContainer}>
                       <DropdownTest        options={companyName}
                 userName={userName}
                 setUserName={setUserName}
@@ -412,11 +412,11 @@ const Index = ({ navigation }) => {
                   // Add any logic you want to perform on selection
                 }} />
       </View> */}
-      {/* <View style={styles.buttonContainer}>
+          {/* <View style={styles.buttonContainer}>
       <DropdownTest />
     </View> */}
-    </View>
-    </View>
+        </View>
+      </View>
       <ScrollView style={styles.scrollview}>
         <View style={styles.container}>
           <View style={styles.buttonRow}>
@@ -442,8 +442,8 @@ const Index = ({ navigation }) => {
                 }
               />
             </View>
-        
-             <View style={styles.buttonContainer}>
+
+            <View style={styles.buttonContainer}>
               <CustomDropdown
                 isActivityDropdown={true}
                 activities={activities}
@@ -543,7 +543,7 @@ const Index = ({ navigation }) => {
             setTableData={setTableData}
             name={userName}
             isEmployee={isEmployee}
-         
+
             // loading={loading}
           />
         }
@@ -560,9 +560,6 @@ const Index = ({ navigation }) => {
         </View>
       </ScrollView>
 
-
-
-      
       <MakeTeamModal
         visible={isMakeTeamModalVisible}
         onClose={() => setIsMakeTeamModalVisible(false)}
@@ -598,7 +595,7 @@ const styles = StyleSheet.create({
     justifyContent: "top",
     alignItems: "center",
     marginTop: 20,
-    zIndex:1,
+    zIndex: 1,
   },
   dropdownButton: {
     paddingHorizontal: 4,
@@ -619,7 +616,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     flex: 1,
-    
+
     marginHorizontal: 2,
   },
 });

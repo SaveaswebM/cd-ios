@@ -8,7 +8,8 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
-
+import ModalDropdown from "react-native-modal-dropdown";
+import RNPickerSelect from "react-native-picker-select";
 const PeriodDropdown = ({
   visible,
   setIsVisible,
@@ -25,7 +26,10 @@ const PeriodDropdown = ({
   const currentYear = new Date().getFullYear();
 
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
+  const [visible2, setVisible2] = useState(false);
 
+  const openMenu = () => setVisible2(true);
+  const closeMenu = () => setVisible2(false);
   const months = [
     "January",
     "February",
@@ -67,7 +71,7 @@ const PeriodDropdown = ({
   useEffect(() => {
     if (buttonRef.current) {
       buttonRef.current.measure((fx, fy, width, height, px, py) => {
-        setDropdownPosition({ top: py+ height +4, left: px});
+        setDropdownPosition({ top: py + height + 4, left: px });
       });
     }
   }, [buttonRef]);

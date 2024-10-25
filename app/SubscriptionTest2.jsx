@@ -1,74 +1,81 @@
+// SubscriptionTest2.js
 import React, { useEffect, useState } from "react";
-import { View, Text, Button, Alert } from "react-native";
-import * as RNIap from "react-native-iap";
-
-// Correct SKUs (double-check for typos)
-const skus = ["com.thirdeyetechlabs.compliancediary.premium_01"];
+import { Text, TouchableOpacity, View, ActivityIndicator } from "react-native";
+import {
+  useIAP,
+  requestPurchase,
+  isIosStorekit2,
+  PurchaseError,
+} from "react-native-iap";
 
 const SubscriptionTest2 = () => {
-  const [products, setProducts] = useState([]);
-  const [purchaseInfo, setPurchaseInfo] = useState(null);
+  const { products, currentPurchase, finishTransaction, getProducts } =
+    useIAP();
+  const [loading, setLoading] = useState(false);
 
-  // Initialize connection to the store
+  const productSkus = {
+    ios: ["com.thirdeyetechlabs.compliancediary"],
+    android: ["com.thirdeyetechlabs.compliancediary"],
+  };
+
   useEffect(() => {
-    async function init() {
-      try {
-        await RNIap.initConnection();
-        console.log("Connection to store successful");
-        await getProducts(); // Fetch products after connection
-      } catch (err) {
-        console.warn("Error initializing connection:", err);
-      }
-    }
-
-    init();
-
-    return () => {
-      RNIap.endConnection();
-    };
+    handleGetProducts();
   }, []);
 
-  // Fetch available subscriptions/products
-  const getProducts = async () => {
+  const handleGetProducts = async () => {
     try {
-      const products = await RNIap.getSubscriptions(skus); // Pass skus array here
-      setProducts(products);
-      console.log("Products fetched:", products);
-    } catch (err) {
-      console.warn("Error fetching products:", err.message);
+      setLoading(true);
+      await getProducts({ skus: productSkus[Platform.OS] });
+    } catch (error) {
+      console.log({ message: "handleGetProducts", error });
+      setLoading(false);
     }
   };
 
-  // Purchase a subscription
-  const purchaseSubscription = async (sku) => {
+  const handleBuyProduct = async (sku) => {
     try {
-      const purchase = await RNIap.requestSubscription(sku);
-      setPurchaseInfo(purchase);
-      console.log("Purchase successful:", purchase);
-      Alert.alert("Success", "Subscription purchased successfully");
-    } catch (err) {
-      console.warn("Error during purchase:", err.message);
-      Alert.alert("Error", "Failed to purchase subscription");
+      setLoading(true);
+      await requestPurchase({ sku });
+    } catch (error) {
+      console.log("Error in purchase:", error);
+      setLoading(false);
     }
   };
+
+  useEffect(() => {
+    const checkCurrentPurchase = async () => {
+      if (
+        (isIosStorekit2() && currentPurchase?.transactionId) ||
+        currentPurchase?.transactionReceipt
+      ) {
+        await finishTransaction({
+          purchase: currentPurchase,
+          isConsumable: true,
+        });
+        console.log("Transaction successful:", currentPurchase);
+        setLoading(false);
+      }
+    };
+
+    checkCurrentPurchase();
+  }, [currentPurchase]);
 
   return (
-    <View>
-      <Text>Subscription Test</Text>
-      {products.length > 0 ? (
-        products.map((product, index) => (
-          <View key={index}>
-            <Text>{product.title}</Text>
-            <Text>{product.description}</Text>
-            <Text>Price: {product.localizedPrice}</Text>
-            <Button
-              title={`Subscribe to ${product.title}`}
-              onPress={() => purchaseSubscription(product.productId)}
-            />
-          </View>
-        ))
+    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      {loading ? (
+        <ActivityIndicator size="large" />
       ) : (
-        <Text>No products available</Text>
+        products.map((product, index) => (
+          <TouchableOpacity
+            key={index}
+            onPress={() => handleBuyProduct(product.productId)}
+            style={{ marginVertical: 10 }}
+          >
+            <Text>
+              {product.title} for <Text>{product.localizedPrice}</Text>
+            </Text>
+          </TouchableOpacity>
+        ))
       )}
     </View>
   );

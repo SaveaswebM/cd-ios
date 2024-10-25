@@ -12,6 +12,9 @@
 import { Stack } from 'expo-router/stack';
 import * as Linking from 'expo-linking';
 import React from 'react';
+import store from './redux/store';
+import { Provider } from 'react-redux';
+
 import { StatusBar } from 'expo-status-bar';// Define your linking configuration
 // const linking = {
 //   prefixes: ['yourapp://', 'https://yourapp.com'],
@@ -25,13 +28,16 @@ import { StatusBar } from 'expo-status-bar';// Define your linking configuration
 export default function Layout() {
   return (
     <>
-      <Stack
-        screenOptions={{
-          headerShown: false, // This hides the header
-        }}
-      // linking={linking}
-      />
+      <Provider store={store}>
+        <Stack
+          screenOptions={{
+            headerShown: false, // This hides the header
+          }}
+        // linking={linking}
+        />
+      </Provider>
       <StatusBar style="light" backgroundColor='#000' />
+
     </>
 
   );

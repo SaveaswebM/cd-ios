@@ -2,7 +2,7 @@
   "expo": {
     "name": "Compliance Diary",
     "slug": "compliance-diary",
-    "version": "1.0.4",
+    "version": "1.0.0",
     "orientation": "portrait",
     "scheme": "compliance-diary",
     "userInterfaceStyle": "automatic",
@@ -28,12 +28,7 @@
       "bundler": "metro",
       "output": "static"
     },
-    "plugins": [
-      "expo-router",
-      "expo-asset",
-      "react-native-iap",
-      "./components/with-iap"
-    ],
+    "plugins": ["expo-router", "expo-asset", "react-native-iap"],
     "experiments": {
       "typedRoutes": true
     },

@@ -5,6 +5,7 @@ import {
   View,
   ScrollView,
   Image,
+  Button,
   SafeAreaView,
 } from "react-native";
 import React from "react";
@@ -15,7 +16,107 @@ import standard from "../assets/images/standard.png";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { LinearGradient } from "expo-linear-gradient";
 import { Link } from "expo-router";
+import RazorpayCheckout from "react-native-razorpay";
+import { useSelector, useDispatch } from "react-redux";
+import { setLogin } from "./redux/actions";
+
 const Subscription = () => {
+  const dispatch = useDispatch();
+  const isLogin = useSelector((state) => state.isLogin);
+  async function startRazorpay() {
+    var options = {
+      description: "Credits towards consultation",
+      image: "https://i.imgur.com/3g7nmJC.png",
+      currency: "INR",
+      key: "rzp_test_vCQDlKcu1PydlH", // Your api key
+      amount: "2999",
+      name: "Compliance Diary",
+      prefill: {
+        email: "void@razorpay.com",
+        contact: "9191919191",
+        name: "Razorpay Software",
+      },
+      theme: { color: "#F37254" },
+    };
+    RazorpayCheckout.open(options)
+      .then((data) => {
+        // handle success
+        alert(`Success: ${data.razorpay_payment_id}`);
+      })
+      .catch((error) => {
+        // handle failure
+        alert(`Error: ${error.code} | ${error.description}`);
+      });
+  }
+
+  const createSubscription = async (planId) => {
+    console.log("piiiiiiiiid", planId);
+    try {
+      const response = await fetch(
+        "https://cd-backend-1.onrender.com/create-subscription",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ plan_id: planId }),
+        }
+      );
+      console.log(response);
+      // Check if the response is OK (status code 200-299)
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      // Parse the JSON response
+      const data = await response.json(); // Use .json() to parse the response
+      console.log(data);
+      // Call handlePayment with the subscription ID
+      handlePayment(data.id);
+    } catch (error) {
+      console.error("Error creating subscription:", error);
+    }
+  };
+
+  const handlePayment = async (subscriptionId) => {
+    const options = {
+      key: "rzp_test_vCQDlKcu1PydlH",
+      subscription_id: subscriptionId,
+      handler: (response) => {
+        // Handle successful payment here
+        console.log("Payment successful:", response);
+      },
+      theme: {
+        color: "#F37254",
+      },
+    };
+    RazorpayCheckout.open(options)
+      .then((data) => {
+        // Payment successful, handle the response
+        console.log("Payment data:", data);
+        if (
+          data.razorpay_payment_id &&
+          data.razorpay_signature &&
+          data.razorpay_subscription_id
+        ) {
+          savePaymentDetails(data);
+        }
+      })
+      .catch((error) => {
+        // Payment failed, handle the error
+        console.error("Payment failed:", error);
+      });
+  };
+
+  async function savePaymentDetails(data) {
+    const response = fetch("https://cd-backend-1.onrender.com/", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({}),
+    });
+  }
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <Header />
@@ -259,11 +360,11 @@ const Subscription = () => {
                     style={styles.image}
                     resizeMode="contain"
                   />
-                  <Text style={styles.packageText}>Premium Yearly</Text>
+                  <Text style={styles.packageText}>Premium Monthly</Text>
                 </View>
               </LinearGradient>
               <Text style={[styles.versionName, styles.versionName3]}>
-                Rs 2,999/-
+                Rs 299/-
               </Text>
               <View style={styles.infoContainer}>
                 <View style={styles.textContainer}>
@@ -339,11 +440,11 @@ const Subscription = () => {
                     style={styles.image}
                     resizeMode="contain"
                   />
-                  <Text style={styles.packageText}>Premium Monthly</Text>
+                  <Text style={styles.packageText}>Premium Yearly</Text>
                 </View>
               </LinearGradient>
               <Text style={[styles.versionName, styles.versionName3]}>
-                Rs 299/-
+                Rs 2,999/-
               </Text>
               <View style={styles.infoContainer}>
                 <View style={styles.textContainer}>
@@ -398,9 +499,19 @@ const Subscription = () => {
                     borderRadius: 15,
                   }}
                 >
-                  <Link href="/Login">
-                    <Text style={styles.buttonText}>Get Premium</Text>
-                  </Link>
+                  {isLogin ? (
+                    <TouchableOpacity
+                      onPress={() => {
+                        createSubscription("plan_PCW6zP9nKaSZVE");
+                      }}
+                    >
+                      <Text style={styles.buttonText}>Get Premium</Text>
+                    </TouchableOpacity>
+                  ) : (
+                    <Link href="/Login">
+                      <Text style={styles.buttonText}>Get Premium</Text>
+                    </Link>
+                  )}
                 </TouchableOpacity>
               </LinearGradient>
             </View>
