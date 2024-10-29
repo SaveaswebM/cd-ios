@@ -7,7 +7,7 @@ import {
   Dimensions,
   TouchableOpacity,
   TextInput,
-  Alert,
+  Alert
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -23,7 +23,7 @@ const MyTable = ({
   setTableData,
   name,
   selectedActivityType,
-  isEmployee,
+  isEmployee
 }) => {
   const [isDataReadyToSave, setIsDataReadyToSave] = useState(false);
   const [fetchedData, setFetchedData] = useState([]);
@@ -43,17 +43,17 @@ const MyTable = ({
     "Compliance Actioning",
     "Due Date",
     "Completed By",
-    "Preferred Date",
+    "Preferred Date"
   ];
   const columnWidths = [
     screenWidth * 0.38,
     screenWidth * 0.18,
     screenWidth * 0.22,
-    screenWidth * 0.2,
+    screenWidth * 0.2
   ];
   const BlinkingBackground = ({ children, blink, width }) => {
     const [isBlinking, setIsBlinking] = useState(true);
-  
+
     useEffect(() => {
       const interval = setInterval(() => {
         setIsBlinking((prev) => !prev);
@@ -69,7 +69,7 @@ const MyTable = ({
           { width: width }, // Ensure consistent width
           isBlinking && blink
             ? styles.blinkingBackground
-            : styles.defaultBackground,
+            : styles.defaultBackground
         ]}
       >
         {children}
@@ -126,7 +126,7 @@ const MyTable = ({
         entry.name,
         entry.dueDate,
         "",
-        "", // Completed By and Preferred Date will be filled by user
+        "" // Completed By and Preferred Date will be filled by user
       ]);
       // const storedata = storeDataInSQLite(formattedTableData);
       // console.log(storedata);
@@ -343,7 +343,7 @@ const MyTable = ({
                 entry.action,
                 formattedDate,
                 "", // Completed By will be filled by user
-                "", // Preferred Date will be filled by user
+                "" // Preferred Date will be filled by user
               ];
             });
 
@@ -384,8 +384,8 @@ const MyTable = ({
         const payload = {
           link: getlink,
           data: {
-            [skey]: tableData, // Stringify tableData to send as JSON
-          },
+            [skey]: tableData // Stringify tableData to send as JSON
+          }
         };
         console.log(JSON.stringify(payload));
         // Send the payload to your backend
@@ -394,7 +394,7 @@ const MyTable = ({
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
+            body: JSON.stringify(payload)
           }
         );
 
@@ -483,7 +483,7 @@ const MyTable = ({
             {
               method: "POST",
               headers: {
-                "content-type": "application/json",
+                "content-type": "application/json"
               },
               body: JSON.stringify({
                 key,
@@ -493,8 +493,8 @@ const MyTable = ({
                 month: selectedMonth || null,
                 selectedActivityType,
                 data: JSON.stringify(tableData),
-                email,
-              }),
+                email
+              })
             }
           );
           const checkData = await checkResponse.json();
@@ -505,7 +505,7 @@ const MyTable = ({
               {
                 method: "POST",
                 headers: {
-                  "content-type": "application/json",
+                  "content-type": "application/json"
                 },
                 body: JSON.stringify({
                   key,
@@ -515,8 +515,8 @@ const MyTable = ({
                   month: selectedMonth || null,
                   selectedActivityType,
                   data: JSON.stringify(tableData),
-                  email,
-                }),
+                  email
+                })
               }
             );
 
@@ -581,25 +581,23 @@ const MyTable = ({
 
   const handleConfirm = (date) => {
     // console.warn("A date has been picked: ", date);
-   
+
     if (date) {
       const updatedData = [...tableData];
-      updatedData[selectedRowIndex][3] = date
-        .toISOString()
-        .split("T")[0]; // Format date as YYYY-MM-DD
+      updatedData[selectedRowIndex][3] = date.toISOString().split("T")[0]; // Format date as YYYY-MM-DD
       setTableData(updatedData);
 
       // Call handleDataUpdate here to save the change in SQLite if needed
       // handleDataUpdate(selectedRowIndex, 3, selectedDate);
     }
-     hideDatePicker();
+    hideDatePicker();
   };
   const handleCompletedClick = (rowIndex) => {
     Alert.alert("Mark as Completed", "Do you want to mark as completed?", [
       {
         text: "No",
         onPress: () => console.log("No Pressed"),
-        style: "cancel",
+        style: "cancel"
       },
       {
         text: "Yes",
@@ -614,12 +612,11 @@ const MyTable = ({
           setIsDataReadyToSave(true);
           // Call handleDataUpdate with the appropriate value
           // handleDataUpdate(rowIndex, 2, completedValue);
-        },
-      },
+        }
+      }
     ]);
   };
 
-  
   const handlePreferredDateClick = (rowIndex) => {
     setSelectedRowIndex(rowIndex);
     setDatePickerVisibility(true);
@@ -657,7 +654,7 @@ const MyTable = ({
       "Sept",
       "Oct",
       "Nov",
-      "Dec",
+      "Dec"
     ];
     return months[monthIndex];
   };
@@ -709,7 +706,7 @@ const MyTable = ({
           style={[
             styles.cellContainer,
             cellStyle,
-            { width: columnWidths[columnIndex], height: "auto" },
+            { width: columnWidths[columnIndex], height: "auto" }
           ]}
         >
           <Text style={[styles.cellText, { color: "white" }]}>
@@ -725,7 +722,7 @@ const MyTable = ({
           key={columnIndex}
           style={[
             styles.cellContainer,
-            { width: columnWidths[columnIndex], height: "auto" },
+            { width: columnWidths[columnIndex], height: "auto" }
           ]}
           onPress={() => data === "" && handleCompletedClick(rowIndex)}
         >
@@ -740,7 +737,7 @@ const MyTable = ({
           key={columnIndex}
           style={[
             styles.cellContainer,
-            { width: columnWidths[columnIndex], height: "auto" },
+            { width: columnWidths[columnIndex], height: "auto" }
           ]}
           onPress={() => handlePreferredDateClick(rowIndex)}
         >
@@ -751,7 +748,6 @@ const MyTable = ({
             placeholder="Add Date"
           />
         </TouchableOpacity>
-        
       );
     }
 
@@ -760,7 +756,7 @@ const MyTable = ({
         key={columnIndex}
         style={[
           styles.cellContainer,
-          { width: columnWidths[columnIndex], height: "auto" },
+          { width: columnWidths[columnIndex], height: "auto" }
         ]}
       >
         <Text style={[styles.cellText, cellStyle]}>{data}</Text>
@@ -778,12 +774,12 @@ const MyTable = ({
           />
         )} */}
 
-<DateTimePickerModal
-        isVisible={isDatePickerVisible}
-        mode="date"
-        onConfirm={handleConfirm}
-        onCancel={hideDatePicker}
-      />
+        <DateTimePickerModal
+          isVisible={isDatePickerVisible}
+          mode="date"
+          onConfirm={handleConfirm}
+          onCancel={hideDatePicker}
+        />
       </View>
     );
   };
@@ -794,13 +790,13 @@ const MyTable = ({
         onPress={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
         style={[
           styles.paginationButton,
-          currentPage === 1 && styles.paginationButtonDisabled,
+          currentPage === 1 && styles.paginationButtonDisabled
         ]}
       >
         <Text
           style={[
             styles.paginationText,
-            currentPage === 1 && styles.paginationTextDisabled,
+            currentPage === 1 && styles.paginationTextDisabled
           ]}
         >
           Previous
@@ -816,13 +812,13 @@ const MyTable = ({
         onPress={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
         style={[
           styles.paginationButton,
-          currentPage === totalPages && styles.paginationButtonDisabled,
+          currentPage === totalPages && styles.paginationButtonDisabled
         ]}
       >
         <Text
           style={[
             styles.paginationText,
-            currentPage === totalPages && styles.paginationTextDisabled,
+            currentPage === totalPages && styles.paginationTextDisabled
           ]}
         >
           Next
@@ -842,7 +838,7 @@ const MyTable = ({
                 style={[
                   styles.cellContainer,
                   styles.headingCell,
-                  { width: columnWidths[index] },
+                  { width: columnWidths[index] }
                 ]}
               >
                 <Text style={styles.headText}>{header}</Text>
@@ -871,13 +867,13 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
     borderBottomWidth: 1,
-    borderBottomColor: "#ddd",
+    borderBottomColor: "#ddd"
   },
   cellContainer: {
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: "#ddd"
   },
   headingCell: { height: 74, backgroundColor: "#0D3B66" }, // Fixed height for headings
   cellText: {
@@ -885,31 +881,31 @@ const styles = StyleSheet.create({
     padding: 8,
     fontSize: 12,
     paddingHorizontal: 2,
-    color: "black",
+    color: "black"
   },
   headText: {
     fontWeight: "bold",
     fontSize: 14,
     textAlign: "center",
     padding: 2,
-    color: "#fff",
+    color: "#fff"
   },
   blinkingCell: {
     color: "white",
     fontWeight: "semibold",
-    textAlign: "center",
+    textAlign: "center"
     // padding: 100,
     // paddingHorizontal: 10,
   },
   dueDateCell: {
     backgroundColor: "#FE0000",
-    color: "white",
+    color: "white"
     // paddingHorizontal: 10,
     // margin: 0,
   },
   dueDateCompletedCell: {
     backgroundColor: "#00D36A",
-    color: "white",
+    color: "white"
     // paddingHorizontal: 10,
   },
   modal: { justifyContent: "flex-end", margin: 0 },
@@ -917,26 +913,26 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     padding: 22,
     borderRadius: 4,
-    alignItems: "center",
+    alignItems: "center"
   },
   closeButton: {
     marginTop: 20,
     backgroundColor: "#007BFF",
     padding: 10,
-    borderRadius: 5,
+    borderRadius: 5
   },
   closeButtonText: { color: "white", fontSize: 16 },
   blinkingBackground: {
-    backgroundColor: "#FE0000",
+    backgroundColor: "#FE0000"
   },
   duedateContainer: {
-    backgroundColor: "#f8d7da",
+    backgroundColor: "#f8d7da"
   },
   paginationContainer: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    marginVertical: 10,
+    marginVertical: 10
   },
   paginationButton: {
     padding: 10,
@@ -944,18 +940,18 @@ const styles = StyleSheet.create({
     backgroundColor: "#00A0E3",
 
     borderRadius: 5,
-    marginHorizontal: 5,
+    marginHorizontal: 5
   },
   paginationButtonDisabled: {
-    backgroundColor: "#ccc",
+    backgroundColor: "#ccc"
   },
   paginationText: {
     fontSize: 14,
-    color: "#fff",
+    color: "#fff"
   },
   paginationTextDisabled: {
-    color: "#000",
-  },
+    color: "#000"
+  }
 });
 
 export default MyTable;

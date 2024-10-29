@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Text,
+  Image
 } from "react-native";
 
 import * as Linking from "expo-linking";
@@ -21,6 +22,7 @@ import LinkInput from "../components/LinkInput";
 import Refresh from "../components/Refresh";
 import DropdownTest from "../components/DropdownTest";
 // import CustomLoadingScreen from "../components/CustomLoadingScreen";
+import Ads from "../components/Ads";
 
 const Index = ({ navigation }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -164,7 +166,7 @@ const Index = ({ navigation }) => {
               const employeees = await response.json();
               const employeeList = employeees.map((employee) => ({
                 label: employee,
-                value: employee,
+                value: employee
               }));
               //  console.log(employeeList);
               setEmployees(employeeList);
@@ -260,7 +262,7 @@ const Index = ({ navigation }) => {
           const apiActivities = data.map((activity) => ({
             label: activity.name,
             value: activity.name,
-            type: activity.type,
+            type: activity.type
           }));
 
           // Get stored activities from AsyncStorage
@@ -282,7 +284,7 @@ const Index = ({ navigation }) => {
           if (newActivities.length > 0 && !isEmployee) {
             const updatedActivities = [
               ...parsedStoredActivities,
-              ...newActivities,
+              ...newActivities
             ];
             await AsyncStorage.setItem(
               "activities",
@@ -419,6 +421,10 @@ const Index = ({ navigation }) => {
       </View>
       <ScrollView style={styles.scrollview}>
         <View style={styles.container}>
+          {/* <Image
+            source={require("../assets/ad.png")} // Local image
+          /> */}
+          <Ads />
           <View style={styles.buttonRow}>
             <View style={styles.buttonContainer}>
               <CustomDropdown
@@ -508,8 +514,8 @@ const Index = ({ navigation }) => {
                 style={[
                   styles.dropdownButton,
                   selectedActivityType === "admin" && {
-                    backgroundColor: "#d3d3d3",
-                  }, // Change button color when disabled
+                    backgroundColor: "#d3d3d3"
+                  } // Change button color when disabled
                 ]}
                 onPress={() => {
                   if (selectedActivityType !== "admin") {
@@ -548,7 +554,7 @@ const Index = ({ navigation }) => {
           />
         }
 
-        <View>
+        {/* <View>
           <LinkInput
             isEmployee={isEmployee}
             setIsEmployee={setIsEmployee}
@@ -557,7 +563,7 @@ const Index = ({ navigation }) => {
             setUserName={setUserName}
             companyName={companyName}
           />
-        </View>
+        </View> */}
       </ScrollView>
 
       <MakeTeamModal
@@ -594,31 +600,37 @@ const styles = StyleSheet.create({
     // flex: 1,
     justifyContent: "top",
     alignItems: "center",
-    marginTop: 20,
-    zIndex: 1,
+    marginTop: 10,
+    zIndex: 1
   },
   dropdownButton: {
     paddingHorizontal: 4,
     paddingVertical: 8,
     backgroundColor: "#008DD2",
     borderRadius: 5,
-    alignItems: "center",
+    alignItems: "center"
+    
   },
   buttonText: {
     fontSize: 10,
-    color: "white",
+    color: "white"
   },
   buttonRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     width: "100%",
-    paddingHorizontal: 4,
+    paddingHorizontal: 4
   },
   buttonContainer: {
     flex: 1,
 
-    marginHorizontal: 2,
+    marginHorizontal: 2
   },
+  image: {
+    width: 200,
+    height: 200,
+    resizeMode: "cover" // cover, contain, stretch, etc.
+  }
 });
 
 export default Index;

@@ -6,7 +6,7 @@ import {
   ScrollView,
   Image,
   Button,
-  SafeAreaView,
+  SafeAreaView
 } from "react-native";
 import React from "react";
 import Header from "../components/Header";
@@ -34,9 +34,9 @@ const Subscription = () => {
       prefill: {
         email: "void@razorpay.com",
         contact: "9191919191",
-        name: "Razorpay Software",
+        name: "Razorpay Software"
       },
-      theme: { color: "#F37254" },
+      theme: { color: "#F37254" }
     };
     RazorpayCheckout.open(options)
       .then((data) => {
@@ -50,16 +50,19 @@ const Subscription = () => {
   }
 
   const createSubscription = async (planId) => {
-    console.log("piiiiiiiiid", planId);
+ 
     try {
+
+
+      
       const response = await fetch(
         "https://cd-backend-1.onrender.com/create-subscription",
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type": "application/json"
           },
-          body: JSON.stringify({ plan_id: planId }),
+          body: JSON.stringify({ plan_id: planId })
         }
       );
       console.log(response);
@@ -87,8 +90,8 @@ const Subscription = () => {
         console.log("Payment successful:", response);
       },
       theme: {
-        color: "#F37254",
-      },
+        color: "#F37254"
+      }
     };
     RazorpayCheckout.open(options)
       .then((data) => {
@@ -112,9 +115,9 @@ const Subscription = () => {
     const response = fetch("https://cd-backend-1.onrender.com/", {
       method: "POST",
       headers: {
-        "content-type": "application/json",
+        "content-type": "application/json"
       },
-      body: JSON.stringify({}),
+      body: JSON.stringify({})
     });
   }
   return (
@@ -154,7 +157,9 @@ const Subscription = () => {
                       style={{ color: "#33363F" }}
                     />
                   </TouchableOpacity>
-                  <Text style={[styles.text]}>Number of people - 10</Text>
+                  <Text style={[styles.text]}>
+                    Number of Team members Per Company- 03
+                  </Text>
                 </View>
                 <View style={styles.textContainer}>
                   <TouchableOpacity style={styles.bar_icon}>
@@ -179,7 +184,7 @@ const Subscription = () => {
                     alignSelf: "center", // Add this to control the width
                     paddingHorizontal: 16, // Adjust padding to control button width
                     paddingVertical: 4, // Adjust padding for vertical spacing
-                    borderRadius: 15,
+                    borderRadius: 15
                   }}
                   onPress={() => navigation.navigate(index)}
                 >
@@ -232,7 +237,7 @@ const Subscription = () => {
                     />
                   </TouchableOpacity>
                   <Text style={[styles.text, styles.text2]}>
-                    Number of Team Members - 5
+                    Number of Team Members Per Company, per activity - 05
                   </Text>
                 </View>
                 <View style={styles.textContainer}>
@@ -258,12 +263,22 @@ const Subscription = () => {
                     alignSelf: "center", // Add this to control the width
                     paddingHorizontal: 16, // Adjust padding to control button width
                     paddingVertical: 4, // Adjust padding for vertical spacing
-                    borderRadius: 15,
+                    borderRadius: 15
                   }}
                 >
-                  <Link href="/Login">
-                    <Text style={styles.buttonText}>Get Professional</Text>
-                  </Link>
+                  {isLogin ? (
+                    <TouchableOpacity
+                      onPress={() => {
+                        createSubscription("plan_PDGrWcwegZno0i");
+                      }}
+                    >
+                      <Text style={styles.buttonText}>Get Professional</Text>
+                    </TouchableOpacity>
+                  ) : (
+                    <Link href="/Login">
+                      <Text style={styles.buttonText}>Get Professional</Text>
+                    </Link>
+                  )}
                 </TouchableOpacity>
               </LinearGradient>
             </View>
@@ -310,7 +325,7 @@ const Subscription = () => {
                     />
                   </TouchableOpacity>
                   <Text style={[styles.text, styles.text2]}>
-                    Number of Team Members - 5
+                    Number of Team Members Per Company, per activity- 05
                   </Text>
                 </View>
                 <View style={styles.textContainer}>
@@ -336,12 +351,22 @@ const Subscription = () => {
                     alignSelf: "center", // Add this to control the width
                     paddingHorizontal: 16, // Adjust padding to control button width
                     paddingVertical: 4, // Adjust padding for vertical spacing
-                    borderRadius: 15,
+                    borderRadius: 15
                   }}
                 >
-                  <Link href="/Login">
-                    <Text style={styles.buttonText}>Get Professional</Text>
-                  </Link>
+                  {isLogin ? (
+                    <TouchableOpacity
+                      onPress={() => {
+                        createSubscription("plan_PDGs5hooGVPF8F");
+                      }}
+                    >
+                      <Text style={styles.buttonText}>Get Professional</Text>
+                    </TouchableOpacity>
+                  ) : (
+                    <Link href="/Login">
+                      <Text style={styles.buttonText}>Get Professional</Text>
+                    </Link>
+                  )}
                 </TouchableOpacity>
               </LinearGradient>
             </View>
@@ -390,7 +415,7 @@ const Subscription = () => {
                     />
                   </TouchableOpacity>
                   <Text style={[styles.text, styles.text3]}>
-                    Number of Team Members - 20
+                    Number of Team Members per Company, per activity - 07
                   </Text>
                 </View>
                 <View style={styles.textContainer}>
@@ -416,12 +441,22 @@ const Subscription = () => {
                     alignSelf: "center", // Add this to control the width
                     paddingHorizontal: 16, // Adjust padding to control button width
                     paddingVertical: 4, // Adjust padding for vertical spacing
-                    borderRadius: 15,
+                    borderRadius: 15
                   }}
                 >
-                  <Link href="/Login">
-                    <Text style={styles.buttonText}>Get Premium</Text>
-                  </Link>
+                  {isLogin ? (
+                    <TouchableOpacity
+                      onPress={() => {
+                        createSubscription("plan_PCW6zP9nKaSZVE");
+                      }}
+                    >
+                      <Text style={styles.buttonText}>Get Premium</Text>
+                    </TouchableOpacity>
+                  ) : (
+                    <Link href="/Login">
+                      <Text style={styles.buttonText}>Get Premium</Text>
+                    </Link>
+                  )}
                 </TouchableOpacity>
               </LinearGradient>
             </View>
@@ -470,7 +505,7 @@ const Subscription = () => {
                     />
                   </TouchableOpacity>
                   <Text style={[styles.text, styles.text3]}>
-                    Number of Team Members - 20
+                    Number of Team Members Per Company, per activity- 07
                   </Text>
                 </View>
                 <View style={styles.textContainer}>
@@ -496,13 +531,13 @@ const Subscription = () => {
                     alignSelf: "center", // Add this to control the width
                     paddingHorizontal: 16, // Adjust padding to control button width
                     paddingVertical: 4, // Adjust padding for vertical spacing
-                    borderRadius: 15,
+                    borderRadius: 15
                   }}
                 >
                   {isLogin ? (
                     <TouchableOpacity
                       onPress={() => {
-                        createSubscription("plan_PCW6zP9nKaSZVE");
+                        createSubscription("plan_PDGqvE8p4hrsm1");
                       }}
                     >
                       <Text style={styles.buttonText}>Get Premium</Text>
@@ -526,7 +561,7 @@ const styles = StyleSheet.create({
   container: {
     paddingTop: 20,
     paddingBottom: 20,
-    backgroundColor: "#F5F5F5",
+    backgroundColor: "#F5F5F5"
   },
   card: {
     backgroundColor: "#8CC2FF",
@@ -542,7 +577,7 @@ const styles = StyleSheet.create({
     shadowColor: "black",
     shadowOffset: { width: 0, height: 5 },
     shadowOpacity: 1,
-    shadowRadius: 29,
+    shadowRadius: 29
   },
   image: { width: 18, height: 18, marginRight: 4 },
   imageContainer: { flexDirection: "row" },
@@ -553,7 +588,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 15,
     borderColor: "#480061",
-    borderWidth: 1,
+    borderWidth: 1
   },
   packageText: { color: "#002E62", fontSize: 15, fontWeight: "semibold" },
   versionName: {
@@ -566,13 +601,13 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 15,
     borderColor: "#00234B",
-    borderWidth: 1,
+    borderWidth: 1
   },
   infoContainer: {},
   bar_icon: { marginRight: 10 },
   textContainer: {
     flexDirection: "row",
-    marginVertical: 2,
+    marginVertical: 2
   },
   text: { color: "#004A9D" },
   dropdownButton: {
@@ -581,7 +616,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#00a0e3",
     borderRadius: 5,
     // borderWidth: 1,
-    alignItems: "center",
+    alignItems: "center"
   },
   button: {
     alignSelf: "center", // Add this to center the button
@@ -590,7 +625,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     borderColor: "#00234B",
     borderWidth: 1,
-    marginTop: 8,
+    marginTop: 8
   },
   buttonText: { color: "#002E62", fontSize: 15, fontWeight: "bold" },
   card2: { marginVertical: 12, backgroundColor: "#4182CB" },
@@ -599,6 +634,6 @@ const styles = StyleSheet.create({
   text3: { color: "white" },
   versionName3: {
     color: "white",
-    borderColor: "white",
-  },
+    borderColor: "white"
+  }
 });

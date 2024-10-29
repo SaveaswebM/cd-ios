@@ -10,7 +10,7 @@ import {
   Easing,
   Dimensions,
   SafeAreaView,
-  Alert,
+  Alert
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import logo from "../assets/images/logo.png"; // Ensure the path is correct
@@ -34,7 +34,7 @@ const Header = ({ isEmployee }) => {
       toValue,
       duration: 300,
       easing: Easing.out(Easing.ease),
-      useNativeDriver: true,
+      useNativeDriver: true
     }).start();
   };
 
@@ -74,12 +74,12 @@ const Header = ({ isEmployee }) => {
     fetch("https://cd-backend-1.onrender.com/api/auth", {
       method: "DELETE",
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        email: email2, // Pass the user's email here
+        email: email2 // Pass the user's email here
         // Pass the user's password here
-      }),
+      })
     })
       .then((response) => response.json())
       .then((data) => {
@@ -108,13 +108,13 @@ const Header = ({ isEmployee }) => {
         {
           text: "Cancel",
           onPress: () => console.log("Cancel Pressed"),
-          style: "cancel",
+          style: "cancel"
         },
         {
           text: "Delete",
           onPress: handleDeleteAcccount,
-          style: "destructive", // This will make the button red on iOS
-        },
+          style: "destructive" // This will make the button red on iOS
+        }
       ],
       { cancelable: false }
     );
@@ -144,7 +144,7 @@ const Header = ({ isEmployee }) => {
         <Animated.View
           style={[
             styles.drawer,
-            { transform: [{ translateX: drawerAnimation }] },
+            { transform: [{ translateX: drawerAnimation }] }
           ]}
         >
           <View style={styles.drawerHeader}>
@@ -157,11 +157,11 @@ const Header = ({ isEmployee }) => {
           </View>
           <Link href="/Subscription" setDrawerVisible={false}>
             <View style={styles.menuItem}>
-              <MaterialIcons name="diamond" size={24} color="black" />
+              <MaterialIcons name="diamond" size={18} color="black" />
               <Text style={styles.menuItemText}>
                 Get Premium / Professional
               </Text>
-              <MaterialIcons name="arrow-forward" size={24} color="#fff" />
+              <MaterialIcons name="arrow-forward" size={18} color="#fff" />
             </View>
           </Link>
           {/* <Link href="/SubscriptionTest" setDrawerVisible={false}>
@@ -187,12 +187,12 @@ const Header = ({ isEmployee }) => {
           </Link> */}
           <Link href="mailto:corporate@thirdeyetechlabs.com">
             <View style={styles.menuItem}>
-              <MaterialIcons name="mail-outline" size={24} color="#000" />
+              <MaterialIcons name="mail-outline" size={18} color="#000" />
               <Text style={styles.menuItemText}>Contact Us</Text>
             </View>
           </Link>
           <TouchableOpacity style={styles.menuItem}>
-            <MaterialIcons name="share" size={24} color="#000" />
+            <MaterialIcons name="share" size={18} color="#000" />
             <Text style={styles.menuItemText}>Share App</Text>
           </TouchableOpacity>
 
@@ -206,18 +206,18 @@ const Header = ({ isEmployee }) => {
           {isLoggedIn ? (
             <View>
               <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
-                <MaterialIcons name="logout" size={24} color="#000" />
+                <MaterialIcons name="logout" size={18} color="#000" />
                 <Text style={styles.menuItemText}>Log out</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.menuItem} onPress={confirmDelete}>
-                <MaterialIcons name="delete" size={24} color="#000" />
+                <MaterialIcons name="delete" size={18} color="#000" />
                 <Text style={styles.menuItemText}>Delete Account</Text>
               </TouchableOpacity>
             </View>
           ) : (
             <Link href="/Login">
               <View style={styles.menuItem}>
-                <MaterialIcons name="login" size={24} color="#000" />
+                <MaterialIcons name="login" size={18} color="#000" />
                 <Text style={styles.menuItemText}>Log in</Text>
               </View>
             </Link>
@@ -249,48 +249,48 @@ const styles = StyleSheet.create({
     shadowRadius: 29,
     elevation: 29,
     borderBottomLeftRadius: 4,
-    borderBottomRightRadius: 4,
+    borderBottomRightRadius: 4
     // zIndex: -1,
   },
   logo: {
     width: "56%",
     height: 102,
-    marginHorizontal: "auto",
+    marginHorizontal: "auto"
   },
   drawer: {
     position: "absolute",
     top: -102,
     left: 0,
-    width: width * 0.74,
+    width: width * 0.75,
     height: height * 2,
     backgroundColor: "#fff",
     padding: 20,
-    zIndex: 0,
+    zIndex: 0
   },
   drawerHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     maxHeight: 42,
-    marginTop: 40,
+    marginTop: 40
   },
   profileSection: {
-    marginVertical: 20,
+    marginVertical: 20
   },
   profileName: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#000",
+    color: "#000"
   },
   menuItem: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 10,
+    paddingVertical: 10
   },
   menuItemText: {
     marginLeft: 15,
-    fontSize: 16,
-    color: "#000",
+    fontSize: 12,
+    color: "#000"
   },
   overlay: {
     position: "absolute",
@@ -299,9 +299,9 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     height: height * 2,
-    backgroundColor: "rgba(0, 0, 0, 0)",
+    backgroundColor: "rgba(0, 0, 0, 0)"
     // zIndex: 1
-  },
+  }
 });
 
 export default Header;
