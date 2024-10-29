@@ -36,7 +36,7 @@ const LinkInput = ({
       // const activities = base64
       //   .decode(queryParams.get("activities"))
       //   .split(","); // Split activities back into an array
-      const id = queryParams.get("id"); // This is a unique ID, not encoded
+      const id = queryParams.get("link"); // This is a unique ID, not encoded
       setIsEmployee(true);
 
       // Store the decoded data in state

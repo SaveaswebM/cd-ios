@@ -82,56 +82,57 @@ const PeriodDropdown = ({
   };
 
   return (
-    <Modal
-      transparent
-      visible={visible}
-      animationType="none"
-      onRequestClose={onClose}
-    >
-      <TouchableOpacity style={styles.modalOverlay} onPress={onClose}>
-        <TouchableWithoutFeedback>
-          <View
-            style={[
-              styles.modalContent,
-              { top: dropdownPosition.top, left: dropdownPosition.left },
-            ]}
-          >
-            <View style={styles.yearSelector}>
-              {selectedYear ? (
-                <Text style={styles.label}>Year : {selectedYear}</Text>
-              ) : (
-                <Text style={styles.label}> Select Year :</Text>
-              )}
-
-              <Picker
-                selectedValue={selectedYear}
-                onValueChange={(itemValue) => setSelectedYear(itemValue)}
-                style={styles.picker}
-              >
-                {years.map((year) => (
-                  <Picker.Item key={year} label={`${year}`} value={year} />
-                ))}
-              </Picker>
+    <>
+      <Modal
+        transparent
+        visible={visible}
+        animationType="none"
+        onRequestClose={onClose}
+      >
+        <TouchableOpacity style={styles.modalOverlay} onPress={onClose}>
+          <TouchableWithoutFeedback>
+            <View
+              style={[
+                styles.modalContent,
+                { top: dropdownPosition.top, left: dropdownPosition.left },
+              ]}
+            >
+              <View style={styles.yearSelector}>
+                {selectedYear ? (
+                  <Text style={styles.label}>Year : {selectedYear}</Text>
+                ) : (
+                  <Text style={styles.label}> Select Year :</Text>
+                )}
+                <Picker
+                  selectedValue={selectedYear}
+                  onValueChange={(itemValue) => setSelectedYear(itemValue)}
+                  style={styles.picker}
+                >
+                  {years.map((year) => (
+                    <Picker.Item key={year} label={`${year}`} value={year} />
+                  ))}
+                </Picker>
+              </View>
+              <View style={styles.monthList}>
+                {selectedActivityType === "Monthly" &&
+                  months.map((month) => (
+                    <TouchableOpacity
+                      key={month}
+                      style={[
+                        styles.monthItem,
+                        selectedMonth === month && styles.selectedMonthItem,
+                      ]}
+                      onPress={() => handleMonthSelect(month)}
+                    >
+                      <Text style={styles.monthText}>{month}</Text>
+                    </TouchableOpacity>
+                  ))}
+              </View>
             </View>
-            <View style={styles.monthList}>
-              {selectedActivityType === "Monthly" &&
-                months.map((month) => (
-                  <TouchableOpacity
-                    key={month}
-                    style={[
-                      styles.monthItem,
-                      selectedMonth === month && styles.selectedMonthItem,
-                    ]}
-                    onPress={() => handleMonthSelect(month)}
-                  >
-                    <Text style={styles.monthText}>{month}</Text>
-                  </TouchableOpacity>
-                ))}
-            </View>
-          </View>
-        </TouchableWithoutFeedback>
-      </TouchableOpacity>
-    </Modal>
+          </TouchableWithoutFeedback>
+        </TouchableOpacity>
+      </Modal>
+    </>
   );
 };
 

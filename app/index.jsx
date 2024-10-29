@@ -5,7 +5,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Text,
-  Image
+  Image,
 } from "react-native";
 
 import * as Linking from "expo-linking";
@@ -166,7 +166,7 @@ const Index = ({ navigation }) => {
               const employeees = await response.json();
               const employeeList = employeees.map((employee) => ({
                 label: employee,
-                value: employee
+                value: employee,
               }));
               //  console.log(employeeList);
               setEmployees(employeeList);
@@ -262,7 +262,7 @@ const Index = ({ navigation }) => {
           const apiActivities = data.map((activity) => ({
             label: activity.name,
             value: activity.name,
-            type: activity.type
+            type: activity.type,
           }));
 
           // Get stored activities from AsyncStorage
@@ -284,7 +284,7 @@ const Index = ({ navigation }) => {
           if (newActivities.length > 0 && !isEmployee) {
             const updatedActivities = [
               ...parsedStoredActivities,
-              ...newActivities
+              ...newActivities,
             ];
             await AsyncStorage.setItem(
               "activities",
@@ -429,6 +429,7 @@ const Index = ({ navigation }) => {
             <View style={styles.buttonContainer}>
               <CustomDropdown
                 options={companyName}
+                setCompanyName={setCompanyName}
                 userName={userName}
                 setUserName={setUserName}
                 onSelect={(option) => setSelectedCompanyName(option.value)}
@@ -514,8 +515,8 @@ const Index = ({ navigation }) => {
                 style={[
                   styles.dropdownButton,
                   selectedActivityType === "admin" && {
-                    backgroundColor: "#d3d3d3"
-                  } // Change button color when disabled
+                    backgroundColor: "#d3d3d3",
+                  }, // Change button color when disabled
                 ]}
                 onPress={() => {
                   if (selectedActivityType !== "admin") {
@@ -601,36 +602,35 @@ const styles = StyleSheet.create({
     justifyContent: "top",
     alignItems: "center",
     marginTop: 10,
-    zIndex: 1
+    zIndex: 1,
   },
   dropdownButton: {
     paddingHorizontal: 4,
     paddingVertical: 8,
     backgroundColor: "#008DD2",
     borderRadius: 5,
-    alignItems: "center"
-    
+    alignItems: "center",
   },
   buttonText: {
     fontSize: 10,
-    color: "white"
+    color: "white",
   },
   buttonRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     width: "100%",
-    paddingHorizontal: 4
+    paddingHorizontal: 4,
   },
   buttonContainer: {
     flex: 1,
 
-    marginHorizontal: 2
+    marginHorizontal: 2,
   },
   image: {
     width: 200,
     height: 200,
-    resizeMode: "cover" // cover, contain, stretch, etc.
-  }
+    resizeMode: "cover", // cover, contain, stretch, etc.
+  },
 });
 
 export default Index;

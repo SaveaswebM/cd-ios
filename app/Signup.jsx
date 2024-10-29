@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Image,
-  Alert
+  Alert,
 } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { useRouter } from "expo-router";
@@ -21,7 +21,7 @@ const Signup = () => {
   const [userType, setUserType] = useState("Admin");
   const [subscriptionType, setSubscriptionType] = useState("Free");
   const [subscriptionAmount, setSubscriptionAmount] = useState(0);
-  const [passwordVisible, setPasswordVisible] = useState(false); // State to toggle password visibility
+  const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
   const router = useRouter();
 
@@ -37,15 +37,15 @@ const Signup = () => {
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             name,
             email,
             password,
             userType: "Admin",
-            subscriptionType: "Free"
-          })
+            subscriptionType: "Free",
+          }),
         }
       );
 
@@ -161,19 +161,19 @@ const Signup = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff"
+    backgroundColor: "#fff",
   },
   topContainer: {
     alignItems: "center",
-    marginBottom: 20
+    marginBottom: 20,
   },
   logoContainer: {
-    alignItems: "center"
+    alignItems: "center",
   },
   logo: {
     width: "80%",
     maxHeight: 200,
-    aspectRatio: 1
+    aspectRatio: 1,
   },
   formContainer: {
     flex: 1,
@@ -191,13 +191,13 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     alignItems: "center",
-    justifyContent: "space-between"
+    justifyContent: "space-between",
   },
   inputContainer: {
     flex: 1,
     width: "100%",
     height: "100%",
-    marginBottom: 20
+    marginBottom: 20,
   },
   passwordContainer: {
     flexDirection: "row",
@@ -205,12 +205,12 @@ const styles = StyleSheet.create({
     borderColor: "#ccc",
     borderWidth: 1,
     borderRadius: 5,
-    marginBottom: 15
+    marginBottom: 15,
   },
   input: {
     flex: 1,
     height: 40,
-    paddingLeft: 10
+    paddingLeft: 10,
   },
   input2: {
     height: 40,
@@ -218,17 +218,17 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 5,
     paddingLeft: 10,
-    marginBottom: 15
+    marginBottom: 15,
   },
   iconContainer: {
-    paddingRight: 10
+    paddingRight: 10,
   },
   bottomContainer: {
     flex: 1,
     width: "100%",
     height: "100%",
     alignItems: "center",
-    paddingBottom: 20
+    paddingBottom: 20,
   },
   button: {
     backgroundColor: "#000",
@@ -236,24 +236,24 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 50,
     marginBottom: 20,
-    width: "100%"
+    width: "100%",
   },
   buttonText: {
     color: "#fff",
     fontWeight: "bold",
     fontSize: 16,
-    marginHorizontal: "auto"
+    marginHorizontal: "auto",
   },
   signupContainer: {
-    marginTop: 20
+    marginTop: 20,
   },
   signupText: {
-    color: "#7E7E7E"
+    color: "#7E7E7E",
   },
   signupLink: {
     color: "#0F76DE",
-    fontWeight: "bold"
-  }
+    fontWeight: "bold",
+  },
 });
 
 export default Signup;

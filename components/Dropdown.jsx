@@ -21,6 +21,7 @@ import { useRouter } from "expo-router";
 
 const Dropdown = ({
   options,
+  setCompanyName,
   onSelect,
   placeholder,
   style,
@@ -55,6 +56,7 @@ const Dropdown = ({
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [currentDateIndex, setCurrentDateIndex] = useState(null);
   const [enterUserName, setEnterUserName] = useState("");
+  const [subscriptionType, setSubscriptionType] = useState("");
   // const [subscriptionType, setSubscriptionType] = useState("Free");
   const buttonRef = useRef(null);
   const router = useRouter();
@@ -74,11 +76,19 @@ const Dropdown = ({
 
     loadUserName();
   }, []);
-
+  useEffect(() => {
+    async function aa() {
+      const user = await AsyncStorage.getItem("user");
+      const parseuser = JSON.parse(user);
+      const st = parseuser.subscriptionType;
+      setSubscriptionType(st);
+    }
+    aa();
+  }, []);
   const toggleDropdown = () => {
     if (buttonRef.current) {
       buttonRef.current.measure((fx, fy, width, height, px, py) => {
-        setDropdownPosition({ top:0, left: 0 });
+        setDropdownPosition({ top: 0 });
       });
     }
     setIsVisible(!isVisible);
@@ -105,6 +115,58 @@ const Dropdown = ({
       setNewCompanyName("");
       setIsVisible(false);
     }
+  };
+  const handleDeleteCompany = async (companyValue) => {
+    Alert.alert(
+      "Delete Company",
+      "Are you sure you want to delete this company?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            // Update the companyName state
+            setCompanyName((options) =>
+              options.filter((option) => option.value !== companyValue)
+            );
+
+            // Get the link from AsyncStorage
+            const link = await AsyncStorage.getItem("links");
+            if (link) {
+              try {
+                // Make the API call to delete the company
+                const response = await fetch(
+                  `https://cd-backend-1.onrender.com/api/link-data/delete-company?link=${link}`,
+                  {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json", // Specify content type
+                    },
+                    body: JSON.stringify({ companyName: companyValue }), // Send companyName in the request body
+                  }
+                );
+
+                if (!response.ok) {
+                  throw new Error("Failed to delete company");
+                }
+
+                const data = await response.json(); // Optionally handle the response data
+                console.log(data.message); // Log success message or handle accordingly
+              } catch (error) {
+                console.error("Error deleting company:", error);
+                Alert.alert(
+                  "Error",
+                  "An error occurred while deleting the company."
+                );
+              }
+            } else {
+              Alert.alert("Error", "Link is missing. Please try again.");
+            }
+          },
+        },
+      ]
+    );
   };
 
   const handleCloseModal = () => {
@@ -168,9 +230,6 @@ const Dropdown = ({
   };
 
   return (
-
-
-  
     <View style={[styles.container, style]}>
       {isTeamDropdown && isEmployee ? (
         <TouchableOpacity
@@ -205,264 +264,278 @@ const Dropdown = ({
           )}
         </TouchableOpacity>
       )}
-        {isVisible && (
-      <View
-        transparent
-        animationType="none"
-        visible={isVisible}
-        onRequestClose={() => setIsVisible(false)}
-        onDismiss={() => console.log('Modal closed')}
-        onShow={() => console.log('Modal opened')}
-      >
-       
-     
-       
-      <TouchableOpacity
-          style={styles.modalOverlay}
-          onPress={() => setIsVisible(false)}
+      {isVisible && (
+        <View
+          transparent
+          animationType="none"
+          visible={isVisible}
+          onRequestClose={() => setIsVisible(false)}
+          onDismiss={() => console.log("Modal closed")}
+          onShow={() => console.log("Modal opened")}
         >
-          <View
-            style={[
-              styles.modalContent,
-              { top: dropdownPosition.top, left: dropdownPosition.left },
-            ]}
+          <TouchableOpacity
+            style={styles.modalOverlay}
+            onPress={() => setIsVisible(false)}
           >
-            <FlatList
-              data={options}
-              keyExtractor={(item) => item.value}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  onPress={() => {
-                    handleSelect(item);
-                  }}
-                  style={styles.option}
-                >
-                  <Text style={styles.optionText}>{item.label}</Text>
-                </TouchableOpacity>
-              )}
-            />
-            {isCompanyDropdown && !isEmployee && (
-              <TouchableOpacity
-                onPress={async () => {
-                  try {
-                    const storedCompanyNames = await AsyncStorage.getItem(
-                      "companyNames"
-                    );
-                    const companyList = JSON.parse(storedCompanyNames) || [];
-                    const token = await AsyncStorage.getItem("token");
-                    // if (token) {
-                    //   const userData = await AsyncStorage.getItem("user");
-                    //   if (userData) {
-                    //     const user = JSON.parse(userData);
-                    //     const sType = user.subscriptionType;
-                    //     setSubscriptionType(sType);
-                    //   }
-                    // }
-                    if (
-                      companyList.length >= 3
-                      // &&
-                      // subscriptionType === "Free"
-                    ) {
-                      Alert.alert(
-                        "Limit Reached",
-                        "On free account, you can add up to 3 companies only.",
-                        [
-                          {
-                            text: "Get Premium",
-                            onPress: () => router.push("/Subscription"), // Replace with your subscription page navigation
-                          },
-                          { text: "OK" },
-                        ]
-                      );
-                    }
-                    //  else if(subscriptionType === "Standard" && companyList.length >= 10 ){    Alert.alert(
-                    //   "Limit Reached",
-                    //   "On standard account, you can add up to 10 companies only.",
-                    //   [
-                    //     {
-                    //       text: "Get Premium",
-                    //       onPress: () => router.push("/Subscription"), // Replace with your subscription page navigation
-                    //     },
-                    //     { text: "OK" },
-                    //   ]
-                    // );}
-                    // else if(subscriptionType === "Premium" && companyList.length >= 25 ){    Alert.alert(
-                    //   "Limit Reached",
-                    //   "On premium account, you can add up to 3 companies only.",
-                    //   [
-                    //     {
-                    //       text: "Get Premium",
-                    //       onPress: () => router.push("/Subscription"), // Replace with your subscription page navigation
-                    //     },
-                    //     { text: "OK" },
-                    //   ]
-                    // );}
-                    else {
-                      setShowAddCompanyModal(true);
-                      setErrorMessage("");
-                    }
-                  } catch (error) {
-                    console.error("Failed to check company limit:", error);
-                  }
-                }}
-                style={[styles.option, { backgroundColor: "#00397A" }]}
-              >
-                <Text style={styles.optionText}>Add Company</Text>
-              </TouchableOpacity>
-            )}
-    
-            {isActivityDropdown && !isEmployee && (
-              <TouchableOpacity
-                onPress={() => {
-                  setShowAddActivityModal(true);
-                }}
-                style={[styles.option, { backgroundColor: "#00397A" }]}
-              >
-                <Text style={styles.optionText}>Add Activity</Text>
-              </TouchableOpacity>
-            )}
-            {isTeamDropdown && !isEmployee && (
-              <TouchableOpacity
-                onPress={() => setIsMakeTeamModalVisible(true)}
-                style={[styles.option, { backgroundColor: "#00397A" }]}
-              >
-                <Text style={styles.optionText}>Invite Member</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-        </TouchableOpacity>
-      </View>
-    )}
-    {showAddCompanyModal && (
-      <Modal
-        transparent
-        animationType="slide"
-                  visible={showAddCompanyModal}
-        onRequestClose={() => handleCloseModal()}
-        onDismiss={() => console.log('Modal closed')}
-        onShow={() => console.log('Modal opened')}
-      >
-        <TouchableOpacity
-          style={styles.modalOverlay}
-          onPress={() => setShowAddCompanyModal(false)}
-        >
-          <View style={styles.addCompanyModal}>
-            {!userName && (
-              <TextInput
-                style={styles.input}
-                placeholder="Enter name"
-                placeholderTextColor="#000"
-                value={enterUserName}
-                onChangeText={setEnterUserName}
-              />
-            )}
-            <TextInput
-              style={styles.input}
-              placeholder="Enter company name"
-              placeholderTextColor="#000"
-              value={newCompanyName}
-              onChangeText={setNewCompanyName}
-            />
-            <TouchableOpacity
-              onPress={handleAddCompany}
-              style={styles.addButton}
+            <View
+              style={[
+                styles.modalContent,
+                styles.dropdown,
+                { top: dropdownPosition.top, left: dropdownPosition.left },
+              ]}
             >
-              <Text style={styles.addButtonText}>Add</Text>
-            </TouchableOpacity>
-            {errorMessage ? (
-              <Text style={{ color: "red" }}>{errorMessage}</Text>
-            ) : null}
-          </View>
-        </TouchableOpacity>
-      </Modal>
-    )}
-    
-    {showAddActivityModal && (
-      <Modal
-        transparent
-         animationType="slide"
-        visible={showAddActivityModal}
-        onRequestClose={() => handleCloseModal()}
-      >
-        <TouchableOpacity
-          style={styles.modalOverlay}
-          // onPress={() => setShowAddActivityModal(false)}
-        >
-          <View style={styles.addActivityModal}>
-            <ScrollView
-              style={styles.scrollContainer}
-              contentContainerStyle={styles.scrollContentContainer}
-            >
-              <TextInput
-                style={styles.input}
-                placeholder="Activity name"
-                placeholderTextColor="#000"
-                // value={newActivityName}
-                onChangeText={(value) => {
-                  setNewActivityName({
-                    label: value,
-                    value: value,
-                    type: "admin",
-                  });
-                }}
-              />
-              {activityInputs.map((input, index) => (
-                <View
-                  key={index}
-                  style={[
-                    styles.activityInputContainer,
-                    styles.buttonContainer,
-                  ]}
-                >
-                  <TextInput
-                    style={styles.input2}
-                    placeholder="Compliance actioning"
-                    placeholderTextColor="#000"
-                    value={input.action}
-                    onChangeText={(value) =>
-                      handleActivityChange(index, "action", value)
-                    }
-                  />
+              <FlatList
+                data={options}
+                keyExtractor={(item) => item.value}
+                renderItem={({ item }) => (
                   <TouchableOpacity
                     onPress={() => {
-                      setCurrentDateIndex(index);
-                      setShowDatePicker(true);
+                      handleSelect(item);
                     }}
-                    style={styles.input3}
+                    onLongPress={() => {
+                      if (isCompanyDropdown && !isEmployee) {
+                        handleDeleteCompany(item.value); // Function to delete the company
+                      }
+                    }}
+                    style={[styles.option]}
                   >
-                    <Text style={{ color: "#000" }}>
-                      {input.dueDate.toLocaleDateString()}
-                    </Text>
+                    <Text style={styles.optionText}>{item.label}</Text>
                   </TouchableOpacity>
-                </View>
-              ))}
-              <View style={{ marginBottom: 14 }}>
-                <Button title="Add More Data" onPress={handleAddActivity} />
-              </View>
-              <View style={styles.buttonContainer}>
+                )}
+                scrollEnabled={true}
+                showsVerticalScrollIndicator={true}
+              />
+              {isCompanyDropdown && !isEmployee && (
                 <TouchableOpacity
-                  onPress={() => setShowAddActivityModal(false)}
-                  style={styles.addButton}
+                  onPress={async () => {
+                    try {
+                      const storedCompanyNames = await AsyncStorage.getItem(
+                        "companyNames"
+                      );
+                      const companyList = JSON.parse(storedCompanyNames) || [];
+                      const token = await AsyncStorage.getItem("token");
+                      // if (token) {
+                      //   const userData = await AsyncStorage.getItem("user");
+                      //   if (userData) {
+                      //     const user = JSON.parse(userData);
+                      //     const sType = user.subscriptionType;
+                      //     setSubscriptionType(sType);
+                      //   }
+                      // }
+                      if (
+                        companyList.length >= 3
+                        // &&
+                        // subscriptionType === "Free"
+                      ) {
+                        Alert.alert(
+                          "Limit Reached",
+                          "On free account, you can add up to 3 companies only.",
+                          [
+                            {
+                              text: "Get Premium",
+                              onPress: () => router.push("/Subscription"), // Replace with your subscription page navigation
+                            },
+                            { text: "OK" },
+                          ]
+                        );
+                      } else if (
+                        (subscriptionType === "Professional_monthly" ||
+                          subscriptionType === "Professional_yearly") &&
+                        companyList.length >= 10
+                      ) {
+                        Alert.alert(
+                          "Limit Reached",
+                          "On standard account, you can add up to 10 companies only.",
+                          [
+                            {
+                              text: "Get Premium",
+                              onPress: () => router.push("/Subscription"), // Replace with your subscription page navigation
+                            },
+                            { text: "OK" },
+                          ]
+                        );
+                      } else if (
+                        (subscriptionType === "Premium_monthly" ||
+                          subscriptionType === "Premium_yearly") &&
+                        companyList.length >= 200
+                      ) {
+                        Alert.alert(
+                          "Limit Reached",
+                          "On premium account, you can add up to 200 companies only.",
+                          [
+                            {
+                              text: "Get Premium",
+                              onPress: () => router.push("/Subscription"), // Replace with your subscription page navigation
+                            },
+                            { text: "OK" },
+                          ]
+                        );
+                      } else {
+                        setShowAddCompanyModal(true);
+                        setErrorMessage("");
+                      }
+                    } catch (error) {
+                      console.error("Failed to check company limit:", error);
+                    }
+                  }}
+                  style={[styles.option, { backgroundColor: "#00397A" }]}
                 >
-                  <Text style={styles.addButtonText}>close</Text>
+                  <Text style={styles.optionText}>Add Company</Text>
                 </TouchableOpacity>
+              )}
+
+              {isActivityDropdown && !isEmployee && (
                 <TouchableOpacity
-                  onPress={handleSaveActivities}
-                  style={styles.addButton}
+                  onPress={() => {
+                    setShowAddActivityModal(true);
+                  }}
+                  style={[styles.option, { backgroundColor: "#00397A" }]}
                 >
-                  <Text style={styles.addButtonText}>Save Activities</Text>
+                  <Text style={styles.optionText}>Add Activity</Text>
                 </TouchableOpacity>
-              </View>
+              )}
+              {isTeamDropdown && !isEmployee && (
+                <TouchableOpacity
+                  onPress={() => setIsMakeTeamModalVisible(true)}
+                  style={[styles.option, { backgroundColor: "#00397A" }]}
+                >
+                  <Text style={styles.optionText}>Invite Member</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          </TouchableOpacity>
+        </View>
+      )}
+      {showAddCompanyModal && (
+        <Modal
+          transparent
+          animationType="slide"
+          visible={showAddCompanyModal}
+          onRequestClose={() => handleCloseModal()}
+          onDismiss={() => console.log("Modal closed")}
+          onShow={() => console.log("Modal opened")}
+        >
+          <TouchableOpacity
+            style={styles.modalOverlay}
+            onPress={() => setShowAddCompanyModal(false)}
+          >
+            <View style={styles.addCompanyModal}>
+              {!userName && (
+                <TextInput
+                  style={styles.input}
+                  placeholder="Enter name"
+                  placeholderTextColor="#000"
+                  value={enterUserName}
+                  onChangeText={setEnterUserName}
+                />
+              )}
+              <TextInput
+                style={styles.input}
+                placeholder="Enter company name"
+                placeholderTextColor="#000"
+                value={newCompanyName}
+                onChangeText={setNewCompanyName}
+              />
+              <TouchableOpacity
+                onPress={handleAddCompany}
+                style={styles.addButton}
+              >
+                <Text style={styles.addButtonText}>Add</Text>
+              </TouchableOpacity>
               {errorMessage ? (
                 <Text style={{ color: "red" }}>{errorMessage}</Text>
               ) : null}
-            </ScrollView>
-          </View>
-        </TouchableOpacity>
-      </Modal>
-    )}
-    
-    {/* {showDatePicker && (
+            </View>
+          </TouchableOpacity>
+        </Modal>
+      )}
+
+      {showAddActivityModal && (
+        <Modal
+          transparent
+          animationType="slide"
+          visible={showAddActivityModal}
+          onRequestClose={() => handleCloseModal()}
+        >
+          <TouchableOpacity
+            style={styles.modalOverlay}
+            // onPress={() => setShowAddActivityModal(false)}
+          >
+            <View style={styles.addActivityModal}>
+              <ScrollView
+                style={styles.scrollContainer}
+                contentContainerStyle={styles.scrollContentContainer}
+              >
+                <TextInput
+                  style={styles.input}
+                  placeholder="Activity name"
+                  placeholderTextColor="#000"
+                  // value={newActivityName}
+                  onChangeText={(value) => {
+                    setNewActivityName({
+                      label: value,
+                      value: value,
+                      type: "admin",
+                    });
+                  }}
+                />
+                {activityInputs.map((input, index) => (
+                  <View
+                    key={index}
+                    style={[
+                      styles.activityInputContainer,
+                      styles.buttonContainer,
+                    ]}
+                  >
+                    <TextInput
+                      style={styles.input2}
+                      placeholder="Compliance actioning"
+                      placeholderTextColor="#000"
+                      value={input.action}
+                      onChangeText={(value) =>
+                        handleActivityChange(index, "action", value)
+                      }
+                    />
+                    <TouchableOpacity
+                      onPress={() => {
+                        setCurrentDateIndex(index);
+                        setShowDatePicker(true);
+                      }}
+                      style={styles.input3}
+                    >
+                      <Text style={{ color: "#000" }}>
+                        {input.dueDate.toLocaleDateString()}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                ))}
+                <View style={{ marginBottom: 14 }}>
+                  <Button title="Add More Data" onPress={handleAddActivity} />
+                </View>
+                <View style={styles.buttonContainer}>
+                  <TouchableOpacity
+                    onPress={() => setShowAddActivityModal(false)}
+                    style={styles.addButton}
+                  >
+                    <Text style={styles.addButtonText}>close</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={handleSaveActivities}
+                    style={styles.addButton}
+                  >
+                    <Text style={styles.addButtonText}>Save Activities</Text>
+                  </TouchableOpacity>
+                </View>
+                {errorMessage ? (
+                  <Text style={{ color: "red" }}>{errorMessage}</Text>
+                ) : null}
+              </ScrollView>
+            </View>
+          </TouchableOpacity>
+        </Modal>
+      )}
+
+      {/* {showDatePicker && (
       <DateTimePicker
         value={activityInputs[currentDateIndex]?.dueDate || new Date()}
         mode="date"
@@ -470,17 +543,14 @@ const Dropdown = ({
         onChange={onDateChange}
       />
     )} */}
-    {/* <DateTimePickerModal
+      {/* <DateTimePickerModal
         isVisible={showDatePicker}
         mode="date"
         onConfirm={handleConfirm}
         onCancel={hideDatePicker}
       /> */}
-   </View>
-  
- 
+    </View>
   );
-
 };
 
 const styles = StyleSheet.create({
@@ -494,6 +564,10 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     alignItems: "center",
   },
+  dropdown: {
+    // maxHeight: 250,
+    width: 110,
+  },
   buttonText: {
     fontSize: 10,
     color: "white",
@@ -503,8 +577,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "rgba(0,0,0,0.5)",
-    
-    // zIndex: 999, 
+
+    // zIndex: 999,
   },
   modalContent: {
     position: "absolute",
@@ -513,7 +587,6 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     borderRadius: 5,
     overflow: "hidden",
-    
   },
   option: {
     paddingHorizontal: 5,
@@ -606,7 +679,6 @@ const styles = StyleSheet.create({
     maxHeight: "100%", // Adjust this to your needs
     width: "100%",
   },
-  
 });
 
 export default Dropdown;

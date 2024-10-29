@@ -6,7 +6,7 @@ import {
   ScrollView,
   Image,
   Button,
-  SafeAreaView
+  SafeAreaView,
 } from "react-native";
 import React from "react";
 import Header from "../components/Header";
@@ -19,6 +19,7 @@ import { Link } from "expo-router";
 import RazorpayCheckout from "react-native-razorpay";
 import { useSelector, useDispatch } from "react-redux";
 import { setLogin } from "./redux/actions";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Subscription = () => {
   const dispatch = useDispatch();
@@ -34,9 +35,9 @@ const Subscription = () => {
       prefill: {
         email: "void@razorpay.com",
         contact: "9191919191",
-        name: "Razorpay Software"
+        name: "Razorpay Software",
       },
-      theme: { color: "#F37254" }
+      theme: { color: "#F37254" },
     };
     RazorpayCheckout.open(options)
       .then((data) => {
@@ -49,20 +50,16 @@ const Subscription = () => {
       });
   }
 
-  const createSubscription = async (planId) => {
- 
+  const createSubscription = async (planId, planType) => {
     try {
-
-
-      
       const response = await fetch(
         "https://cd-backend-1.onrender.com/create-subscription",
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
           },
-          body: JSON.stringify({ plan_id: planId })
+          body: JSON.stringify({ plan_id: planId }),
         }
       );
       console.log(response);
@@ -75,23 +72,28 @@ const Subscription = () => {
       const data = await response.json(); // Use .json() to parse the response
       console.log(data);
       // Call handlePayment with the subscription ID
-      handlePayment(data.id);
+      handlePayment(data.id, planType);
     } catch (error) {
       console.error("Error creating subscription:", error);
     }
   };
 
-  const handlePayment = async (subscriptionId) => {
+  const handlePayment = async (subscriptionId, planType) => {
+    const user = await AsyncStorage.getItem("user");
+    const parseduser = JSON.parse(user);
+    const useremail = parseduser.email;
     const options = {
       key: "rzp_test_vCQDlKcu1PydlH",
       subscription_id: subscriptionId,
       handler: (response) => {
-        // Handle successful payment here
         console.log("Payment successful:", response);
       },
+      prefill: {
+        email: useremail,
+      },
       theme: {
-        color: "#F37254"
-      }
+        color: "#008ed2",
+      },
     };
     RazorpayCheckout.open(options)
       .then((data) => {
@@ -100,25 +102,41 @@ const Subscription = () => {
         if (
           data.razorpay_payment_id &&
           data.razorpay_signature &&
-          data.razorpay_subscription_id
+          data.razorpay_subscription_id &&
+          planType &&
+          useremail
         ) {
-          savePaymentDetails(data);
+          savePaymentDetails(data, useremail, planType);
         }
       })
       .catch((error) => {
-        // Payment failed, handle the error
         console.error("Payment failed:", error);
       });
   };
 
-  async function savePaymentDetails(data) {
-    const response = fetch("https://cd-backend-1.onrender.com/", {
-      method: "POST",
-      headers: {
-        "content-type": "application/json"
-      },
-      body: JSON.stringify({})
-    });
+  async function savePaymentDetails(data, useremail, planType) {
+    console.log("useremail", useremail);
+    console.log("useremail", planType);
+    const response = await fetch(
+      "https://cd-backend-1.onrender.com/update-subscription-after-payment",
+      {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          email: useremail,
+          subscriptionType: planType,
+          razorpay_payment_id: data.razorpay_payment_id,
+          razorpay_signature: data.razorpay_signature,
+          razorpay_subscription_id: data.razorpay_subscription_id,
+        }),
+      }
+    );
+    if (response.ok) {
+      const res = await response.json();
+      console.log(res);
+    }
   }
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -184,7 +202,7 @@ const Subscription = () => {
                     alignSelf: "center", // Add this to control the width
                     paddingHorizontal: 16, // Adjust padding to control button width
                     paddingVertical: 4, // Adjust padding for vertical spacing
-                    borderRadius: 15
+                    borderRadius: 15,
                   }}
                   onPress={() => navigation.navigate(index)}
                 >
@@ -263,13 +281,16 @@ const Subscription = () => {
                     alignSelf: "center", // Add this to control the width
                     paddingHorizontal: 16, // Adjust padding to control button width
                     paddingVertical: 4, // Adjust padding for vertical spacing
-                    borderRadius: 15
+                    borderRadius: 15,
                   }}
                 >
                   {isLogin ? (
                     <TouchableOpacity
                       onPress={() => {
-                        createSubscription("plan_PDGrWcwegZno0i");
+                        createSubscription(
+                          "plan_PDGrWcwegZno0i",
+                          "Professional_monthly"
+                        );
                       }}
                     >
                       <Text style={styles.buttonText}>Get Professional</Text>
@@ -351,13 +372,16 @@ const Subscription = () => {
                     alignSelf: "center", // Add this to control the width
                     paddingHorizontal: 16, // Adjust padding to control button width
                     paddingVertical: 4, // Adjust padding for vertical spacing
-                    borderRadius: 15
+                    borderRadius: 15,
                   }}
                 >
                   {isLogin ? (
                     <TouchableOpacity
                       onPress={() => {
-                        createSubscription("plan_PDGs5hooGVPF8F");
+                        createSubscription(
+                          "plan_PDGs5hooGVPF8F",
+                          "Professional_yearly"
+                        );
                       }}
                     >
                       <Text style={styles.buttonText}>Get Professional</Text>
@@ -441,13 +465,16 @@ const Subscription = () => {
                     alignSelf: "center", // Add this to control the width
                     paddingHorizontal: 16, // Adjust padding to control button width
                     paddingVertical: 4, // Adjust padding for vertical spacing
-                    borderRadius: 15
+                    borderRadius: 15,
                   }}
                 >
                   {isLogin ? (
                     <TouchableOpacity
                       onPress={() => {
-                        createSubscription("plan_PCW6zP9nKaSZVE");
+                        createSubscription(
+                          "plan_PCW6zP9nKaSZVE",
+                          "Premium_monthly"
+                        );
                       }}
                     >
                       <Text style={styles.buttonText}>Get Premium</Text>
@@ -531,13 +558,16 @@ const Subscription = () => {
                     alignSelf: "center", // Add this to control the width
                     paddingHorizontal: 16, // Adjust padding to control button width
                     paddingVertical: 4, // Adjust padding for vertical spacing
-                    borderRadius: 15
+                    borderRadius: 15,
                   }}
                 >
                   {isLogin ? (
                     <TouchableOpacity
                       onPress={() => {
-                        createSubscription("plan_PDGqvE8p4hrsm1");
+                        createSubscription(
+                          "plan_PDGqvE8p4hrsm1",
+                          "Premium_yearly"
+                        );
                       }}
                     >
                       <Text style={styles.buttonText}>Get Premium</Text>
@@ -561,7 +591,7 @@ const styles = StyleSheet.create({
   container: {
     paddingTop: 20,
     paddingBottom: 20,
-    backgroundColor: "#F5F5F5"
+    backgroundColor: "#F5F5F5",
   },
   card: {
     backgroundColor: "#8CC2FF",
@@ -577,7 +607,7 @@ const styles = StyleSheet.create({
     shadowColor: "black",
     shadowOffset: { width: 0, height: 5 },
     shadowOpacity: 1,
-    shadowRadius: 29
+    shadowRadius: 29,
   },
   image: { width: 18, height: 18, marginRight: 4 },
   imageContainer: { flexDirection: "row" },
@@ -588,7 +618,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 15,
     borderColor: "#480061",
-    borderWidth: 1
+    borderWidth: 1,
   },
   packageText: { color: "#002E62", fontSize: 15, fontWeight: "semibold" },
   versionName: {
@@ -601,13 +631,13 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 15,
     borderColor: "#00234B",
-    borderWidth: 1
+    borderWidth: 1,
   },
   infoContainer: {},
   bar_icon: { marginRight: 10 },
   textContainer: {
     flexDirection: "row",
-    marginVertical: 2
+    marginVertical: 2,
   },
   text: { color: "#004A9D" },
   dropdownButton: {
@@ -616,7 +646,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#00a0e3",
     borderRadius: 5,
     // borderWidth: 1,
-    alignItems: "center"
+    alignItems: "center",
   },
   button: {
     alignSelf: "center", // Add this to center the button
@@ -625,7 +655,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     borderColor: "#00234B",
     borderWidth: 1,
-    marginTop: 8
+    marginTop: 8,
   },
   buttonText: { color: "#002E62", fontSize: 15, fontWeight: "bold" },
   card2: { marginVertical: 12, backgroundColor: "#4182CB" },
@@ -634,6 +664,6 @@ const styles = StyleSheet.create({
   text3: { color: "white" },
   versionName3: {
     color: "white",
-    borderColor: "white"
-  }
+    borderColor: "white",
+  },
 });
