@@ -2,7 +2,7 @@
   "expo": {
     "name": "Compliance Diary",
     "slug": "compliance-diary",
-    "version": "1.0.0",
+    "version": "1.0.4",
     "orientation": "portrait",
     "scheme": "compliance-diary",
     "userInterfaceStyle": "automatic",

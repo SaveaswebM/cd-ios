@@ -115,9 +115,7 @@ const MyTable = ({
           ] || [];
       } else if (selectedActivityType === "Quarterly") {
         activityData =
-          fetchedData.Quarterly?.[selectedActivity]?.[selectedYear]?.[
-            selectedMonth
-          ] || [];
+          fetchedData.Quarterly?.[selectedActivity]?.[selectedYear] || [];
       } else if (selectedActivityType === "Yearly") {
         activityData =
           fetchedData.Yearly?.[selectedActivity]?.[selectedYear] || [];
@@ -236,6 +234,15 @@ const MyTable = ({
 
         // Check if data exists in AsyncStorage first
         if (selectedActivityType === "Yearly") {
+          if (companyName && selectedActivity && selectedYear) {
+            await getdatafromupdatedlink(
+              `${companyName}_${selectedActivity}_${selectedYear}`
+            );
+          }
+          storedData = await AsyncStorage.getItem(
+            `${companyName}_${selectedActivity}_${selectedYear}`
+          );
+        } else if (selectedActivityType === "Quarterly") {
           if (companyName && selectedActivity && selectedYear) {
             await getdatafromupdatedlink(
               `${companyName}_${selectedActivity}_${selectedYear}`
@@ -426,7 +433,10 @@ const MyTable = ({
           await sharelinkData(`${companyName}_${selectedActivity}`, tableData);
 
           // console.log("store admin data : ", tableData);
-        } else if (selectedActivityType === "Yearly") {
+        } else if (
+          selectedActivityType === "Yearly" ||
+          selectedActivityType === "Quarterly"
+        ) {
           await AsyncStorage.setItem(
             `${companyName}_${selectedActivity}_${selectedYear}`,
             JSON.stringify(tableData)
@@ -465,7 +475,10 @@ const MyTable = ({
         let key;
         if (selectedActivityType === "admin") {
           key = `${companyName}_${selectedActivity}`;
-        } else if (selectedActivityType === "Yearly") {
+        } else if (
+          selectedActivityType === "Yearly" ||
+          selectedActivityType === "Quarterly"
+        ) {
           key = `${companyName}_${selectedActivity}_${selectedYear}`;
         } else if (selectedActivityType === "Monthly") {
           key = `${companyName}_${selectedActivity}_${selectedYear}_${selectedMonth}`;

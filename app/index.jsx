@@ -5,17 +5,18 @@ import {
   TouchableOpacity,
   ScrollView,
   Text,
+  Alert,
+  Linking,
   Image,
 } from "react-native";
 
-import * as Linking from "expo-linking";
+// import * as Linking from "expo-linking";
 import MyTable from "../components/Table";
 import CustomDropdown from "../components/Dropdown";
 import Header from "../components/Header";
 import MakeTeamModal from "../components/MakeTeamModal";
 import PeriodDropdown from "../components/PeriodDropdown";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import base64 from "react-native-base64";
 import LinkInput from "../components/LinkInput";
@@ -133,7 +134,31 @@ const Index = ({ navigation }) => {
   //     Linking.removeEventListener("url", handleDeepLink);
   //   };
   // }, []);
+  useEffect(() => {
+    const checkDeepLink = async () => {
+      // Check if we've already processed the link
+      const hasCheckedLink = await AsyncStorage.getItem("hasCheckedLink");
+      if (hasCheckedLink) return;
 
+      // Get the initial URL
+      const initialUrl = await Linking.getInitialURL();
+      if (initialUrl) {
+        const urlParams = new URLSearchParams(initialUrl.split("?")[1]);
+        const name = urlParams.get("link");
+
+        // Check if the "name" parameter exists
+        if (name) {
+          // Perform the action you want with the name parameter
+          Alert.alert("Deep Link Opened", `Name param received: ${name}`);
+
+          // Store that we've checked the link to avoid repeating
+          await AsyncStorage.setItem("hasCheckedLink", "true");
+        }
+      }
+    };
+
+    checkDeepLink();
+  }, []);
   useEffect(() => {
     const getEmployeeStatus = async () => {
       const getstatus = await AsyncStorage.getItem("isEmployeeTrue");
