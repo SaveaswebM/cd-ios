@@ -7,6 +7,8 @@ import {
   Image,
   Button,
   SafeAreaView,
+  Platform,
+  Linking,
 } from "react-native";
 import React from "react";
 import Header from "../components/Header";
@@ -24,6 +26,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 const Subscription = () => {
   const dispatch = useDispatch();
   const isLogin = useSelector((state) => state.isLogin);
+
   async function startRazorpay() {
     var options = {
       description: "Credits towards consultation",
@@ -51,6 +54,9 @@ const Subscription = () => {
   }
 
   const createSubscription = async (planId, planType) => {
+    const user = await AsyncStorage.getItem("user");
+    const parseduser = JSON.parse(user);
+    const useremail = parseduser.email;
     try {
       const response = await fetch(
         "https://cd-backend-1.onrender.com/create-subscription",
@@ -59,20 +65,28 @@ const Subscription = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ plan_id: planId }),
+          body: JSON.stringify({
+            plan_id: planId,
+            email: useremail,
+          }),
         }
       );
       console.log(response);
-      // Check if the response is OK (status code 200-299)
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      // Parse the JSON response
-      const data = await response.json(); // Use .json() to parse the response
+      const data = await response.json();
       console.log(data);
-      // Call handlePayment with the subscription ID
-      handlePayment(data.id, planType);
+      if (Platform.OS === "ios") {
+        if (data && data.short_url) {
+          const paymentLinkWithPrefill = `${data.short_url}`;
+
+          Linking.openURL(paymentLinkWithPrefill);
+        }
+      } else {
+        handlePayment(data.id, planType);
+      }
     } catch (error) {
       console.error("Error creating subscription:", error);
     }

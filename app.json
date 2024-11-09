@@ -2,7 +2,7 @@
   "expo": {
     "name": "Compliance Diary",
     "slug": "compliance-diary",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "orientation": "portrait",
     "scheme": "compliance-diary",
     "userInterfaceStyle": "automatic",
@@ -16,13 +16,29 @@
       "bundleIdentifier": "com.thirdeyetechlabs.compliancediary"
     },
     "android": {
-      "versionCode": 6,
+      "versionCode": 8,
       "adaptiveIcon": {
         "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#ffffff"
       },
       "permissions": ["com.android.vending.BILLING"],
-      "package": "com.thirdeyetechlabs.compliancediary"
+      "package": "com.thirdeyetechlabs.compliancediary",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "data": [
+            {
+              "scheme": "https",
+              "host": "play.google.com",
+              "pathPrefix": "/store/apps/details"
+            },
+            {
+              "scheme": "compliance-diary"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
     },
     "web": {
       "bundler": "metro",

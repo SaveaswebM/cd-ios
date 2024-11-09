@@ -144,12 +144,37 @@ const Index = ({ navigation }) => {
       const initialUrl = await Linking.getInitialURL();
       if (initialUrl) {
         const urlParams = new URLSearchParams(initialUrl.split("?")[1]);
-        const name = urlParams.get("link");
+        const name = base64.decode(urlParams.get("name"));
+
+        const link = urlParams.get("link");
+
+        setIsEmployee(true);
 
         // Check if the "name" parameter exists
-        if (name) {
+        if (link) {
           // Perform the action you want with the name parameter
-          Alert.alert("Deep Link Opened", `Name param received: ${name}`);
+          Alert.alert("Deep Link Opened", `Name param received: ${link}`);
+          await AsyncStorage.setItem("isEmployeeTrue", "yes");
+          setUserName(name);
+          await getAccessData(id, name);
+          await AsyncStorage.setItem("employeeLink", link);
+          await AsyncStorage.setItem("userName", name);
+
+          const response = await fetch(
+            `https://cd-backend-1.onrender.com/api/link-data?link=${id}`
+          );
+          const result = await response.json();
+
+          if (result) {
+            const linkData = result.data;
+            for (const key in linkData) {
+              if (linkData.hasOwnProperty(key)) {
+                const value = JSON.stringify(linkData[key]);
+
+                await AsyncStorage.setItem(key, value);
+              }
+            }
+          }
 
           // Store that we've checked the link to avoid repeating
           await AsyncStorage.setItem("hasCheckedLink", "true");
@@ -159,6 +184,51 @@ const Index = ({ navigation }) => {
 
     checkDeepLink();
   }, []);
+
+  const getAccessData = async (id, name) => {
+    try {
+      console.log("calleeed");
+      const response = await fetch(
+        `https://cd-backend-1.onrender.com/api/link-data/access-list?link=${id}&employeeName=${name}`
+      );
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Access data received:", data);
+        const companies = data.companies;
+
+        if (companies) {
+          // Loop over the companies object and log or process the companies and activities
+
+          const companyList = Object.keys(companies).map((company) => ({
+            label: company,
+            value: company,
+          }));
+          setCompanyName(companyList);
+          await AsyncStorage.setItem(
+            "link-company",
+            JSON.stringify(companyList)
+          );
+
+          const structuredCompanies = [];
+
+          Object.keys(companies).forEach((companyName) => {
+            const activities = companies[companyName];
+
+            // Push an object where the key is the company name and the value is the activities
+            structuredCompanies.push({ [companyName]: activities });
+          });
+
+          // console.log("Structured Companies: ", structuredCompanies);
+
+          await AsyncStorage.setItem(
+            "link-activities",
+            JSON.stringify(structuredCompanies)
+          );
+        }
+      }
+    } catch (error) {}
+  };
+
   useEffect(() => {
     const getEmployeeStatus = async () => {
       const getstatus = await AsyncStorage.getItem("isEmployeeTrue");
