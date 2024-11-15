@@ -297,18 +297,31 @@ const Dropdown = ({
           </Text>
         </TouchableOpacity>
       )}
+
       {activityOptionsVisible && isActivityDropdown && (
-        <View style={styles.activityDropdown}>
-          {["Monthly", "Quarterly", "Yearly"].map((option) => (
-            <TouchableOpacity
-              key={option}
-              onPress={() => selectActivityTypeOption(option)}
-              style={styles.option}
-            >
-              <Text style={styles.optionText}>{option}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+        <TouchableOpacity style={styles.modalOverlay}>
+          <View
+            style={[
+              styles.modalContent,
+              styles.dropdown,
+              styles.activityDropdown,
+              { top: 10, left: dropdownPosition.left },
+            ]}
+          >
+            <FlatList
+              data={["Monthly", "Quarterly", "Yearly"]}
+              keyExtractor={(item) => item}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  onPress={() => selectActivityTypeOption(item)}
+                  style={styles.option}
+                >
+                  <Text style={styles.optionText}>{item}</Text>
+                </TouchableOpacity>
+              )}
+            />
+          </View>
+        </TouchableOpacity>
       )}
       {isVisible && (
         <View
