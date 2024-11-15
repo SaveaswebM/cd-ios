@@ -44,6 +44,9 @@ const Dropdown = ({
   selectedActivityName,
   setIsMakeTeamModalVisible,
   disabled,
+  setActivityTypeOption,
+  setSelectedActivityName,
+  setSelectedActivityType,
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [selectedOption, setSelectedOption] = useState(null);
@@ -57,6 +60,8 @@ const Dropdown = ({
   const [currentDateIndex, setCurrentDateIndex] = useState(null);
   const [enterUserName, setEnterUserName] = useState("");
   const [subscriptionType, setSubscriptionType] = useState("");
+  const [activityOptionsVisible, setActivityOptionsVisible] = useState(false);
+
   // const [subscriptionType, setSubscriptionType] = useState("Free");
   const buttonRef = useRef(null);
   const router = useRouter();
@@ -95,11 +100,25 @@ const Dropdown = ({
   };
 
   const handleSelect = (option) => {
-    setSelectedOption(option);
-    onSelect(option);
-    setIsVisible(false);
+    if (isActivityDropdown) {
+      setIsVisible(false);
+      setSelectedActivityName(option.value);
+      setActivityOptionsVisible((prev) => !prev);
+    } else {
+      setSelectedOption(option);
+      onSelect(option);
+      setIsVisible(false);
+      setActivityOptionsVisible(false);
+    }
   };
-
+  const selectActivityTypeOption = (activityOption) => {
+    setActivityTypeOption(activityOption);
+    setSelectedActivityType(activityOption);
+    console.log(
+      `Selected Activity Option:${newActivityName} ${activityOption}`
+    );
+    setActivityOptionsVisible(false); // Close the side dropdown
+  };
   const handleAddCompany = async () => {
     if (newCompanyName.trim()) {
       const storeduserName = await AsyncStorage.getItem("userName");
@@ -249,20 +268,47 @@ const Dropdown = ({
             </Text>
           )}
         </TouchableOpacity>
+      ) : isTeamDropdown ? (
+        <TouchableOpacity
+          ref={buttonRef}
+          onPress={toggleDropdown}
+          style={styles.dropdownButton}
+        >
+          <Text style={styles.buttonText}>{placeholder}</Text>
+        </TouchableOpacity>
+      ) : isActivityDropdown ? (
+        <TouchableOpacity
+          ref={buttonRef}
+          onPress={toggleDropdown}
+          style={styles.dropdownButton}
+        >
+          <Text style={styles.buttonText}>
+            {selectedOption ? selectedOption.label : placeholder}
+          </Text>
+        </TouchableOpacity>
       ) : (
         <TouchableOpacity
           ref={buttonRef}
           onPress={toggleDropdown}
           style={styles.dropdownButton}
         >
-          {isTeamDropdown ? (
-            <Text style={styles.buttonText}>{placeholder}</Text>
-          ) : (
-            <Text style={styles.buttonText}>
-              {selectedOption ? selectedOption.label : placeholder}
-            </Text>
-          )}
+          <Text style={styles.buttonText}>
+            {selectedOption ? selectedOption.label : placeholder}
+          </Text>
         </TouchableOpacity>
+      )}
+      {activityOptionsVisible && isActivityDropdown && (
+        <View style={styles.activityDropdown}>
+          {["Monthly", "Quarterly", "Yearly"].map((option) => (
+            <TouchableOpacity
+              key={option}
+              onPress={() => selectActivityTypeOption(option)}
+              style={styles.option}
+            >
+              <Text style={styles.optionText}>{option}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
       )}
       {isVisible && (
         <View
@@ -383,7 +429,7 @@ const Dropdown = ({
                   <Text style={styles.optionText}>Add Company</Text>
                 </TouchableOpacity>
               )}
-
+              {/* 
               {isActivityDropdown && !isEmployee && (
                 <TouchableOpacity
                   onPress={() => {
@@ -393,7 +439,7 @@ const Dropdown = ({
                 >
                   <Text style={styles.optionText}>Add Activity</Text>
                 </TouchableOpacity>
-              )}
+              )} */}
               {isTeamDropdown && !isEmployee && (
                 <TouchableOpacity
                   onPress={() => setIsMakeTeamModalVisible(true)}
@@ -590,7 +636,7 @@ const styles = StyleSheet.create({
   },
   option: {
     paddingHorizontal: 5,
-    paddingVertical: 10,
+    paddingVertical: 7,
     borderBottomColor: "#1B3B60",
     backgroundColor: "#00a0e3",
     alignItems: "center",

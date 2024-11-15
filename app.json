@@ -2,7 +2,7 @@
   "expo": {
     "name": "Compliance Diary",
     "slug": "compliance-diary",
-    "version": "1.0.5",
+    "version": "1.0.6",
     "orientation": "portrait",
     "scheme": "compliance-diary",
     "userInterfaceStyle": "automatic",
@@ -16,7 +16,7 @@
       "bundleIdentifier": "com.thirdeyetechlabs.compliancediary"
     },
     "android": {
-      "versionCode": 8,
+      "versionCode": 9,
       "adaptiveIcon": {
         "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#ffffff"

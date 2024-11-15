@@ -6,11 +6,10 @@ import {
   ScrollView,
   Text,
   Alert,
-  Linking,
   Image,
 } from "react-native";
 
-// import * as Linking from "expo-linking";
+import * as Linking from "expo-linking";
 import MyTable from "../components/Table";
 import CustomDropdown from "../components/Dropdown";
 import Header from "../components/Header";
@@ -31,6 +30,8 @@ const Index = ({ navigation }) => {
   const [selectedActivityName, setSelectedActivityName] = useState(null);
   const [selectedActivityType, setSelectedActivityType] = useState(null);
   const [activities, setActivities] = useState([]);
+  const [activityTypeOption, setActivityTypeOption] = useState([]);
+
   const [companyName, setCompanyName] = useState([]);
   const [isMakeTeamModalVisible, setIsMakeTeamModalVisible] = useState(false);
   const [isPeriodDropdownVisible, setIsPeriodDropdownVisible] = useState(false);
@@ -137,14 +138,23 @@ const Index = ({ navigation }) => {
   useEffect(() => {
     const checkDeepLink = async () => {
       // Check if we've already processed the link
-      const hasCheckedLink = await AsyncStorage.getItem("hasCheckedLink");
-      if (hasCheckedLink) return;
+      // const hasCheckedLink = await AsyncStorage.getItem("hasCheckedLink");
+      // if (hasCheckedLink) return;
 
       // Get the initial URL
       const initialUrl = await Linking.getInitialURL();
+      // Alert.alert(initialUrl);
       if (initialUrl) {
-        const urlParams = new URLSearchParams(initialUrl.split("?")[1]);
+        // console.log("initialUrl", initialUrl);
+        const queryString = initialUrl.split("?")[1];
+        // const formattedQueryString = queryString.replace("%26", "&");
+        const urlParams = new URLSearchParams(queryString);
+
+        // console.log("urlParams", urlParams);
+
         const name = base64.decode(urlParams.get("name"));
+        // Alert.alert("name", name);
+        // console.log("name", name);
 
         const link = urlParams.get("link");
 
@@ -197,8 +207,6 @@ const Index = ({ navigation }) => {
         const companies = data.companies;
 
         if (companies) {
-          // Loop over the companies object and log or process the companies and activities
-
           const companyList = Object.keys(companies).map((company) => ({
             label: company,
             value: company,
@@ -354,12 +362,24 @@ const Index = ({ navigation }) => {
             throw new Error(`HTTP error! Status: ${response.status}`);
           }
           const data = await response.json();
-          const apiActivities = data.map((activity) => ({
-            label: activity.name,
-            value: activity.name,
-            type: activity.type,
-          }));
+          // const apiActivities = data.map((activity) => ({
+          //   label: activity.name,
+          //   value: activity.name,
+          //   type: activity.type,
+          // }));
+          const apiActivities = [];
+          const seenLabels = new Set();
 
+          data.forEach((activity) => {
+            const baseLabel = activity.name.split(" ")[0]; // Extract 'GST' from 'GST Monthly'
+            if (!seenLabels.has(baseLabel)) {
+              seenLabels.add(baseLabel);
+              apiActivities.push({
+                label: baseLabel, // Use only the base name
+                value: baseLabel,
+              });
+            }
+          });
           // Get stored activities from AsyncStorage
           const storedActivities = await AsyncStorage.getItem("activities");
           const parsedStoredActivities = JSON.parse(storedActivities) || [];
@@ -558,10 +578,13 @@ const Index = ({ navigation }) => {
                 setShowAddActivityModal={setShowAddActivityModal}
                 isVisible={isVisible}
                 setIsVisible={setIsVisible}
-                onSelect={(option) => {
-                  setSelectedActivityName(option.value),
-                    setSelectedActivityType(option.type);
-                }}
+                setActivityTypeOption={setActivityTypeOption}
+                setSelectedActivityName={setSelectedActivityName}
+                setSelectedActivityType={setSelectedActivityType}
+                // onSelect={(option) => {
+                //   setSelectedActivityName(option.value),
+                //     setSelectedActivityType(activityTypeOption);
+                // }}
                 placeholder={
                   selectedActivityName
                     ? ` ${selectedActivityName}`
