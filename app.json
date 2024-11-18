@@ -51,7 +51,7 @@
 
     "deepLinking": {
       "prefixes": [
-        "compliance-diary://",
+        "compliance-diary:/",
         "https://play.google.com/store/apps/details?id=com.thirdeyetechlabs.compliancediary",
         "https://apps.apple.com/app/id1234567890"
       ],
