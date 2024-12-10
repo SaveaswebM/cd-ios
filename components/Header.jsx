@@ -178,13 +178,13 @@ const Header = ({ isEmployee }) => {
               <MaterialIcons name="arrow-forward" size={24} color="#fff" />
             </View>
           </Link> */}
-          {/* <Link href="/SubscriptionTest2" setDrawerVisible={false}>
+          <Link href="/SubscriptionIAP" setDrawerVisible={false}>
             <View style={styles.menuItem}>
               <MaterialIcons name="diamond" size={24} color="black" />
               <Text style={styles.menuItemText}>Get SubscriptionTest2</Text>
               <MaterialIcons name="arrow-forward" size={24} color="#fff" />
             </View>
-          </Link> */}
+          </Link>
           {/* <Link href="/InAppPurchases" setDrawerVisible={false}>
             <View style={styles.menuItem}>
               <MaterialIcons name="diamond" size={24} color="black" />

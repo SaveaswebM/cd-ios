@@ -11,21 +11,25 @@
 // }
 import { Stack } from 'expo-router/stack';
 import * as Linking from 'expo-linking';
-import React from 'react';
+import React, { useEffect } from 'react';
 import store from './redux/store';
 import { Provider } from 'react-redux';
 
 import { StatusBar } from 'expo-status-bar';// Define your linking configuration
 const linking = {
-  prefixes: ['compliance-diary://'],
+  prefixes: ['myapp:///'],
   config: {
     screens: {
-      Home: 'home', // Only define the routes you actually have
+      Home: 'home',
+      Login: 'login',
     },
   },
 };
+// Linking.openURL('http://highwebsolutions.com/login');
 
 export default function Layout() {
+  const url = Linking.useURL();
+  console.log(url);
   return (
     <>
       <Provider store={store}>
