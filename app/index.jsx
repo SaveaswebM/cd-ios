@@ -163,10 +163,10 @@ const Index = ({ navigation }) => {
         // Check if the "name" parameter exists
         if (link) {
           // Perform the action you want with the name parameter
-          Alert.alert("Deep Link Opened", `Name param received: ${link}`);
+          // Alert.alert("Deep Link Opened", `Name param received: ${link}`);
           await AsyncStorage.setItem("isEmployeeTrue", "yes");
           setUserName(name);
-          await getAccessData(id, name);
+          await getAccessData(link, name);
           await AsyncStorage.setItem("employeeLink", link);
           await AsyncStorage.setItem("userName", name);
 
@@ -197,13 +197,12 @@ const Index = ({ navigation }) => {
 
   const getAccessData = async (id, name) => {
     try {
-      console.log("calleeed");
       const response = await fetch(
         `https://cd-backend-1.onrender.com/api/link-data/access-list?link=${id}&employeeName=${name}`
       );
       if (response.ok) {
         const data = await response.json();
-        console.log("Access data received:", data);
+
         const companies = data.companies;
 
         if (companies) {
@@ -247,10 +246,6 @@ const Index = ({ navigation }) => {
         const getcompanyname = await AsyncStorage.getItem("link-company");
         const company2 = JSON.parse(getcompanyname);
         setCompanyName(company2);
-        // const getactivities = await AsyncStorage.getItem("link-activities");
-
-        // const acti = JSON.parse(getactivities);
-        // setActivities(acti);
       }
     };
     getEmployeeStatus();
@@ -358,6 +353,7 @@ const Index = ({ navigation }) => {
           const response = await fetch(
             "https://cd-backend-1.onrender.com/api/activity"
           );
+
           if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
           }

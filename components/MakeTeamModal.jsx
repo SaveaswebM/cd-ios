@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import UUID from "react-native-uuid";
 import CustomDropdown from "./Dropdown";
-import MultiSelect from "./MultiSelect"; // Ensure this import is correct
+import MultiSelect from "./MultiSelect";
 import SingleSelect from "./SingleSelect";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import base64 from "react-native-base64";
@@ -347,7 +347,6 @@ const MakeTeamModal = ({
             link: id,
             employeeName: selectedEmployee,
             companyName: selectedCompanyName,
-
             activityName: selectedGroups,
           };
           console.log("payload data", selectedGroups);
@@ -362,6 +361,8 @@ const MakeTeamModal = ({
           if (response.ok) {
             Alert.alert("access has been given");
           }
+        } else {
+          Alert.alert("Link not found");
         }
       }
     } catch (error) {

@@ -83,7 +83,6 @@ const LinkInput = ({
 
   const getAccessData = async (id, name) => {
     try {
-      console.log("calleeed");
       const response = await fetch(
         `https://cd-backend-1.onrender.com/api/link-data/access-list?link=${id}&employeeName=${name}`
       );
@@ -93,8 +92,6 @@ const LinkInput = ({
         const companies = data.companies;
 
         if (companies) {
-          // Loop over the companies object and log or process the companies and activities
-
           const companyList = Object.keys(companies).map((company) => ({
             label: company,
             value: company,
