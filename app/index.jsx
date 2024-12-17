@@ -683,6 +683,7 @@ const Index = ({ navigation }) => {
 
       <MakeTeamModal
         visible={isMakeTeamModalVisible}
+        setVisible={setIsMakeTeamModalVisible}
         onClose={() => setIsMakeTeamModalVisible(false)}
         companyNameOptions={companyName}
         groupOptions={activities}

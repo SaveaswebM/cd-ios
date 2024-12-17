@@ -19,6 +19,8 @@ import base64 from "react-native-base64";
 
 const MakeTeamModal = ({
   visible,
+  setVisible,
+
   onClose,
   companyNameOptions,
   groupOptions,
@@ -172,7 +174,7 @@ const MakeTeamModal = ({
       const encodedPersonName = base64.encode(personName);
       const encodedCompanyName = base64.encode(selectedCompanyName);
       const encodedGroups = base64.encode(JSON.stringify(selectedGroups));
-      const baseUrl = "https://highwebsolutions.com/";
+      const baseUrl = "https://compliancediary.in/";
       const queryParameters = `?name=${encodedPersonName}&link=${uId}`;
       const link = `${baseUrl}${queryParameters}`;
 
@@ -306,6 +308,7 @@ const MakeTeamModal = ({
         const result = await response.json();
 
         if (response.ok) {
+          Alert.alert("Share Data Sent Successfully");
           // console.log("Success", "Link shared and saved successfully.");
 
           // Save the link to AsyncStorage
@@ -345,24 +348,30 @@ const MakeTeamModal = ({
         if (id) {
           const payload = {
             link: id,
-            employeeName: selectedEmployee,
+            employeeName: selectedEmployee.label,
             companyName: selectedCompanyName,
             activityName: selectedGroups,
           };
-          console.log("payload data", selectedGroups);
+          console.log("payload data", payload);
           const response = await fetch(
-            "https://cd-backend-1.onrender.com/api/link-data/update-access",
+            "http://cd-backend-1.onrender.com/api/link-data/modify-access",
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify(payload),
             }
           );
+
+          const res = await response.json();
+          console.log(res);
           if (response.ok) {
+            console.log("access been given");
+            setVisible(false);
             Alert.alert("access has been given");
           }
         } else {
           Alert.alert("Link not found");
+          console.log("access not given");
         }
       }
     } catch (error) {

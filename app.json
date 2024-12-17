@@ -2,7 +2,7 @@
   "expo": {
     "name": "Compliance Diary",
     "slug": "compliance-diary",
-    "version": "1.0.8",
+    "version": "1.0.9",
     "orientation": "portrait",
     "scheme": "compliance-diary",
     "userInterfaceStyle": "automatic",
@@ -19,7 +19,7 @@
       }
     },
     "android": {
-      "versionCode": 11,
+      "versionCode": 13,
       "adaptiveIcon": {
         "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#ffffff"
@@ -56,8 +56,8 @@
     "deepLinking": {
       "prefixes": [
         "compliance-diary://",
-        "https://highwebsolutions.com/",
         "https://compliancediary.in/",
+        "https://highwebsolutions.com/",
         "https://thirdeyetechlabs.com/",
         "https://play.google.com/store/apps/details?id=com.thirdeyetechlabs.compliancediary",
         "https://apps.apple.com/app/id1234567890"
