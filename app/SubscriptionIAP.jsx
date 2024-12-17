@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import * as IAP from "react-native-iap";
 const items = Platform.select({
   ios: ["professional01"],
-  android: ["premium-monthly"],
+  android: ["premium_01"],
 });
 
 const SubscriptionIAP = () => {

@@ -33,7 +33,7 @@
           "data": [
             {
               "scheme": "https",
-              "host": "highwebsolutions.com",
+              "host": "compliancediary.in",
               "pathPrefix": "/"
             },
             {
@@ -57,6 +57,7 @@
       "prefixes": [
         "compliance-diary://",
         "https://highwebsolutions.com/",
+        "https://compliancediary.in/",
         "https://thirdeyetechlabs.com/",
         "https://play.google.com/store/apps/details?id=com.thirdeyetechlabs.compliancediary",
         "https://apps.apple.com/app/id1234567890"
