@@ -427,7 +427,36 @@ const Index = ({ navigation }) => {
       fetchAndStorLinkActivities();
     }
   }, []);
+  // check for the updated activity given
+  useEffect(() => {
+    const updateAccess = async () => {
+      const userType = await AsyncStorage.getItem("isEmployeeTrue");
+      if (userType) {
+        const employeeLink = await AsyncStorage.getItem("employeeLink");
+        const userName = await AsyncStorage.getItem("userName");
+        if (employeeLink && userName) {
+          await getAccessData(employeeLink, userName);
+          const response = await fetch(
+            `https://cd-backend-1.onrender.com/api/link-data?link=${id}`
+          );
+          const result = await response.json();
 
+          if (result) {
+            const linkData = result.data;
+            for (const key in linkData) {
+              if (linkData.hasOwnProperty(key)) {
+                const value = JSON.stringify(linkData[key]);
+
+                await AsyncStorage.setItem(key, value);
+              }
+            }
+          }
+        }
+      }
+    };
+
+    updateAccess();
+  }, []);
   // const uniqueLink = `${baseUrl}?id=${uniqueId}`;
   // Handle deep linking
 

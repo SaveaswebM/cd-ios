@@ -146,8 +146,8 @@ const styles = StyleSheet.create({
   modalContent: {
     backgroundColor: "#00a0e3",
     borderRadius: 10,
-    paddingVertical: 2,
-    paddingHorizontal: 0,
+    paddingVertical: 0,
+    paddingHorizontal: 2,
     position: "absolute",
   },
   yearSelector: {

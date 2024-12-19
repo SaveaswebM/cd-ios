@@ -289,7 +289,7 @@ const MakeTeamModal = ({
         const payload = {
           link: uId,
           owner,
-          employeeName,
+          employeeName: selectedEmployee.label,
           companyName: selectedCompanyName,
           // activities: {},
           activityName: selectedGroups,
