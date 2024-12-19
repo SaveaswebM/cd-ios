@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { ActivityIndicator } from "react-native";
 import {
   View,
   Text,
@@ -36,6 +37,7 @@ const MakeTeamModal = ({
   const [errorMessage, setErrorMessage] = useState("");
   const [fetchedData, setFetchedData] = useState([]);
   const [members, setMembers] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const months = [
     "January",
@@ -107,7 +109,7 @@ const MakeTeamModal = ({
     if (selectedActivityType === "Monthly") {
       activityData =
         fetchedData.Monthly?.[selectedActivity]?.[selectedYear]?.[
-          selectedMonth
+        selectedMonth
         ] || [];
     } else if (selectedActivityType === "Quarterly") {
       activityData =
@@ -145,6 +147,7 @@ const MakeTeamModal = ({
   };
 
   const handleSave = async () => {
+    setLoading(true);
     // const fetchlist = await fetch(
     //   `https://cd-backend-1.onrender.com/api/link-data/full-employee-list?link=${id}`
     // );
@@ -160,7 +163,7 @@ const MakeTeamModal = ({
           value: `${selectedActivityName}`,
         },
       ]);
-      console.log(selectedGroups);
+      // console.log(selectedGroups);
     }
     if (!personName || !selectedCompanyName || selectedGroups.length === 0) {
       setErrorMessage("Please fill out all fields.");
@@ -308,6 +311,7 @@ const MakeTeamModal = ({
         const result = await response.json();
 
         if (response.ok) {
+          setLoading(false);
           Alert.alert("Share Data Sent Successfully");
           // console.log("Success", "Link shared and saved successfully.");
 
@@ -323,18 +327,20 @@ const MakeTeamModal = ({
 
           await AsyncStorage.setItem("links", uId);
         } else {
+          setLoading(false);
           console.error(result);
-          // Alert.alert("Error", result.error || "Failed to share the link.");
+          Alert.alert("Error", result.error || "Failed to share the link.");
         }
       }
     } catch (error) {
       console.error("Error sharing link:", error);
-      // Alert.alert("Sharing Error", "An error occurred while trying to share the link.");
+      Alert.alert("Sharing Error", "An error occurred while trying to share the link.");
     }
 
     onClose();
   };
   const giveAccess = async () => {
+    setLoading(true);
     try {
       if (selectedActivityName && selectedCompanyName) {
         setSelectedGroups([
@@ -365,11 +371,18 @@ const MakeTeamModal = ({
           const res = await response.json();
           console.log(res);
           if (response.ok) {
+            setLoading(false);
             console.log("access been given");
             setVisible(false);
-            Alert.alert("access has been given");
+            Alert.alert("Access has been given");
+          }
+          else {
+            setLoading(false);
+            setVisible(false);
+            Alert.alert("All provided activities already exist for company Saveasweb")
           }
         } else {
+          setLoading(false);
           Alert.alert("Link not found");
           console.log("access not given");
         }
@@ -414,19 +427,35 @@ const MakeTeamModal = ({
               <Text style={styles.errorText}>{errorMessage}</Text>
             )} */}
             {selectedEmployee && (
-              <TouchableOpacity style={styles.saveButton} onPress={giveAccess}>
-                <Text style={styles.saveButtonText}>Add Access</Text>
+              <TouchableOpacity style={styles.saveButton} onPress={giveAccess} disabled={loading}>
+                {
+                  loading ? (
+                    <ActivityIndicator size={"small"} color={"#ffffff"} />
+                  ) : (
+                    <Text style={styles.saveButtonText}>
+                      Add Access
+                    </Text>
+                  )
+                }
               </TouchableOpacity>
             )}
             {!selectedEmployee && (
-              <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-                <Text style={styles.saveButtonText}>Share</Text>
+              <TouchableOpacity style={styles.saveButton} onPress={handleSave} disabled={loading}>
+                {
+                  loading ? (
+                    <ActivityIndicator size={"small"} color={"#ffffff"} />
+                  ) : (
+                    <Text style={styles.saveButtonText}>
+                      Share
+                    </Text>
+                  )
+                }
               </TouchableOpacity>
             )}
           </View>
         </View>
       </TouchableWithoutFeedback>
-    </Modal>
+    </Modal >
   );
 };
 
