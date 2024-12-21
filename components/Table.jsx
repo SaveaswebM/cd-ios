@@ -12,6 +12,7 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
+import DateTimePickerM from "./DateTimePickerM";
 const { width: screenWidth } = Dimensions.get("window");
 
 const MyTable = ({
@@ -24,6 +25,8 @@ const MyTable = ({
   name,
   selectedActivityType,
   isEmployee,
+  selectedDatePicker,
+  setSelectedDatePicker,
 }) => {
   const [isDataReadyToSave, setIsDataReadyToSave] = useState(false);
   const [fetchedData, setFetchedData] = useState([]);
@@ -32,6 +35,8 @@ const MyTable = ({
   const [selectedRowIndex, setSelectedRowIndex] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [dateTimePickerVisibleM, setDateTimePickerVisibleM] = useState(false);
+  const [dateObject, setDateObject] = useState({});
   const itemsPerPage = 10;
   const totalPages = Math.ceil(tableData.length / itemsPerPage);
   const currentData = tableData.slice(
@@ -534,7 +539,7 @@ const MyTable = ({
             );
 
             const updateResult = await updateResponse.json();
-            if (updatedResponse.ok) {
+            if (updateResult.ok) {
               console.log("data has been updated");
             } else {
               console.log("failed to update data in backend");
@@ -590,6 +595,7 @@ const MyTable = ({
 
   const hideDatePicker = () => {
     setDatePickerVisibility(false);
+    setDateTimePickerVisibleM(false);
   };
 
   const handleConfirm = (date) => {
@@ -604,6 +610,16 @@ const MyTable = ({
       // handleDataUpdate(selectedRowIndex, 3, selectedDate);
     }
     hideDatePicker();
+  };
+
+  const setDatePickerData = () => {
+    console.log(selectedDatePicker);
+    const newDate = new Date(selectedDatePicker);
+    newDate.setDate(newDate.getDate() + 1);
+
+    const updatedData = [...tableData];
+    updatedData[selectedRowIndex][3] = newDate.toISOString().split("T")[0]; // Format date as YYYY-MM-DD
+    setTableData(updatedData);
   };
   const handleCompletedClick = (rowIndex) => {
     Alert.alert("Mark as Completed", "Do you want to mark as completed?", [
@@ -632,27 +648,28 @@ const MyTable = ({
 
   const handlePreferredDateClick = (rowIndex) => {
     setSelectedRowIndex(rowIndex);
-    setDatePickerVisibility(true);
+    setDateTimePickerVisibleM(true);
+    // setDatePickerVisibility(true);
   };
 
-  const onDateChange = (event, selectedDate) => {
-    setDatePickerVisibility(false);
-    if (event.type === "dismissed") {
-      // The user canceled the picker
-      setShowPicker(false);
-      return;
-    }
-    if (selectedDate) {
-      const updatedData = [...tableData];
-      updatedData[selectedRowIndex][3] = selectedDate
-        .toISOString()
-        .split("T")[0]; // Format date as YYYY-MM-DD
-      setTableData(updatedData);
+  // const onDateChange = (event, selectedDate) => {
+  //   setDatePickerVisibility(false);
+  //   if (event.type === "dismissed") {
+  //     // The user canceled the picker
+  //     setShowPicker(false);
+  //     return;
+  //   }
+  //   if (selectedDate) {
+  //     const updatedData = [...tableData];
+  //     updatedData[selectedRowIndex][3] = selectedDate
+  //       .toISOString()
+  //       .split("T")[0]; // Format date as YYYY-MM-DD
+  //     setTableData(updatedData);
 
-      // Call handleDataUpdate here to save the change in SQLite if needed
-      // handleDataUpdate(selectedRowIndex, 3, selectedDate);
-    }
-  };
+  //     // Call handleDataUpdate here to save the change in SQLite if needed
+  //     // handleDataUpdate(selectedRowIndex, 3, selectedDate);
+  //   }
+  // };
 
   const getMonthName = (monthIndex) => {
     const months = [
@@ -789,11 +806,20 @@ const MyTable = ({
           />
         )} */}
 
-        <DateTimePickerModal
+        {/* <DateTimePickerModal
           isVisible={isDatePickerVisible}
           mode="date"
           onConfirm={handleConfirm}
           onCancel={hideDatePicker}
+        /> */}
+        <DateTimePickerM
+          dateTimePickerVisibleM={dateTimePickerVisibleM}
+          setDateTimePickerVisibleM={setDateTimePickerVisibleM}
+          selectedDatePicker={selectedDatePicker}
+          setSelectedDatePicker={setSelectedDatePicker}
+          setDatePickerData={setDatePickerData}
+          setDateObject={setDateObject}
+          dateObject={dateObject}
         />
       </View>
     );
@@ -890,7 +916,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ddd",
   },
-  headingCell: { height: 74, backgroundColor: "#0D3B66" }, // Fixed height for headings
+  headingCell: { backgroundColor: "#0D3B66", paddingVertical: 10 },
   cellText: {
     textAlign: "center",
     padding: 8,

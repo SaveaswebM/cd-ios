@@ -162,7 +162,7 @@ const Header = ({ isEmployee }) => {
             <Text style={styles.profileName}>{personName}</Text>
             <Text>{personEmail}</Text>
           </View>
-          <Link href="/Subscription" setDrawerVisible={false}>
+          {/* <Link href="/Subscription" setDrawerVisible={false}>
             <View style={styles.menuItem}>
               <MaterialIcons name="diamond" size={18} color="black" />
               <Text style={styles.menuItemText}>
@@ -170,7 +170,7 @@ const Header = ({ isEmployee }) => {
               </Text>
               <MaterialIcons name="arrow-forward" size={18} color="#fff" />
             </View>
-          </Link>
+          </Link> */}
           {/* <Link href="/SubscriptionTest" setDrawerVisible={false}>
             <View style={styles.menuItem}>
               <MaterialIcons name="diamond" size={24} color="black" />
