@@ -1,7 +1,7 @@
 {
   "name": "compliance-diary",
   "main": "expo-router/entry",
-  "version": "1.0.9",
+  "version": "1.0.6",
   "scripts": {
     "start": "expo start --dev-client",
     "reset-project": "node ./scripts/reset-project.js",
@@ -21,6 +21,7 @@
     "@react-native-picker/picker": "2.7.5",
     "@react-navigation/drawer": "^6.7.2",
     "@react-navigation/native": "^6.0.2",
+    "dayjs": "^1.11.13",
     "eventemitter3": "^5.0.1",
     "expo": "~51.0.31",
     "expo-asset": "~10.0.10",

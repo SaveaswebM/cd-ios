@@ -2,7 +2,7 @@
   "expo": {
     "name": "Compliance Diary",
     "slug": "compliance-diary",
-    "version": "1.0.9",
+    "version": "1.0.6",
     "orientation": "portrait",
     "scheme": "compliance-diary",
     "userInterfaceStyle": "automatic",
@@ -19,7 +19,7 @@
       }
     },
     "android": {
-      "versionCode": 13,
+      "versionCode": 17,
       "adaptiveIcon": {
         "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#ffffff"

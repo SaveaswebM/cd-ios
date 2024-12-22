@@ -12,6 +12,7 @@ import {
   Platform,
   ScrollView,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -47,6 +48,7 @@ const Dropdown = ({
   setActivityTypeOption,
   setSelectedActivityName,
   setSelectedActivityType,
+  setMembers,
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [selectedOption, setSelectedOption] = useState(null);
@@ -61,6 +63,7 @@ const Dropdown = ({
   const [enterUserName, setEnterUserName] = useState("");
   const [subscriptionType, setSubscriptionType] = useState("");
   const [activityOptionsVisible, setActivityOptionsVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   // const [subscriptionType, setSubscriptionType] = useState("Free");
   const buttonRef = useRef(null);
@@ -247,7 +250,26 @@ const Dropdown = ({
       handleActivityChange(currentIndex, "dueDate", selectedDate);
     }
   };
+  const InviteMemberFunction = async () => {
+    setLoading(true);
+    const id = await AsyncStorage.getItem("links");
+    if (id) {
+      const fetchlist = await fetch(
+        `https://cd-backend-1.onrender.com/api/link-data/full-employee-list?link=${id}`
+      );
+      if (fetchlist) {
+        const dataa = await fetchlist.json();
+        const members = dataa.employeeNames.map((name) => ({
+          label: name,
+          value: name,
+        }));
 
+        setMembers(members);
+      }
+    }
+    setLoading(false);
+    setIsMakeTeamModalVisible(true);
+  };
   return (
     <View style={[styles.container, style]}>
       {isTeamDropdown && isEmployee ? (
@@ -455,10 +477,15 @@ const Dropdown = ({
               )} */}
               {isTeamDropdown && !isEmployee && (
                 <TouchableOpacity
-                  onPress={() => setIsMakeTeamModalVisible(true)}
+                  onPress={() => InviteMemberFunction()}
                   style={[styles.option, { backgroundColor: "#00397A" }]}
+                  disabled={loading}
                 >
-                  <Text style={styles.optionText}>Invite Member</Text>
+                  {loading ? (
+                    <ActivityIndicator size={"small"} color={"#ffffff"} />
+                  ) : (
+                    <Text style={styles.optionText}>Invite Member</Text>
+                  )}
                 </TouchableOpacity>
               )}
             </View>

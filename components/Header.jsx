@@ -171,6 +171,7 @@ const Header = ({ isEmployee }) => {
               <MaterialIcons name="arrow-forward" size={18} color="#fff" />
             </View>
           </Link>
+
           {/* <Link href="/SubscriptionTest" setDrawerVisible={false}>
             <View style={styles.menuItem}>
               <MaterialIcons name="diamond" size={24} color="black" />

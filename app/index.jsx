@@ -23,6 +23,7 @@ import Refresh from "../components/Refresh";
 import DropdownTest from "../components/DropdownTest";
 // import CustomLoadingScreen from "../components/CustomLoadingScreen";
 import Ads from "../components/Ads";
+import dayjs from "dayjs";
 
 const Index = ({ navigation }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -46,6 +47,9 @@ const Index = ({ navigation }) => {
   const [showAddActivityModal, setShowAddActivityModal] = useState(false);
   const [isEmployee, setIsEmployee] = useState(false);
   const [employees, setEmployees] = useState([]);
+  const [members, setMembers] = useState([]);
+
+  const [selectedDate, setSelectedDate] = useState(dayjs());
 
   const buttonRef = useRef(null);
   // const options2 = [
@@ -629,6 +633,7 @@ const Index = ({ navigation }) => {
                 disabled={true}
                 isVisible={isVisible}
                 setIsVisible={setIsVisible}
+                setMembers={setMembers}
                 onSelect={(selectedOption) => {
                   // Handle the selected option here
                   console.log("Selected option:", selectedOption);
@@ -693,7 +698,8 @@ const Index = ({ navigation }) => {
             setTableData={setTableData}
             name={userName}
             isEmployee={isEmployee}
-
+            selectedDatePicker={selectedDate}
+            setSelectedDatePicker={setSelectedDate}
             // loading={loading}
           />
         }
@@ -720,6 +726,8 @@ const Index = ({ navigation }) => {
         selectedCompanyName={selectedCompanyName}
         selectedActivityName={selectedActivityName}
         selectedActivityType={selectedActivityType}
+        members={members}
+        setMembers={setMembers}
       />
       <PeriodDropdown
         visible={isPeriodDropdownVisible}

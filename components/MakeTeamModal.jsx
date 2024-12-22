@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { ActivityIndicator } from "react-native";
 import {
   View,
   Text,
@@ -28,6 +29,8 @@ const MakeTeamModal = ({
   selectedCompanyName,
   selectedActivityName,
   selectedActivityType,
+  members,
+  setMembers,
 }) => {
   const [personName, setPersonName] = useState("");
   // const [selectedCompanyName, setSelectedCompanyName] = useState(null);
@@ -35,7 +38,7 @@ const MakeTeamModal = ({
   const [selectedEmployee, setSelectedEmployee] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [fetchedData, setFetchedData] = useState([]);
-  const [members, setMembers] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const months = [
     "January",
@@ -145,13 +148,6 @@ const MakeTeamModal = ({
   };
 
   const handleSave = async () => {
-    // const fetchlist = await fetch(
-    //   `https://cd-backend-1.onrender.com/api/link-data/full-employee-list?link=${id}`
-    // );
-    // if (fetchlist) {
-    //   const dataa = fetchlist.json();
-    //   setMembers(dataa);
-    // }
     if (selectedActivityName && selectedActivityType) {
       setSelectedGroups([
         {
@@ -160,29 +156,32 @@ const MakeTeamModal = ({
           value: `${selectedActivityName}`,
         },
       ]);
-      console.log(selectedGroups);
     }
-    if (!personName || !selectedCompanyName || selectedGroups.length === 0) {
-      setErrorMessage("Please fill out all fields.");
+
+    if (!personName) {
+      // setErrorMessage("Please fill out all fields.");
+      Alert.alert("Please fill out personName.");
+      return;
+    } else if (!selectedCompanyName) {
+      Alert.alert("Company Name is not selected");
+      return;
+    } else if (selectedGroups.length === 0) {
+      Alert.alert("Activity has not been selected");
       return;
     }
 
     try {
-      // Generate the unique link
       const uId = await getUniqueId();
-
       const encodedPersonName = base64.encode(personName);
-      const encodedCompanyName = base64.encode(selectedCompanyName);
-      const encodedGroups = base64.encode(JSON.stringify(selectedGroups));
       const baseUrl = "https://compliancediary.in/";
       const queryParameters = `?name=${encodedPersonName}&link=${uId}`;
       const link = `${baseUrl}${queryParameters}`;
-
-      const result = await Share.share({
-        message: ` Here's the link: ${link}`,
-      });
-      console.log(selectedGroups);
-      if (result.action === Share.sharedAction) {
+      console.log(link);
+      // const result = await Share.share({
+      //   message: ` Here's the link: ${link}`,
+      // });
+      // console.log(selectedGroups);
+      if (link) {
         const owner = await AsyncStorage.getItem("userName");
         const employeeName = personName;
 
@@ -289,7 +288,7 @@ const MakeTeamModal = ({
         const payload = {
           link: uId,
           owner,
-          employeeName: selectedEmployee.label,
+          employeeName,
           companyName: selectedCompanyName,
           // activities: {},
           activityName: selectedGroups,
@@ -308,76 +307,168 @@ const MakeTeamModal = ({
         const result = await response.json();
 
         if (response.ok) {
+          await Share.share({
+            message: ` Here's the link: ${link}`,
+          });
           Alert.alert("Share Data Sent Successfully");
-          // console.log("Success", "Link shared and saved successfully.");
-
-          // Save the link to AsyncStorage
-          // const storedLinks = await AsyncStorage.getItem('links');
-          // let linksArray = [];
-
-          // if (storedLinks) {
-          //   linksArray = JSON.parse(storedLinks);
-          // }
-
-          // linksArray.push(uId);  // Add the new link to the array
 
           await AsyncStorage.setItem("links", uId);
         } else {
-          console.error(result);
-          // Alert.alert("Error", result.error || "Failed to share the link.");
+          Alert.alert("Error", result.error || "Failed to share the link.");
         }
+      } else {
+        Alert.alert("Link Not generated try once again");
       }
     } catch (error) {
       console.error("Error sharing link:", error);
-      // Alert.alert("Sharing Error", "An error occurred while trying to share the link.");
+      Alert.alert(
+        "Sharing Error",
+        "An error occurred while trying to share the link."
+      );
     }
 
     onClose();
   };
+  // const giveAccess = async () => {
+  //   try {
+  //     setLoading(true);
+
+  //     if (selectedActivityName && selectedCompanyName && selectedActivityType) {
+  //       setSelectedGroups([
+  //         {
+  //           label: `${selectedActivityName}`,
+  //           type: `${selectedActivityType}`,
+  //           value: `${selectedActivityName}`,
+  //         },
+  //       ]);
+  //       const id = await AsyncStorage.getItem("links");
+  //       if (id) {
+  //         const payload = {
+  //           link: id,
+  //           employeeName: selectedEmployee.label,
+  //           companyName: selectedCompanyName,
+  //           activityName: selectedGroups,
+  //         };
+  //         // console.log("payload data", payload);
+  //         const response = await fetch(
+  //           "http://cd-backend-1.onrender.com/api/link-data/modify-access",
+  //           {
+  //             method: "POST",
+  //             headers: { "Content-Type": "application/json" },
+  //             body: JSON.stringify(payload),
+  //           }
+  //         );
+
+  //         const res = await response.json();
+  //         console.log(res);
+  //         if (response.ok) {
+  //           setLoading(false);
+  //           console.log("access been given");
+  //           setVisible(false);
+  //           Alert.alert("Access has been given");
+  //         } else {
+  //           setLoading(false);
+  //           setVisible(false);
+  //           Alert.alert(res.message);
+  //         }
+  //       } else {
+  //         setLoading(false);
+  //         Alert.alert("Link not found");
+  //         console.log("access not given");
+  //       }
+  //     } else if (!selectedActivityName) {
+  //       setLoading(false);
+  //       Alert.alert("Activity is not selected");
+  //       return;
+  //     } else if (!selectedCompanyName) {
+  //       setLoading(false);
+
+  //       Alert.alert("Company Name is not selected");
+  //       return;
+  //     } else {
+  //       setLoading(false);
+
+  //       Alert.alert("Company Name and Activity  is not selected");
+  //       return;
+  //     }
+  //   } catch (error) {
+  //     Alert.alert(error);
+  //   }
+  // };
+
   const giveAccess = async () => {
     try {
-      if (selectedActivityName && selectedCompanyName) {
-        setSelectedGroups([
-          {
-            label: `${selectedActivityName}`,
-            type: `${selectedActivityType}`,
-            value: `${selectedActivityName}`,
-          },
-        ]);
-        const id = await AsyncStorage.getItem("links");
-        if (id) {
-          const payload = {
-            link: id,
-            employeeName: selectedEmployee.label,
-            companyName: selectedCompanyName,
-            activityName: selectedGroups,
-          };
-          console.log("payload data", payload);
-          const response = await fetch(
-            "http://cd-backend-1.onrender.com/api/link-data/modify-access",
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(payload),
-            }
-          );
+      setLoading(true);
 
-          const res = await response.json();
-          console.log(res);
-          if (response.ok) {
-            console.log("access been given");
-            setVisible(false);
-            Alert.alert("access has been given");
-          }
-        } else {
-          Alert.alert("Link not found");
-          console.log("access not given");
+      if (!selectedActivityName) {
+        Alert.alert("Activity is not selected");
+        return;
+      }
+
+      if (!selectedCompanyName) {
+        Alert.alert("Company Name is not selected");
+        return;
+      }
+
+      if (!selectedActivityType) {
+        Alert.alert("Company Name and Activity are not selected");
+        return;
+      }
+
+      const id = await AsyncStorage.getItem("links");
+      if (!id) {
+        Alert.alert("Link not found");
+        console.log("AsyncStorage did not return a valid link.");
+        return;
+      }
+
+      const selectedGroups = [
+        {
+          label: `${selectedActivityName}`,
+          type: `${selectedActivityType}`,
+          value: `${selectedActivityName}`,
+        },
+      ];
+
+      const payload = {
+        link: id,
+        employeeName: selectedEmployee.label,
+        companyName: selectedCompanyName,
+        activityName: selectedGroups,
+      };
+
+      console.log("Payload:", JSON.stringify(payload));
+
+      const response = await fetch(
+        "http://cd-backend-1.onrender.com/api/link-data/modify-access",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
         }
+      );
+
+      const res = await response.json();
+      console.log("Response:", res);
+
+      if (response.ok) {
+        setLoading(false);
+        console.log("access been given");
+        setVisible(false);
+        Alert.alert("Access has been given");
+      } else {
+        setLoading(false);
+        setVisible(false);
+        Alert.alert(res.message);
       }
     } catch (error) {
-      // Alert.alert(error);
+      // console.error("Error in giveAccess:", error);
+      Alert.alert("Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
+
   return (
     <Modal
       transparent
@@ -414,8 +505,16 @@ const MakeTeamModal = ({
               <Text style={styles.errorText}>{errorMessage}</Text>
             )} */}
             {selectedEmployee && (
-              <TouchableOpacity style={styles.saveButton} onPress={giveAccess}>
-                <Text style={styles.saveButtonText}>Add Access</Text>
+              <TouchableOpacity
+                style={styles.saveButton}
+                onPress={giveAccess}
+                disabled={loading}
+              >
+                {loading ? (
+                  <ActivityIndicator size={"small"} color={"#ffffff"} />
+                ) : (
+                  <Text style={styles.saveButtonText}>Add Access</Text>
+                )}
               </TouchableOpacity>
             )}
             {!selectedEmployee && (
