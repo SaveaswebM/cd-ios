@@ -414,6 +414,10 @@ const MakeTeamModal = ({
         Alert.alert("Company Name and Activity are not selected");
         return;
       }
+      if (!selectedEmployee) {
+        Alert.alert("employee is not selected");
+        return;
+      }
 
       const id = await AsyncStorage.getItem("links");
       if (!id) {
@@ -440,7 +444,7 @@ const MakeTeamModal = ({
       console.log("Payload:", JSON.stringify(payload));
 
       const response = await fetch(
-        "http://cd-backend-1.onrender.com/api/link-data/modify-access",
+        "https://cd-backend-1.onrender.com/api/link-data/modify-access",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -480,7 +484,7 @@ const MakeTeamModal = ({
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <SingleSelect
-              options={members} // Now 'members' is an array of objects with 'label' and 'value'
+              options={members}
               onSelect={setSelectedEmployee}
               selectedItem={selectedEmployee}
               placeholder="Select Existing Member"
