@@ -167,6 +167,7 @@ const MakeTeamModal = ({
     }
     if (!personName || !selectedCompanyName || selectedGroups.length === 0) {
       setErrorMessage("Please fill out all fields.");
+      setLoading(false)
       return;
     }
 
@@ -441,15 +442,9 @@ const MakeTeamModal = ({
             )}
             {!selectedEmployee && (
               <TouchableOpacity style={styles.saveButton} onPress={handleSave} disabled={loading}>
-                {
-                  loading ? (
-                    <ActivityIndicator size={"small"} color={"#ffffff"} />
-                  ) : (
-                    <Text style={styles.saveButtonText}>
+                <Text style={styles.saveButtonText}>
                       Share
                     </Text>
-                  )
-                }
               </TouchableOpacity>
             )}
           </View>

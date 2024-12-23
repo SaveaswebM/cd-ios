@@ -10,7 +10,6 @@ import {
   Alert,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import DateTimePicker from "@react-native-community/datetimepicker";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 const { width: screenWidth } = Dimensions.get("window");
 
@@ -28,7 +27,6 @@ const MyTable = ({
   const [isDataReadyToSave, setIsDataReadyToSave] = useState(false);
   const [fetchedData, setFetchedData] = useState([]);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
-
   const [selectedRowIndex, setSelectedRowIndex] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -45,12 +43,14 @@ const MyTable = ({
     "Completed By",
     "Preferred Date",
   ];
+
   const columnWidths = [
     screenWidth * 0.38,
     screenWidth * 0.18,
     screenWidth * 0.22,
     screenWidth * 0.2,
   ];
+
   const BlinkingBackground = ({ children, blink, width }) => {
     const [isBlinking, setIsBlinking] = useState(true);
 
@@ -111,7 +111,7 @@ const MyTable = ({
       if (selectedActivityType === "Monthly") {
         activityData =
           fetchedData.Monthly?.[selectedActivity]?.[selectedYear]?.[
-            selectedMonth
+          selectedMonth
           ] || [];
       } else if (selectedActivityType === "Quarterly") {
         activityData =
@@ -184,7 +184,7 @@ const MyTable = ({
           }
         }
       }
-    } catch (error) {}
+    } catch (error) { }
   };
 
   // useEffect(() => {
@@ -321,6 +321,7 @@ const MyTable = ({
 
   //   loadData();
   // }, [companyName, selectedActivity, selectedYear, selectedMonth]);
+
   useEffect(() => {
     const loadData = async () => {
       let storedData;
@@ -534,14 +535,14 @@ const MyTable = ({
             );
 
             const updateResult = await updateResponse.json();
-            if (updatedResponse.ok) {
+            if (updateResult.ok) {
               console.log("data has been updated");
             } else {
               console.log("failed to update data in backend");
             }
           }
         }
-      } catch (error) {}
+      } catch (error) { }
     };
   }, [tableData]);
 
@@ -584,6 +585,8 @@ const MyTable = ({
   //     Alert.alert("Error", "Failed to update data. Please try again later.");
   //   }
   // };
+
+
   const showDatePicker = () => {
     setDatePickerVisibility(true);
   };
@@ -690,14 +693,14 @@ const MyTable = ({
         (day % 10 === 1 && day !== 11
           ? "st"
           : day % 10 === 2 && day !== 12
-          ? "nd"
-          : day % 10 === 3 && day !== 13
-          ? "rd"
-          : "th");
+            ? "nd"
+            : day % 10 === 3 && day !== 13
+              ? "rd"
+              : "th");
       const monthName =
         selectedActivityType === "Yearly" ||
-        selectedActivityType === "Monthly" ||
-        selectedActivityType === "Quarterly"
+          selectedActivityType === "Monthly" ||
+          selectedActivityType === "Quarterly"
           ? getMonthName(month) + " "
           : " ";
       if (remainingDays <= 5 && remainingDays >= 0 && completedValue === "") {
@@ -775,6 +778,7 @@ const MyTable = ({
         ]}
       >
         <Text style={[styles.cellText, cellStyle]}>{data}</Text>
+
         {/* {isDatePickerVisible && (
           <DateTimePickerModal
             style={[{ color: "black" }]}

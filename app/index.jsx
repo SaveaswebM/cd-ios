@@ -7,6 +7,7 @@ import {
   Text,
   Alert,
   Image,
+  TouchableWithoutFeedback
 } from "react-native";
 
 import * as Linking from "expo-linking";
@@ -233,7 +234,7 @@ const Index = ({ navigation }) => {
           );
         }
       }
-    } catch (error) {}
+    } catch (error) { }
   };
 
   useEffect(() => {
@@ -459,11 +460,19 @@ const Index = ({ navigation }) => {
     }
   };
 
+  const closeDropdown = () => {
+    if (isVisible) {
+      setIsVisible(false); // Close the dropdown when tapping outside
+    }
+  };
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <Header navigation={navigation} isEmployee={isEmployee} />
       <View style={styles.container}>
         <View style={styles.buttonRow}>
+
+
           {/* <View style={styles.buttonContainer}>
                       <DropdownTest        options={companyName}
                 userName={userName}
@@ -528,6 +537,9 @@ const Index = ({ navigation }) => {
           {/* <View style={styles.buttonContainer}>
       <DropdownTest />
     </View> */}
+
+
+
         </View>
       </View>
       <ScrollView style={styles.scrollview}>
@@ -537,29 +549,31 @@ const Index = ({ navigation }) => {
           /> */}
           <Ads />
           <View style={styles.buttonRow}>
-            <View style={styles.buttonContainer}>
-              <CustomDropdown
-                options={companyName}
-                setCompanyName={setCompanyName}
-                userName={userName}
-                setUserName={setUserName}
-                onSelect={(option) => setSelectedCompanyName(option.value)}
-                isCompanyDropdown={true}
-                onAddCompany={handleAddCompany}
-                errorMessage={errorMessage}
-                setErrorMessage={setErrorMessage}
-                showAddCompanyModal={showAddCompanyModal}
-                setShowAddCompanyModal={setShowAddCompanyModal}
-                isEmployee={isEmployee}
-                isVisible={isVisible}
-                setIsVisible={setIsVisible}
-                placeholder={
-                  selectedCompanyName
-                    ? `${selectedCompanyName}`
-                    : "Company Name"
-                }
-              />
-            </View>
+            <TouchableWithoutFeedback onPress={closeDropdown}>
+              <View style={styles.buttonContainer}>
+                <CustomDropdown
+                  options={companyName}
+                  setCompanyName={setCompanyName}
+                  userName={userName}
+                  setUserName={setUserName}
+                  onSelect={(option) => setSelectedCompanyName(option.value)}
+                  isCompanyDropdown={true}
+                  onAddCompany={handleAddCompany}
+                  errorMessage={errorMessage}
+                  setErrorMessage={setErrorMessage}
+                  showAddCompanyModal={showAddCompanyModal}
+                  setShowAddCompanyModal={setShowAddCompanyModal}
+                  isEmployee={isEmployee}
+                  isVisible={isVisible}
+                  setIsVisible={setIsVisible}
+                  placeholder={
+                    selectedCompanyName
+                      ? `${selectedCompanyName}`
+                      : "Company Name"
+                  }
+                />
+              </View>
+            </TouchableWithoutFeedback>
 
             <View style={styles.buttonContainer}>
               <CustomDropdown
@@ -641,12 +655,11 @@ const Index = ({ navigation }) => {
               >
                 <Text style={styles.buttonText}>
                   {selectedActivityType === "Monthly"
-                    ? `${
-                        selectedMonth ? selectedMonth + " " : ""
-                      }${selectedYear}`
+                    ? `${selectedMonth ? selectedMonth + " " : ""
+                    }${selectedYear}`
                     : selectedYear
-                    ? selectedYear
-                    : "Period  "}
+                      ? selectedYear
+                      : "Period  "}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -665,7 +678,7 @@ const Index = ({ navigation }) => {
             name={userName}
             isEmployee={isEmployee}
 
-            // loading={loading}
+          // loading={loading}
           />
         }
 
