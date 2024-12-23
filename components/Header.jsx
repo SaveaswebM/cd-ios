@@ -12,7 +12,7 @@ import {
   SafeAreaView,
   Share,
   Alert,
-  Platform,
+  Platform
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import logo from "../assets/images/logo.png"; // Ensure the path is correct
@@ -36,7 +36,7 @@ const Header = ({ isEmployee }) => {
       toValue,
       duration: 300,
       easing: Easing.out(Easing.ease),
-      useNativeDriver: true,
+      useNativeDriver: true
     }).start();
   };
 
@@ -76,12 +76,12 @@ const Header = ({ isEmployee }) => {
     fetch("https://cd-backend-1.onrender.com/api/auth", {
       method: "DELETE",
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        email: email2, // Pass the user's email here
+        email: email2 // Pass the user's email here
         // Pass the user's password here
-      }),
+      })
     })
       .then((response) => response.json())
       .then((data) => {
@@ -104,7 +104,7 @@ const Header = ({ isEmployee }) => {
   const shareApp = async () => {
     await Share.share({
       message:
-        "https://play.google.com/store/apps/details?id=com.thirdeyetechlabs.compliancediary",
+        "https://play.google.com/store/apps/details?id=com.thirdeyetechlabs.compliancediary"
     });
   };
   const confirmDelete = () => {
@@ -115,13 +115,13 @@ const Header = ({ isEmployee }) => {
         {
           text: "Cancel",
           onPress: () => console.log("Cancel Pressed"),
-          style: "cancel",
+          style: "cancel"
         },
         {
           text: "Delete",
           onPress: handleDeleteAcccount,
-          style: "destructive", // This will make the button red on iOS
-        },
+          style: "destructive" // This will make the button red on iOS
+        }
       ],
       { cancelable: false }
     );
@@ -151,7 +151,7 @@ const Header = ({ isEmployee }) => {
         <Animated.View
           style={[
             styles.drawer,
-            { transform: [{ translateX: drawerAnimation }] },
+            { transform: [{ translateX: drawerAnimation }] }
           ]}
         >
           <View style={styles.drawerHeader}>
@@ -257,13 +257,13 @@ const styles = StyleSheet.create({
     shadowRadius: 29,
     elevation: 29,
     borderBottomLeftRadius: 4,
-    borderBottomRightRadius: 4,
+    borderBottomRightRadius: 4
     // zIndex: -1,
   },
   logo: {
     width: "56%",
     height: 102,
-    marginHorizontal: "auto",
+    marginHorizontal: "auto"
   },
   drawer: {
     position: "absolute",
@@ -273,32 +273,32 @@ const styles = StyleSheet.create({
     height: height * 2,
     backgroundColor: "#fff",
     padding: 20,
-    zIndex: 0,
+    zIndex: 0
   },
   drawerHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     maxHeight: 42,
-    marginTop: 40,
+    marginTop: 40
   },
   profileSection: {
-    marginVertical: 20,
+    marginVertical: 20
   },
   profileName: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#000",
+    color: "#000"
   },
   menuItem: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 10,
+    paddingVertical: 10
   },
   menuItemText: {
     marginLeft: 15,
     fontSize: 12,
-    color: "#000",
+    color: "#000"
   },
   overlay: {
     position: "absolute",
@@ -307,9 +307,9 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     height: height * 2,
-    backgroundColor: "rgba(0, 0, 0, 0)",
+    backgroundColor: "rgba(0, 0, 0, 0)"
     // zIndex: 1
-  },
+  }
 });
 
 export default Header;

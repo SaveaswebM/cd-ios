@@ -9,7 +9,7 @@ import {
   StyleSheet,
   Alert,
   Share,
-  TouchableWithoutFeedback,
+  TouchableWithoutFeedback
 } from "react-native";
 import UUID from "react-native-uuid";
 import CustomDropdown from "./Dropdown";
@@ -30,7 +30,7 @@ const MakeTeamModal = ({
   selectedActivityName,
   selectedActivityType,
   members,
-  setMembers,
+  setMembers
 }) => {
   const [personName, setPersonName] = useState("");
   // const [selectedCompanyName, setSelectedCompanyName] = useState(null);
@@ -52,7 +52,7 @@ const MakeTeamModal = ({
     "September",
     "October",
     "November",
-    "December",
+    "December"
   ];
 
   useEffect(() => {
@@ -90,7 +90,7 @@ const MakeTeamModal = ({
           console.log("dataa", dataa);
           const members = dataa.employeeNames.map((name) => ({
             label: name, // The display label
-            value: name, // The value that will be used internally
+            value: name // The value that will be used internally
           }));
 
           setMembers(members);
@@ -125,7 +125,7 @@ const MakeTeamModal = ({
       entry.name,
       entry.dueDate,
       "",
-      "",
+      ""
     ]);
 
     return formattedTableData;
@@ -153,8 +153,8 @@ const MakeTeamModal = ({
         {
           label: `${selectedActivityName}`,
           type: `${selectedActivityType}`,
-          value: `${selectedActivityName}`,
-        },
+          value: `${selectedActivityName}`
+        }
       ]);
     }
 
@@ -292,7 +292,7 @@ const MakeTeamModal = ({
           companyName: selectedCompanyName,
           // activities: {},
           activityName: selectedGroups,
-          data,
+          data
         };
         //  console.log("payload data", payload);
         const response = await fetch(
@@ -300,7 +300,7 @@ const MakeTeamModal = ({
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
+            body: JSON.stringify(payload)
           }
         );
 
@@ -308,7 +308,7 @@ const MakeTeamModal = ({
 
         if (response.ok) {
           await Share.share({
-            message: ` Here's the link: ${link}`,
+            message: ` Here's the link: ${link}`
           });
           Alert.alert("Share Data Sent Successfully");
 
@@ -430,15 +430,15 @@ const MakeTeamModal = ({
         {
           label: `${selectedActivityName}`,
           type: `${selectedActivityType}`,
-          value: `${selectedActivityName}`,
-        },
+          value: `${selectedActivityName}`
+        }
       ];
 
       const payload = {
         link: id,
         employeeName: selectedEmployee.label,
         companyName: selectedCompanyName,
-        activityName: selectedGroups,
+        activityName: selectedGroups
       };
 
       console.log("Payload:", JSON.stringify(payload));
@@ -448,7 +448,7 @@ const MakeTeamModal = ({
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
+          body: JSON.stringify(payload)
         }
       );
 
@@ -538,14 +538,14 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: "rgba(0,0,0,0.5)"
   },
   modalContent: {
     width: "80%",
     backgroundColor: "#5290D7",
     borderRadius: 10,
     padding: 20,
-    alignItems: "center",
+    alignItems: "center"
   },
   input: {
     width: "100%",
@@ -555,26 +555,26 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 20,
     color: "black",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFFFF"
   },
   fullWidthDropdown: {
     width: "100%",
-    marginBottom: 20,
+    marginBottom: 20
   },
   saveButton: {
     backgroundColor: "#00397A",
     paddingVertical: 10,
     paddingHorizontal: 20,
-    borderRadius: 5,
+    borderRadius: 5
   },
   saveButtonText: {
     color: "white",
-    fontSize: 16,
+    fontSize: 16
   },
   errorText: {
     color: "red",
-    marginBottom: 10,
-  },
+    marginBottom: 10
+  }
 });
 
 export default MakeTeamModal;
