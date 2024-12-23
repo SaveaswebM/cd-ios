@@ -38,6 +38,10 @@ const MakeTeamModal = ({
   const [selectedEmployee, setSelectedEmployee] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [fetchedData, setFetchedData] = useState([]);
+<<<<<<< HEAD
+=======
+  const [members, setMembers] = useState([]);
+>>>>>>> f847fd307491f185f6155d5e441366656deb0726
   const [loading, setLoading] = useState(false);
 
   const months = [
@@ -110,7 +114,7 @@ const MakeTeamModal = ({
     if (selectedActivityType === "Monthly") {
       activityData =
         fetchedData.Monthly?.[selectedActivity]?.[selectedYear]?.[
-          selectedMonth
+        selectedMonth
         ] || [];
     } else if (selectedActivityType === "Quarterly") {
       activityData =
@@ -148,6 +152,17 @@ const MakeTeamModal = ({
   };
 
   const handleSave = async () => {
+<<<<<<< HEAD
+=======
+    setLoading(true);
+    // const fetchlist = await fetch(
+    //   `https://cd-backend-1.onrender.com/api/link-data/full-employee-list?link=${id}`
+    // );
+    // if (fetchlist) {
+    //   const dataa = fetchlist.json();
+    //   setMembers(dataa);
+    // }
+>>>>>>> f847fd307491f185f6155d5e441366656deb0726
     if (selectedActivityName && selectedActivityType) {
       setSelectedGroups([
         {
@@ -156,6 +171,7 @@ const MakeTeamModal = ({
           value: `${selectedActivityName}`
         }
       ]);
+<<<<<<< HEAD
     }
 
     if (!personName) {
@@ -167,6 +183,13 @@ const MakeTeamModal = ({
       return;
     } else if (selectedGroups.length === 0) {
       Alert.alert("Activity has not been selected");
+=======
+      // console.log(selectedGroups);
+    }
+    if (!personName || !selectedCompanyName || selectedGroups.length === 0) {
+      setErrorMessage("Please fill out all fields.");
+      setLoading(false)
+>>>>>>> f847fd307491f185f6155d5e441366656deb0726
       return;
     }
 
@@ -307,13 +330,22 @@ const MakeTeamModal = ({
         const result = await response.json();
 
         if (response.ok) {
+<<<<<<< HEAD
           await Share.share({
             message: ` Here's the link: ${link}`
           });
+=======
+          setLoading(false);
+>>>>>>> f847fd307491f185f6155d5e441366656deb0726
           Alert.alert("Share Data Sent Successfully");
 
           await AsyncStorage.setItem("links", uId);
         } else {
+<<<<<<< HEAD
+=======
+          setLoading(false);
+          console.error(result);
+>>>>>>> f847fd307491f185f6155d5e441366656deb0726
           Alert.alert("Error", result.error || "Failed to share the link.");
         }
       } else {
@@ -321,10 +353,14 @@ const MakeTeamModal = ({
       }
     } catch (error) {
       console.error("Error sharing link:", error);
+<<<<<<< HEAD
       Alert.alert(
         "Sharing Error",
         "An error occurred while trying to share the link."
       );
+=======
+      Alert.alert("Sharing Error", "An error occurred while trying to share the link.");
+>>>>>>> f847fd307491f185f6155d5e441366656deb0726
     }
 
     onClose();
@@ -397,9 +433,11 @@ const MakeTeamModal = ({
   // };
 
   const giveAccess = async () => {
+    setLoading(true);
     try {
       setLoading(true);
 
+<<<<<<< HEAD
       if (!selectedActivityName) {
         Alert.alert("Activity is not selected");
         return;
@@ -431,6 +469,25 @@ const MakeTeamModal = ({
           label: `${selectedActivityName}`,
           type: `${selectedActivityType}`,
           value: `${selectedActivityName}`
+=======
+          const res = await response.json();
+          console.log(res);
+          if (response.ok) {
+            setLoading(false);
+            console.log("access been given");
+            setVisible(false);
+            Alert.alert("Access has been given");
+          }
+          else {
+            setLoading(false);
+            setVisible(false);
+            Alert.alert("All provided activities already exist for company Saveasweb")
+          }
+        } else {
+          setLoading(false);
+          Alert.alert("Link not found");
+          console.log("access not given");
+>>>>>>> f847fd307491f185f6155d5e441366656deb0726
         }
       ];
 
@@ -509,6 +566,7 @@ const MakeTeamModal = ({
               <Text style={styles.errorText}>{errorMessage}</Text>
             )} */}
             {selectedEmployee && (
+<<<<<<< HEAD
               <TouchableOpacity
                 style={styles.saveButton}
                 onPress={giveAccess}
@@ -519,17 +577,31 @@ const MakeTeamModal = ({
                 ) : (
                   <Text style={styles.saveButtonText}>Add Access</Text>
                 )}
+=======
+              <TouchableOpacity style={styles.saveButton} onPress={giveAccess} disabled={loading}>
+                {
+                  loading ? (
+                    <ActivityIndicator size={"small"} color={"#ffffff"} />
+                  ) : (
+                    <Text style={styles.saveButtonText}>
+                      Add Access
+                    </Text>
+                  )
+                }
+>>>>>>> f847fd307491f185f6155d5e441366656deb0726
               </TouchableOpacity>
             )}
             {!selectedEmployee && (
-              <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-                <Text style={styles.saveButtonText}>Share</Text>
+              <TouchableOpacity style={styles.saveButton} onPress={handleSave} disabled={loading}>
+                <Text style={styles.saveButtonText}>
+                      Share
+                    </Text>
               </TouchableOpacity>
             )}
           </View>
         </View>
       </TouchableWithoutFeedback>
-    </Modal>
+    </Modal >
   );
 };
 
