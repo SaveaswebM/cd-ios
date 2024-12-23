@@ -38,10 +38,7 @@ const MakeTeamModal = ({
   const [selectedEmployee, setSelectedEmployee] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [fetchedData, setFetchedData] = useState([]);
-<<<<<<< HEAD
-=======
   const [members, setMembers] = useState([]);
->>>>>>> f847fd307491f185f6155d5e441366656deb0726
   const [loading, setLoading] = useState(false);
 
   const months = [
@@ -152,8 +149,6 @@ const MakeTeamModal = ({
   };
 
   const handleSave = async () => {
-<<<<<<< HEAD
-=======
     setLoading(true);
     // const fetchlist = await fetch(
     //   `https://cd-backend-1.onrender.com/api/link-data/full-employee-list?link=${id}`
@@ -162,7 +157,6 @@ const MakeTeamModal = ({
     //   const dataa = fetchlist.json();
     //   setMembers(dataa);
     // }
->>>>>>> f847fd307491f185f6155d5e441366656deb0726
     if (selectedActivityName && selectedActivityType) {
       setSelectedGroups([
         {
@@ -171,25 +165,11 @@ const MakeTeamModal = ({
           value: `${selectedActivityName}`
         }
       ]);
-<<<<<<< HEAD
-    }
-
-    if (!personName) {
-      // setErrorMessage("Please fill out all fields.");
-      Alert.alert("Please fill out personName.");
-      return;
-    } else if (!selectedCompanyName) {
-      Alert.alert("Company Name is not selected");
-      return;
-    } else if (selectedGroups.length === 0) {
-      Alert.alert("Activity has not been selected");
-=======
       // console.log(selectedGroups);
     }
     if (!personName || !selectedCompanyName || selectedGroups.length === 0) {
       setErrorMessage("Please fill out all fields.");
       setLoading(false)
->>>>>>> f847fd307491f185f6155d5e441366656deb0726
       return;
     }
 
@@ -330,22 +310,13 @@ const MakeTeamModal = ({
         const result = await response.json();
 
         if (response.ok) {
-<<<<<<< HEAD
-          await Share.share({
-            message: ` Here's the link: ${link}`
-          });
-=======
           setLoading(false);
->>>>>>> f847fd307491f185f6155d5e441366656deb0726
           Alert.alert("Share Data Sent Successfully");
 
           await AsyncStorage.setItem("links", uId);
         } else {
-<<<<<<< HEAD
-=======
           setLoading(false);
           console.error(result);
->>>>>>> f847fd307491f185f6155d5e441366656deb0726
           Alert.alert("Error", result.error || "Failed to share the link.");
         }
       } else {
@@ -353,14 +324,7 @@ const MakeTeamModal = ({
       }
     } catch (error) {
       console.error("Error sharing link:", error);
-<<<<<<< HEAD
-      Alert.alert(
-        "Sharing Error",
-        "An error occurred while trying to share the link."
-      );
-=======
       Alert.alert("Sharing Error", "An error occurred while trying to share the link.");
->>>>>>> f847fd307491f185f6155d5e441366656deb0726
     }
 
     onClose();
@@ -437,172 +401,125 @@ const MakeTeamModal = ({
     try {
       setLoading(true);
 
-<<<<<<< HEAD
-      if (!selectedActivityName) {
-        Alert.alert("Activity is not selected");
-        return;
-      }
-
-      if (!selectedCompanyName) {
-        Alert.alert("Company Name is not selected");
-        return;
-      }
-
-      if (!selectedActivityType) {
-        Alert.alert("Company Name and Activity are not selected");
-        return;
-      }
-      if (!selectedEmployee) {
-        Alert.alert("employee is not selected");
-        return;
-      }
-
-      const id = await AsyncStorage.getItem("links");
-      if (!id) {
-        Alert.alert("Link not found");
-        console.log("AsyncStorage did not return a valid link.");
-        return;
-      }
-
-      const selectedGroups = [
-        {
-          label: `${selectedActivityName}`,
-          type: `${selectedActivityType}`,
-          value: `${selectedActivityName}`
-=======
-          const res = await response.json();
-          console.log(res);
-          if (response.ok) {
-            setLoading(false);
-            console.log("access been given");
-            setVisible(false);
-            Alert.alert("Access has been given");
-          }
-          else {
-            setLoading(false);
-            setVisible(false);
-            Alert.alert("All provided activities already exist for company Saveasweb")
-          }
-        } else {
-          setLoading(false);
-          Alert.alert("Link not found");
-          console.log("access not given");
->>>>>>> f847fd307491f185f6155d5e441366656deb0726
-        }
-      ];
-
-      const payload = {
-        link: id,
-        employeeName: selectedEmployee.label,
-        companyName: selectedCompanyName,
-        activityName: selectedGroups
-      };
-
-      console.log("Payload:", JSON.stringify(payload));
-
-      const response = await fetch(
-        "https://cd-backend-1.onrender.com/api/link-data/modify-access",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        }
-      );
-
       const res = await response.json();
-      console.log("Response:", res);
-
+      console.log(res);
       if (response.ok) {
         setLoading(false);
         console.log("access been given");
         setVisible(false);
         Alert.alert("Access has been given");
-      } else {
+      }
+      else {
         setLoading(false);
         setVisible(false);
-        Alert.alert(res.message);
+        Alert.alert("All provided activities already exist for company Saveasweb")
       }
-    } catch (error) {
-      // console.error("Error in giveAccess:", error);
-      Alert.alert("Please try again.");
-    } finally {
+    } else {
       setLoading(false);
+      Alert.alert("Link not found");
+      console.log("access not given");
     }
+      ];
+
+const payload = {
+  link: id,
+  employeeName: selectedEmployee.label,
+  companyName: selectedCompanyName,
+  activityName: selectedGroups
+};
+
+console.log("Payload:", JSON.stringify(payload));
+
+const response = await fetch(
+  "https://cd-backend-1.onrender.com/api/link-data/modify-access",
+  {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  }
+);
+
+const res = await response.json();
+console.log("Response:", res);
+
+if (response.ok) {
+  setLoading(false);
+  console.log("access been given");
+  setVisible(false);
+  Alert.alert("Access has been given");
+} else {
+  setLoading(false);
+  setVisible(false);
+  Alert.alert(res.message);
+}
+    } catch (error) {
+  // console.error("Error in giveAccess:", error);
+  Alert.alert("Please try again.");
+} finally {
+  setLoading(false);
+}
   };
 
-  return (
-    <Modal
-      transparent
-      visible={visible}
-      animationType="slide"
-      onRequestClose={onClose}
-    >
-      <TouchableWithoutFeedback onPress={onClose}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <SingleSelect
-              options={members}
-              onSelect={setSelectedEmployee}
-              selectedItem={selectedEmployee}
-              placeholder="Select Existing Member"
-              style={styles.fullWidthDropdown}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Enter Person Name"
-              placeholderTextColor="#000"
-              value={personName}
-              onChangeText={setPersonName}
-            />
+return (
+  <Modal
+    transparent
+    visible={visible}
+    animationType="slide"
+    onRequestClose={onClose}
+  >
+    <TouchableWithoutFeedback onPress={onClose}>
+      <View style={styles.modalOverlay}>
+        <View style={styles.modalContent}>
+          <SingleSelect
+            options={members}
+            onSelect={setSelectedEmployee}
+            selectedItem={selectedEmployee}
+            placeholder="Select Existing Member"
+            style={styles.fullWidthDropdown}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Enter Person Name"
+            placeholderTextColor="#000"
+            value={personName}
+            onChangeText={setPersonName}
+          />
 
-            {/* <MultiSelect
+          {/* <MultiSelect
               options={members}
               onSelect={setSelectedGroups}
               selectedItems={selectedGroups}
               placeholder="Select Activities"
               style={styles.fullWidthDropdown}
             /> */}
-            {/* {errorMessage && (
+          {/* {errorMessage && (
               <Text style={styles.errorText}>{errorMessage}</Text>
             )} */}
-            {selectedEmployee && (
-<<<<<<< HEAD
-              <TouchableOpacity
-                style={styles.saveButton}
-                onPress={giveAccess}
-                disabled={loading}
-              >
-                {loading ? (
+          {selectedEmployee && (
+            <TouchableOpacity style={styles.saveButton} onPress={giveAccess} disabled={loading}>
+              {
+                loading ? (
                   <ActivityIndicator size={"small"} color={"#ffffff"} />
                 ) : (
-                  <Text style={styles.saveButtonText}>Add Access</Text>
-                )}
-=======
-              <TouchableOpacity style={styles.saveButton} onPress={giveAccess} disabled={loading}>
-                {
-                  loading ? (
-                    <ActivityIndicator size={"small"} color={"#ffffff"} />
-                  ) : (
-                    <Text style={styles.saveButtonText}>
-                      Add Access
-                    </Text>
-                  )
-                }
->>>>>>> f847fd307491f185f6155d5e441366656deb0726
-              </TouchableOpacity>
-            )}
-            {!selectedEmployee && (
-              <TouchableOpacity style={styles.saveButton} onPress={handleSave} disabled={loading}>
-                <Text style={styles.saveButtonText}>
-                      Share
-                    </Text>
-              </TouchableOpacity>
-            )}
-          </View>
+                  <Text style={styles.saveButtonText}>
+                    Add Access
+                  </Text>
+                )
+              }
+            </TouchableOpacity>
+          )}
+          {!selectedEmployee && (
+            <TouchableOpacity style={styles.saveButton} onPress={handleSave} disabled={loading}>
+              <Text style={styles.saveButtonText}>
+                Share
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
-      </TouchableWithoutFeedback>
-    </Modal >
-  );
+      </View>
+    </TouchableWithoutFeedback>
+  </Modal >
+);
 };
 
 const styles = StyleSheet.create({
