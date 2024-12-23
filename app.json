@@ -19,6 +19,7 @@
       }
     },
     "android": {
+
       "versionCode": 18,
       "adaptiveIcon": {
         "foregroundImage": "./assets/icon.png",

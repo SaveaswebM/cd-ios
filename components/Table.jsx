@@ -51,7 +51,7 @@ const MyTable = ({
     "Preferred Date",
   ];
   const columnWidths = [
-    screenWidth * 0.38,
+    screenWidth * 0.39,
     screenWidth * 0.18,
     screenWidth * 0.22,
     screenWidth * 0.2,
@@ -926,9 +926,9 @@ const styles = StyleSheet.create({
   },
   headText: {
     fontWeight: "bold",
-    fontSize: 14,
+    fontSize: 10,
     textAlign: "center",
-    padding: 2,
+    padding: 1,
     color: "#fff",
   },
   blinkingCell: {
